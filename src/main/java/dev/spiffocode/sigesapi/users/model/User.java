@@ -18,6 +18,12 @@ import java.time.LocalDateTime;
 @ToString
 @EqualsAndHashCode
 @Audited
+@Table(name = "app_users", indexes = {
+        @Index(columnList = "email"),
+        @Index(columnList = "phone_number"),
+        @Index(columnList = "first_name, last_name"),
+        @Index(columnList = "deleted_at")
+})
 @SoftDelete(
         strategy = SoftDeleteType.TIMESTAMP,
         columnName = "deleted_at")

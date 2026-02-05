@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.users.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,5 +12,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Table(name = "user_admins")
 public class Admin extends User {
 }
