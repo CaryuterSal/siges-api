@@ -1,10 +1,39 @@
+version: "3.9"
+
 services:
-  mysql:
-    image: 'mysql:latest'
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: siges-postgres
     environment:
-      - 'MYSQL_DATABASE=mydatabase'
-      - 'MYSQL_PASSWORD=secret'
-      - 'MYSQL_ROOT_PASSWORD=verysecret'
-      - 'MYSQL_USER=myuser'
+      POSTGRES_DB: siges
+      POSTGRES_USER: siges
+      POSTGRES_PASSWORD: siges123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     ports:
-      - '3306'
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U siges"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: caryutersal/siges-api:main
+    container_name: siges-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/siges
+      SPRING_DATASOURCE_USERNAME: siges
+      SPRING_DATASOURCE_PASSWORD: siges123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+
+volumes:
+  postgres_data:
