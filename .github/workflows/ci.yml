@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - name: setup jdk
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
           distribution: corretto
           java-version: 21
@@ -29,10 +29,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
 
       - name: setup jdk
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v5
         with:
           distribution: corretto
           java-version: 21
@@ -40,10 +40,10 @@ jobs:
       - name: build image
         run: |
           TAG=${{ github.ref_name }}
-          ./gradlew bootBuildImage --imageName=${{ secrets.DOCKER_HUB_USERNAME }}/siges-api:$TAG
+          ./gradlew bootBuildImage --imageName=${{ vars.DOCKER_HUB_USERNAME }}/siges-api:$TAG
 
       - name: login docker
-        run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+        run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u ${{ vars.DOCKER_HUB_USERNAME }} --password-stdin
 
       - name: push image
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/siges-api:${{ github.ref_name }}
+        run: docker push ${{ vars.DOCKER_HUB_USERNAME }}/siges-api:${{ github.ref_name }}
