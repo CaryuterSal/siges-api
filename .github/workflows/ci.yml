@@ -7,7 +7,7 @@ on:
     branches: [ main, dev ]
 
 jobs:
-  build-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,11 +23,27 @@ jobs:
       - name: run tests
         run: ./gradlew clean test
 
-      - name: build image with buildpacks
-        run: ./gradlew bootBuildImage --imageName=${{ secrets.DOCKER_HUB_USERNAME }}/siges-api:latest
+  deploy:
+    needs: build
+    if: github.event_name == 'push'   # ❗ solo push, no PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: setup jdk
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: 21
+
+      - name: build image
+        run: |
+          TAG=${{ github.ref_name }}
+          ./gradlew bootBuildImage --imageName=${{ secrets.DOCKER_HUB_USERNAME }}/siges-api:$TAG
 
       - name: login docker
         run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
 
       - name: push image
-        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/siges-api:latest
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/siges-api:${{ github.ref_name }}
