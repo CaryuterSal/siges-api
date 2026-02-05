@@ -1,0 +1,57 @@
+package dev.spiffocode.sigesapi.users.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Pattern;
+import lombok.*;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
+import org.hibernate.envers.Audited;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@Audited
+@SoftDelete(
+        strategy = SoftDeleteType.TIMESTAMP,
+        columnName = "deleted_at")
+@Inheritance(strategy = InheritanceType.JOINED)
+public class User {
+
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Email
+    @Column(nullable = false, unique = true)
+    private String email;
+
+    @Pattern(regexp = "^(\\+\\d{1,2}\\s?)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$")
+    @Column(nullable = false)
+    private String phoneNumber;
+
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    @Column(nullable = false)
+    @Past
+    private LocalDate birthDate;
+
+    @Column(nullable = false)
+    private String password;
+
+    private LocalDateTime lastLogin;
+
+    private LocalDateTime deletedAt;
+
+}
