@@ -1,0 +1,17 @@
+services:
+
+  postgres:
+    container_name: siges-postgres-dev
+    environment:
+      POSTGRES_DB: siges
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    container_name: siges-redis-dev
+    ports:
+      - "6379"
