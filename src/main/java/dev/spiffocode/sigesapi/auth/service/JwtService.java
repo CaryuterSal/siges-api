@@ -4,30 +4,34 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import dev.spiffocode.sigesapi.config.JwtProperties;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Service
 public class JwtService {
 
     private final Algorithm algorithm;
     private final JWTVerifier verifier;
+    private final JwtProperties jwtProperties;
 
-    private final long accessExpiration;
-    private final long refreshExpiration;
 
+    @Autowired
     public JwtService(
-            @Value("${security.jwt.secret}") String secret,
-            @Value("${security.jwt.access.expiration}") long accessExpiration,
-            @Value("${security.jwt.refresh.expiration}") long refreshExpiration
+            JwtProperties jwtProperties,
+            Environment env
     ) {
-        this.algorithm = Algorithm.HMAC256(secret);
+        log.debug("Creating JWT Service with properties -- {}", jwtProperties);
+        this.algorithm = Algorithm.HMAC256(jwtProperties.getSecret());
         this.verifier = JWT.require(algorithm).build();
-        this.accessExpiration = accessExpiration;
-        this.refreshExpiration = refreshExpiration;
+        this.jwtProperties = jwtProperties;
     }
 
     public String generateAccessToken(String username, List<String> roles) {
@@ -37,7 +41,7 @@ public class JwtService {
                 .withClaim("roles", roles)
                 .withClaim("type", "access")
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + accessExpiration))
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getAccessExpiration()))
                 .sign(algorithm);
     }
 
@@ -47,7 +51,7 @@ public class JwtService {
                 .withSubject(username)
                 .withClaim("type", "refresh")
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + refreshExpiration))
+                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getRefreshExpiration()))
                 .sign(algorithm);
     }
 

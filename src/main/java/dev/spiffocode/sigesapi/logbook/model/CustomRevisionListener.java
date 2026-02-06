@@ -16,17 +16,16 @@ import java.util.function.Supplier;
 @RequiredArgsConstructor
 public class CustomRevisionListener {
 
-    private final Supplier<Optional<HttpServletRequest>> requestInfoSupplier;
+    private HttpServletRequest requestInfoSupplier;
 
     @PrePersist
     private void onPersist(CustomRevisionEntity entity) {
-        var info = requestInfoSupplier.get();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (info.isEmpty() || authentication == null || authentication.getPrincipal() == null) {
+        if ( authentication == null || authentication.getPrincipal() == null) {
             return;
         }
 
-        entity.setRemoteHost(info.get().getRemoteHost());
+        entity.setRemoteHost(requestInfoSupplier.getRemoteHost());
         entity.setRemoteUser(authentication.getPrincipal().toString());
     }
 }

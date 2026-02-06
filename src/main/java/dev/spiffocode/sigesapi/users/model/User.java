@@ -63,8 +63,6 @@ public abstract class User implements UserDetails {
 
     private LocalDateTime lastLogin;
 
-    private LocalDateTime deletedAt;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         String authority = RoleAuthority.fromClazz(getClass()).getAuthority();
@@ -75,10 +73,5 @@ public abstract class User implements UserDetails {
     @Override
     public @NonNull String getUsername() {
         return email;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return deletedAt == null;
     }
 }
