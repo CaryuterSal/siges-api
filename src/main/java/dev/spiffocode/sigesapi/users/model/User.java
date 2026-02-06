@@ -8,9 +8,14 @@ import lombok.*;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;
 import org.hibernate.envers.Audited;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,7 +33,7 @@ import java.time.LocalDateTime;
         strategy = SoftDeleteType.TIMESTAMP,
         columnName = "deleted_at")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class User {
+public abstract class User implements UserDetails {
 
 
     @Id
@@ -60,4 +65,20 @@ public class User {
 
     private LocalDateTime deletedAt;
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String authority = RoleAuthority.fromClazz(getClass()).getAuthority();
+        SimpleGrantedAuthority roleAuthority = new SimpleGrantedAuthority(authority);
+        return List.of(roleAuthority);
+    }
+
+    @Override
+    public @NonNull String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return deletedAt == null;
+    }
 }
