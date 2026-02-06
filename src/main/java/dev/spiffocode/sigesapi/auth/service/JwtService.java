@@ -7,7 +7,6 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -17,24 +16,41 @@ public class JwtService {
     private final Algorithm algorithm;
     private final JWTVerifier verifier;
 
-    @Value("${security.jwt.expiration}")
-    private long expiration;
+    private final long accessExpiration;
+    private final long refreshExpiration;
 
-    public JwtService(@Value("${security.jwt.secret}") String secret) {
+    public JwtService(
+            @Value("${security.jwt.secret}") String secret,
+            @Value("${security.jwt.access.expiration}") long accessExpiration,
+            @Value("${security.jwt.refresh.expiration}") long refreshExpiration
+    ) {
         this.algorithm = Algorithm.HMAC256(secret);
         this.verifier = JWT.require(algorithm).build();
+        this.accessExpiration = accessExpiration;
+        this.refreshExpiration = refreshExpiration;
     }
 
-    public String generateToken(String username, List<String> roles) {
+    public String generateAccessToken(String username, List<String> roles) {
 
         return JWT.create()
                 .withSubject(username)
                 .withClaim("roles", roles)
-                .withJWTId()
+                .withClaim("type", "access")
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + expiration))
+                .withExpiresAt(new Date(System.currentTimeMillis() + accessExpiration))
                 .sign(algorithm);
     }
+
+    public String generateRefreshToken(String username) {
+
+        return JWT.create()
+                .withSubject(username)
+                .withClaim("type", "refresh")
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + refreshExpiration))
+                .sign(algorithm);
+    }
+
 
     public DecodedJWT validate(String token) {
         return verifier.verify(token);
@@ -46,5 +62,13 @@ public class JwtService {
 
     public List<String> extractRoles(String token) {
         return validate(token).getClaim("roles").asList(String.class);
+    }
+
+    public boolean isAccessToken(String token) {
+        return "access".equals(validate(token).getClaim("type").asString());
+    }
+
+    public boolean isRefreshToken(String token) {
+        return "refresh".equals(validate(token).getClaim("type").asString());
     }
 }

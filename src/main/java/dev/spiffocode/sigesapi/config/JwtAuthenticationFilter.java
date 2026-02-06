@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.config;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.spiffocode.sigesapi.auth.service.JwtService;
+import dev.spiffocode.sigesapi.auth.service.TokenBlacklistService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final TokenBlacklistService  tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(
@@ -41,6 +43,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String token = header.substring(7);
+
+            if (!jwtService.isAccessToken(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            if (tokenBlacklistService.isBlacklisted(token)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             DecodedJWT jwt = jwtService.validate(token);
 
