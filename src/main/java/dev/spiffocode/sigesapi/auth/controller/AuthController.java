@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.auth.controller;
 
 import dev.spiffocode.sigesapi.auth.controller.dto.*;
 import dev.spiffocode.sigesapi.auth.service.JwtAuthService;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,19 +16,19 @@ public class AuthController {
     private final JwtAuthService authService;
 
     @PostMapping("/login")
-    public AuthenticatedResponse login(@RequestBody LoginRequest req) {
+    public AuthenticatedResponse login(@RequestBody @Valid LoginRequest req) {
         return authService.login(req);
     }
 
     @PostMapping("/refresh")
-    public RefreshResponse refresh(@RequestBody RefreshRequest req){
+    public RefreshResponse refresh(@RequestBody @Valid RefreshRequest req){
         return authService.refresh(req);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<@NonNull Void> logout(
             @RequestHeader("Authorization") String header,
-            @RequestBody LogoutRequest logoutRequest){
+            @RequestBody @Valid  LogoutRequest logoutRequest){
 
         String access = header.substring(7);
         authService.logout(access,  logoutRequest);

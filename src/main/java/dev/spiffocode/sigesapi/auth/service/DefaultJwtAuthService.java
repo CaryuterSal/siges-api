@@ -39,7 +39,12 @@ public class DefaultJwtAuthService implements JwtAuthService {
         String accessToken = jwtService.generateAccessToken(user.getUsername(), roles);
         String refreshToken = jwtService.generateRefreshToken(user.getUsername());
 
-        return new AuthenticatedResponse(accessToken, refreshToken);
+        String role = user.getAuthorities().stream()
+                .filter(a -> a.getAuthority().startsWith("ROLE_"))
+                .map(a -> a.getAuthority().substring(5))
+                .findFirst().get();
+
+        return new AuthenticatedResponse(accessToken, refreshToken, role, user.getAuthorities());
     }
 
     @Override

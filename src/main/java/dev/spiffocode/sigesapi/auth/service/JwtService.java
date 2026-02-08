@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.util.Date;
 import java.util.List;
 
@@ -21,15 +22,17 @@ public class JwtService {
     private final Algorithm algorithm;
     private final JWTVerifier verifier;
     private final JwtProperties jwtProperties;
+    private final Clock clock;
 
 
     @Autowired
     public JwtService(
-            JwtProperties jwtProperties
+            JwtProperties jwtProperties, Clock clock
     ) {
+        this.clock = clock;
         log.debug("Creating JWT Service with properties -- {}", jwtProperties);
         this.algorithm = Algorithm.HMAC256(jwtProperties.getSecret());
-        this.verifier = JWT.require(algorithm).build();
+        this.verifier = ((com.auth0.jwt.JWTVerifier.BaseVerification) JWT.require(algorithm)).build(clock);
         this.jwtProperties = jwtProperties;
     }
 
@@ -39,8 +42,8 @@ public class JwtService {
                 .withSubject(email)
                 .withClaim("roles", roles)
                 .withClaim("type", "access")
-                .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getAccessExpiration()))
+                .withIssuedAt(clock.instant())
+                .withExpiresAt(new Date(clock.millis() + jwtProperties.getAccessExpiration()))
                 .sign(algorithm);
     }
 
@@ -49,11 +52,10 @@ public class JwtService {
         return JWT.create()
                 .withSubject(email)
                 .withClaim("type", "refresh")
-                .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getRefreshExpiration()))
+                .withIssuedAt(clock.instant())
+                .withExpiresAt(new Date(clock.millis() + jwtProperties.getRefreshExpiration()))
                 .sign(algorithm);
     }
-
 
     public DecodedJWT validate(String token) {
         return verifier.verify(token);

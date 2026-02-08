@@ -7,28 +7,38 @@ import dev.spiffocode.sigesapi.auth.service.JwtService;
 import dev.spiffocode.sigesapi.config.JwtProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.mock.env.MockEnvironment;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Import;
 
-import java.time.Duration;
+import java.time.*;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @UnitTestClass
+@Import(JwtService.class)
 class JwtServiceTest {
 
+    private JwtProperties props;
+    private Clock fixedClock;
     private JwtService jwt;
 
     @BeforeEach
     void setup() {
 
-        JwtProperties props = new JwtProperties();
+        props = new JwtProperties();
         props.setSecret("super-secret-test-key-123");
         props.setAccessExpiration(Duration.ofMinutes(5).toMillis());
         props.setRefreshExpiration(Duration.ofHours(1).toMillis());
 
-        jwt = new JwtService(props);
+        fixedClock = Clock.fixed(
+                Instant.parse("2026-01-01T00:00:00Z"),
+                ZoneOffset.UTC
+        );
+
+        jwt = new JwtService(props, fixedClock);
     }
+
 
     @Test
     void generateAccessToken_containsCorrectClaims() {
@@ -43,6 +53,7 @@ class JwtServiceTest {
         assertEquals("user@mail.com", decoded.getSubject());
         assertEquals("access", decoded.getClaim("type").asString());
         assertEquals(List.of("ROLE_USER"), decoded.getClaim("roles").asList(String.class));
+
         assertTrue(jwt.isAccessToken(token));
         assertFalse(jwt.isRefreshToken(token));
     }
@@ -56,24 +67,20 @@ class JwtServiceTest {
 
         assertEquals("user@mail.com", decoded.getSubject());
         assertEquals("refresh", decoded.getClaim("type").asString());
+
         assertTrue(jwt.isRefreshToken(token));
         assertFalse(jwt.isAccessToken(token));
     }
 
-
     @Test
     void extractUsername_returnsCorrectValue() {
-
         String token = jwt.generateAccessToken("mail@test.com", List.of());
-
         assertEquals("mail@test.com", jwt.extractUsername(token));
     }
 
     @Test
     void extractRoles_returnsCorrectValue() {
-
         String token = jwt.generateAccessToken("mail@test.com", List.of("A", "B"));
-
         assertEquals(List.of("A", "B"), jwt.extractRoles(token));
     }
 
@@ -99,7 +106,7 @@ class JwtServiceTest {
         otherProps.setAccessExpiration(1000L);
         otherProps.setRefreshExpiration(1000L);
 
-        JwtService other = new JwtService(otherProps);
+        JwtService other = new JwtService(otherProps, fixedClock);
 
         assertThrows(JWTVerificationException.class,
                 () -> other.validate(token));
@@ -107,20 +114,21 @@ class JwtServiceTest {
 
 
     @Test
-    void expiredToken_throws() throws InterruptedException {
+    void expiredToken_throws_withoutSleeping() {
 
         JwtProperties shortProps = new JwtProperties();
         shortProps.setSecret("secret");
-        shortProps.setAccessExpiration(5L);
-        shortProps.setRefreshExpiration(5L);
+        shortProps.setAccessExpiration(1000L);
+        shortProps.setRefreshExpiration(1000L);
 
-        JwtService shortJwt = new JwtService(shortProps);
+        JwtService shortJwt = new JwtService(shortProps, fixedClock);
 
         String token = shortJwt.generateAccessToken("user", List.of());
+        Clock advancedClock = Clock.offset(fixedClock, Duration.ofSeconds(2));
 
-        Thread.sleep(10);
+        JwtService expiredJwt = new JwtService(shortProps, advancedClock);
 
         assertThrows(JWTVerificationException.class,
-                () -> shortJwt.validate(token));
+                () -> expiredJwt.validate(token));
     }
 }
