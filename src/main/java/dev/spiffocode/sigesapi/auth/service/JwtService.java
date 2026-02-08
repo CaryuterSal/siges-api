@@ -25,8 +25,7 @@ public class JwtService {
 
     @Autowired
     public JwtService(
-            JwtProperties jwtProperties,
-            Environment env
+            JwtProperties jwtProperties
     ) {
         log.debug("Creating JWT Service with properties -- {}", jwtProperties);
         this.algorithm = Algorithm.HMAC256(jwtProperties.getSecret());
@@ -34,10 +33,10 @@ public class JwtService {
         this.jwtProperties = jwtProperties;
     }
 
-    public String generateAccessToken(String username, List<String> roles) {
+    public String generateAccessToken(String email, List<String> roles) {
 
         return JWT.create()
-                .withSubject(username)
+                .withSubject(email)
                 .withClaim("roles", roles)
                 .withClaim("type", "access")
                 .withIssuedAt(new Date())
@@ -45,10 +44,10 @@ public class JwtService {
                 .sign(algorithm);
     }
 
-    public String generateRefreshToken(String username) {
+    public String generateRefreshToken(String email) {
 
         return JWT.create()
-                .withSubject(username)
+                .withSubject(email)
                 .withClaim("type", "refresh")
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date(System.currentTimeMillis() + jwtProperties.getRefreshExpiration()))
@@ -60,6 +59,12 @@ public class JwtService {
         return verifier.verify(token);
     }
 
+    /**
+     * Extracts JWT subject from the token
+     * @param token jwt token
+     * @return subject claim
+     * @throws com.auth0.jwt.exceptions.JWTVerificationException when token is not valid
+     */
     public String extractUsername(String token) {
         return validate(token).getSubject();
     }

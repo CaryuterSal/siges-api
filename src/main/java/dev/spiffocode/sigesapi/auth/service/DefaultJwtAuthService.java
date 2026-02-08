@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.auth.service;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import dev.spiffocode.sigesapi.auth.controller.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,7 +45,7 @@ public class DefaultJwtAuthService implements JwtAuthService {
     @Override
     public RefreshResponse refresh(RefreshRequest req) {
         if (!jwtService.isRefreshToken(req.refreshToken())) {
-            throw new RuntimeException("Invalid refresh token");
+            throw new JWTVerificationException("Invalid refresh token");
         }
 
         String username = jwtService.extractUsername(req.refreshToken());
