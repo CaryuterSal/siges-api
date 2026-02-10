@@ -1,4 +1,4 @@
-package dev.codewave.sigesapi;
+package dev.spiffocode.sigesapi;
 
 import org.springframework.boot.SpringApplication;
 

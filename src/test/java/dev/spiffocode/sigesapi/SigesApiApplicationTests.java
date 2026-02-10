@@ -1,4 +1,4 @@
-package dev.codewave.sigesapi;
+package dev.spiffocode.sigesapi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
