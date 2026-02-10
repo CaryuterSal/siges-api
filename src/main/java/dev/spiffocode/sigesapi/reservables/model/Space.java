@@ -9,6 +9,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@Table(name = "spaces")
 @PrimaryKeyJoinColumn(name = "id")
 public class Space extends Reservable{
 

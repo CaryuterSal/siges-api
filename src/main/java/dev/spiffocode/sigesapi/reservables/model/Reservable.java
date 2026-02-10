@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @ToString
+@Table(name = "reservables")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Reservable {
 

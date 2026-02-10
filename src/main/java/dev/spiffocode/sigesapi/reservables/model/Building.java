@@ -9,6 +9,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@Table(name = "buildings")
 public class Building {
 
     @Id

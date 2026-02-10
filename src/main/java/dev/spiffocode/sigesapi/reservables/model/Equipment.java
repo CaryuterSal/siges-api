@@ -9,6 +9,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@Table(name = "equipments")
 @PrimaryKeyJoinColumn(name = "id")
 public class Equipment extends Reservable {
 
