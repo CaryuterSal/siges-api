@@ -19,6 +19,8 @@ public record AuthenticatedResponse(
         @Schema(examples = {"STUDENT", "ADMIN", "INSTITUTIONAL_STAFF"}, example = "STUDENT")
         @NotBlank
         String role,
+
+        @Schema(example = "[{\"authority\": \"ROLE_STUDENT\"}]")
         @NotNull
         Collection<? extends GrantedAuthority> claims) {
 }
