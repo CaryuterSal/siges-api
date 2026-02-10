@@ -6,6 +6,7 @@ import lombok.*;
 @Entity
 @Getter
 @Setter
+@ToString
 @Table(name = "space_types")
 public class SpaceType {
 

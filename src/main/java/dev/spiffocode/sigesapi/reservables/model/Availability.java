@@ -3,16 +3,19 @@ package dev.spiffocode.sigesapi.reservables.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.DayOfWeek;
 
 @Entity
 @Getter
 @Setter
+@ToString
 @Table(name = "availabilities")
 public class Availability {
 
@@ -20,27 +23,28 @@ public class Availability {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "date_from", nullable = false)
+    @Column(nullable = false)
     private LocalDate dateFrom;
 
-    @Column(name = "date_to")
+    @Column
     private LocalDate dateTo;
 
-    @Column(name = "start_time")
+    @Column
     private LocalTime startTime;
 
-    @Column(name = "end_time")
+    @Column
     private LocalTime endTime;
 
-    @Column(name = "day_of_week", nullable = false, length = 15)
-    private String dayOfWeek;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek dayOfWeek;
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at")
+    @Column
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

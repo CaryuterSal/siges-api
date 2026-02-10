@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 @Inheritance(strategy = InheritanceType.JOINED)
-@Table(name = "reservables")
 public abstract class Reservable {
 
     @Id
@@ -18,12 +17,13 @@ public abstract class Reservable {
     private Long id;
 
     @Column(nullable = false, length = 15)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private ReservableStatus status;
 
     @Column(nullable = false, length = 400)
     private String description;
 
-    @Column(name = "students_available", nullable = false)
+    @Column(nullable = false)
     private boolean studentsAvailable;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -31,7 +31,7 @@ public abstract class Reservable {
     @ToString.Exclude
     private Building building;
 
-    @Column(name = "deleted_at", nullable = true)
+    @Column
     private LocalDateTime deletedAt;
 
 }

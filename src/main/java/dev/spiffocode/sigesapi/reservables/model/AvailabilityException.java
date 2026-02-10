@@ -3,6 +3,7 @@ package dev.spiffocode.sigesapi.reservables.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,6 +14,7 @@ import java.time.LocalTime;
 @Entity
 @Getter
 @Setter
+@ToString
 @Table(name = "availability_exceptions")
 public class AvailabilityException {
 
@@ -20,27 +22,28 @@ public class AvailabilityException {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "date_from", nullable = false)
+    @Column(nullable = false)
     private LocalDate dateFrom;
 
-    @Column(name = "date_to")
+    @Column
     private LocalDate dateTo;
 
-    @Column(name = "start_time")
+    @Column
     private LocalTime startTime;
 
-    @Column(name = "end_time")
+    @Column
     private LocalTime endTime;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservable_id", nullable = false)
     private Reservable reservable;
+
 }

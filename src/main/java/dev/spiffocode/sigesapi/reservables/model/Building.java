@@ -3,11 +3,12 @@ package dev.spiffocode.sigesapi.reservables.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "buildings")
+@ToString
 public class Building {
 
     @Id
