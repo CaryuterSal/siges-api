@@ -1,5 +1,7 @@
-package dev.spiffocode.sigesapi;
+package dev.spiffocode.sigesapi.integration;
 
+import dev.spiffocode.sigesapi.SigesApiApplication;
+import dev.spiffocode.sigesapi.TestcontainersConfiguration;
 import org.springframework.boot.SpringApplication;
 
 public class TestSigesApiApplication {

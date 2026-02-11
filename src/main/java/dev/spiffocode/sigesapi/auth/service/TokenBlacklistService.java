@@ -4,27 +4,32 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.util.Date;
-
-@Service
 @RequiredArgsConstructor
+@Service
 public class TokenBlacklistService {
 
     private final StringRedisTemplate redis;
+    private final Clock clock;
 
     private static final String PREFIX = "blacklist:";
 
-    public void blacklist(String token, Date expiresAt) {
+    public void blacklist(String jti, Date expiresAt) {
 
-        long ttl = (expiresAt.getTime() - System.currentTimeMillis()) / 1000;
+        long ttlMillis = expiresAt.getTime() - clock.millis();
 
-        if (ttl > 0) {
-            redis.opsForValue().set(PREFIX + token, "1", Duration.ofSeconds(ttl));
+        if (ttlMillis > 0) {
+            redis.opsForValue().set(
+                    PREFIX + jti,
+                    "1",
+                    Duration.ofMillis(ttlMillis)
+            );
         }
     }
 
-    public boolean isBlacklisted(String token) {
-        return Boolean.TRUE.equals(redis.hasKey(PREFIX + token));
+    public boolean isBlacklisted(String jti) {
+        return Boolean.TRUE.equals(redis.hasKey(PREFIX + jti));
     }
 }

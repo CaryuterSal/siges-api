@@ -9,5 +9,4 @@ public class SigesApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(SigesApiApplication.class, args);
     }
-
 }

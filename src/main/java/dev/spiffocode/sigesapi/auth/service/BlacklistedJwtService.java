@@ -1,6 +1,8 @@
 package dev.spiffocode.sigesapi.auth.service;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import dev.spiffocode.sigesapi.auth.controller.dto.*;
+import dev.spiffocode.sigesapi.common.exceptions.JwtBlacklistedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,10 +13,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
-public class DefaultJwtAuthService implements JwtAuthService {
+public class BlacklistedJwtService implements JwtAuthService {
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
@@ -30,6 +33,7 @@ public class DefaultJwtAuthService implements JwtAuthService {
 
         UserDetails user = (UserDetails) auth.getPrincipal();
 
+        assert user != null;
         List<String> roles = user.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
@@ -38,13 +42,22 @@ public class DefaultJwtAuthService implements JwtAuthService {
         String accessToken = jwtService.generateAccessToken(user.getUsername(), roles);
         String refreshToken = jwtService.generateRefreshToken(user.getUsername());
 
-        return new AuthenticatedResponse(accessToken, refreshToken);
+        String role = user.getAuthorities().stream()
+                .filter(a -> Objects.requireNonNull(a.getAuthority()).startsWith("ROLE_"))
+                .map(a -> a.getAuthority().substring(5))
+                .findFirst().orElse("ROLE_USER");
+
+        return new AuthenticatedResponse(accessToken, refreshToken, role, user.getAuthorities());
     }
 
     @Override
     public RefreshResponse refresh(RefreshRequest req) {
         if (!jwtService.isRefreshToken(req.refreshToken())) {
-            throw new RuntimeException("Invalid refresh token");
+            throw new JWTVerificationException("Invalid refresh token");
+        }
+
+        if(blacklistService.isBlacklisted(jwtService.extractJti(req.refreshToken()))) {
+            throw new JwtBlacklistedException("Invalid refresh token");
         }
 
         String username = jwtService.extractUsername(req.refreshToken());
@@ -64,7 +77,7 @@ public class DefaultJwtAuthService implements JwtAuthService {
         var accessJwt = jwtService.validate(accessToken);
         var refreshJwt = jwtService.validate(logoutRequest.refreshToken());
 
-        blacklistService.blacklist(accessToken, accessJwt.getExpiresAt());
-        blacklistService.blacklist(logoutRequest.refreshToken(), refreshJwt.getExpiresAt());
+        blacklistService.blacklist(accessJwt.getId(), accessJwt.getExpiresAt());
+        blacklistService.blacklist(refreshJwt.getId(), refreshJwt.getExpiresAt());
     }
 }

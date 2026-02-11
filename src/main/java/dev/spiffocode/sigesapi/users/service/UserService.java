@@ -18,9 +18,9 @@ public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public @NonNull  UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email).orElseThrow(
-                () -> new UsernameNotFoundException("User not found with email: " + email)
+    public @NonNull  UserDetails loadUserByUsername(@NonNull String identifier) throws UsernameNotFoundException {
+        return userRepository.findByIdentifier(identifier).orElseThrow(
+                () -> new UsernameNotFoundException("User not found with identifier: " + identifier)
         );
     }
 }
