@@ -1,9 +1,11 @@
 package dev.spiffocode.sigesapi.config;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import dev.spiffocode.sigesapi.common.exceptions.AccessDeniedException;
 import io.swagger.v3.oas.annotations.Hidden;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +18,7 @@ import java.net.URI;
 
 @Hidden
 @RestControllerAdvice
+@Order(10)
 public class SecurityControllerAdvice {
 
     @ExceptionHandler({AuthenticationException.class, BadCredentialsException.class})
@@ -30,7 +33,7 @@ public class SecurityControllerAdvice {
         return unauthorized("Token expired");
     }
 
-    @ExceptionHandler(JWTVerificationException.class)
+    @ExceptionHandler({JWTVerificationException.class, JWTDecodeException.class})
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ProblemDetail invalid() {
         return unauthorized("Invalid token");

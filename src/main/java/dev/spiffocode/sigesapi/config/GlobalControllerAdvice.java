@@ -1,10 +1,7 @@
 package dev.spiffocode.sigesapi.config;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.NonNull;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +12,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @RestControllerAdvice
+@Order
 public class GlobalControllerAdvice extends ResponseEntityExceptionHandler {
 
     /**
@@ -43,7 +41,7 @@ public class GlobalControllerAdvice extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * 429 – Rate limiting (si usas bucket4j / gateway / etc)
+     * 429 – Rate limiting
      */
     @ExceptionHandler(HttpClientErrorException.TooManyRequests.class)
     @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)

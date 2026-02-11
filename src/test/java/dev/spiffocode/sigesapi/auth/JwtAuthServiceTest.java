@@ -1,49 +1,35 @@
 package dev.spiffocode.sigesapi.auth;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
-import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.auth.oauth2.JwtProvider;
 import dev.spiffocode.sigesapi.UnitTestClass;
 import dev.spiffocode.sigesapi.auth.controller.dto.*;
-import dev.spiffocode.sigesapi.auth.service.DefaultJwtAuthService;
-import dev.spiffocode.sigesapi.auth.service.JwtAuthService;
+import dev.spiffocode.sigesapi.auth.service.BlacklistedJwtService;
 import dev.spiffocode.sigesapi.auth.service.JwtService;
 import dev.spiffocode.sigesapi.auth.service.TokenBlacklistService;
+import dev.spiffocode.sigesapi.common.exceptions.JwtBlacklistedException;
 import dev.spiffocode.sigesapi.users.model.User;
-import dev.spiffocode.sigesapi.users.repository.UserRepository;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import static org.awaitility.Awaitility.given;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTestClass
 class JwtAuthServiceTest {
 
-    @Mock
-    UserRepository repo;
-    @Mock
-    PasswordEncoder encoder;
     @Mock
     JwtService jwtService;
     @Mock
@@ -54,7 +40,7 @@ class JwtAuthServiceTest {
     TokenBlacklistService blacklistService;
 
     @InjectMocks
-    DefaultJwtAuthService service;
+    BlacklistedJwtService service;
 
 
     @Test
@@ -103,6 +89,17 @@ class JwtAuthServiceTest {
         when(jwtService.isRefreshToken(any())).thenReturn(false);
 
         assertThrows(JWTVerificationException.class,
+                () -> service.refresh(new RefreshRequest("r"))
+        );
+    }
+
+    @Test
+    void refresh_blacklisted_fails(){
+
+        when(jwtService.isRefreshToken(any())).thenReturn(true);
+        when(blacklistService.isBlacklisted(any())).thenReturn(true);
+
+        assertThrowsExactly(JwtBlacklistedException.class,
                 () -> service.refresh(new RefreshRequest("r"))
         );
     }

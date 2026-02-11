@@ -1,11 +1,9 @@
 package dev.spiffocode.sigesapi.integration;
 
-import dev.spiffocode.sigesapi.FixedClockConfig;
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 import dev.spiffocode.sigesapi.auth.service.TokenBlacklistService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -16,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @IntegrationTestClass
-@Import(FixedClockConfig.class)
 class TokenBlacklistServiceIT {
 
     @Autowired

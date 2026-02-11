@@ -2,7 +2,6 @@ package dev.spiffocode.sigesapi.integration;
 
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 
-import dev.spiffocode.sigesapi.IntegrationTestClass;
 import dev.spiffocode.sigesapi.auth.controller.dto.AuthenticatedResponse;
 import dev.spiffocode.sigesapi.auth.controller.dto.LoginRequest;
 import dev.spiffocode.sigesapi.auth.controller.dto.RefreshRequest;
@@ -10,11 +9,16 @@ import dev.spiffocode.sigesapi.auth.service.JwtAuthService;
 import dev.spiffocode.sigesapi.users.model.Student;
 import dev.spiffocode.sigesapi.users.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
@@ -25,15 +29,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @IntegrationTestClass
 class AuthIT {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthIT.class);
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper mapper;
     @Autowired UserRepository repo;
     @Autowired PasswordEncoder encoder;
-    @Autowired
-    JwtAuthService jwtAuthService;
+    @Autowired JwtAuthService jwtAuthService;
 
-    private static final String API = "/api/auth";
+    private static final String API = "/auth";
     private static final String VERSION = "1.0.0";
+
+    @Qualifier("controllerEndpointHandlerMapping")
+    @Autowired
+    RequestMappingHandlerMapping handlerMapping;
+
+
+    @Qualifier("requestMappingHandlerMapping")
+    @Autowired
+    RequestMappingHandlerMapping mapping;
+
+    @Disabled("only used for debug")
+    @Test
+    void printMappings() {
+        log.debug("PRINTING METHODS CONTROLLER");
+        handlerMapping.getHandlerMethods().forEach((info, method) -> log.debug("{} -> {}", info, method));
+        log.debug("PRINTING REQUEST METHODS CONTROLLER");
+        mapping.getHandlerMethods().forEach((info, method) -> log.debug("{} -> {}", info, method));
+    }
+
 
     @BeforeEach
     void setup() {
@@ -67,7 +90,7 @@ class AuthIT {
                 .andExpect(jsonPath("$.role").value("STUDENT"))
                 .andExpect(jsonPath("$.claims").isArray())
                 .andExpect(jsonPath("$.claims.length()").value(1))
-                .andExpect(jsonPath("$.claims[0]").value("ROLE_STUDENT"));
+                .andExpect(jsonPath("$.claims[0].authority").value("ROLE_STUDENT"));
     }
 
     @Test
@@ -94,7 +117,7 @@ class AuthIT {
                                 """))
                 .andReturn().getResponse().getContentAsString();
 
-        String refresh = mapper.readTree(loginJson).get("refreshToken").asText();
+        String refresh = mapper.readTree(loginJson).get("refreshToken").asString();
 
         RefreshRequest request = new RefreshRequest(refresh);
         mvc.perform(post(API + "/refresh")
@@ -133,8 +156,8 @@ class AuthIT {
 
         var node = mapper.readTree(loginJson);
 
-        String access = node.get("accessToken").asText();
-        String refresh = node.get("refreshToken").asText();
+        String access = node.get("accessToken").asString();
+        String refresh = node.get("refreshToken").asString();
 
         RefreshRequest requestRefresh = new RefreshRequest(refresh);
 
