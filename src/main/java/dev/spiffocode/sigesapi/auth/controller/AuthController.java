@@ -39,6 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
+    @SecurityRequirement(name = "jwt")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "refresh success", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "401", description = "refresh fails")
