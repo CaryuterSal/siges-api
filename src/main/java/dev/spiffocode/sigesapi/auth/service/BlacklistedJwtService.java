@@ -56,7 +56,7 @@ public class BlacklistedJwtService implements JwtAuthService {
             throw new JWTVerificationException("Invalid refresh token");
         }
 
-        if(blacklistService.isBlacklisted(req.refreshToken())) {
+        if(blacklistService.isBlacklisted(jwtService.extractJti(req.refreshToken()))) {
             throw new JwtBlacklistedException("Invalid refresh token");
         }
 
@@ -77,7 +77,7 @@ public class BlacklistedJwtService implements JwtAuthService {
         var accessJwt = jwtService.validate(accessToken);
         var refreshJwt = jwtService.validate(logoutRequest.refreshToken());
 
-        blacklistService.blacklist(accessToken, accessJwt.getExpiresAt());
-        blacklistService.blacklist(logoutRequest.refreshToken(), refreshJwt.getExpiresAt());
+        blacklistService.blacklist(accessJwt.getId(), accessJwt.getExpiresAt());
+        blacklistService.blacklist(refreshJwt.getId(), refreshJwt.getExpiresAt());
     }
 }

@@ -7,13 +7,12 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import dev.spiffocode.sigesapi.config.JwtProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -38,7 +37,10 @@ public class JwtService {
 
     public String generateAccessToken(String email, List<String> roles) {
 
+        String jti = UUID.randomUUID().toString();
+
         return JWT.create()
+                .withJWTId(jti)
                 .withSubject(email)
                 .withClaim("roles", roles)
                 .withClaim("type", "access")
@@ -49,7 +51,10 @@ public class JwtService {
 
     public String generateRefreshToken(String email) {
 
+        String jti = UUID.randomUUID().toString();
+
         return JWT.create()
+                .withJWTId(jti)
                 .withSubject(email)
                 .withClaim("type", "refresh")
                 .withIssuedAt(clock.instant())
@@ -69,6 +74,10 @@ public class JwtService {
      */
     public String extractUsername(String token) {
         return validate(token).getSubject();
+    }
+
+    public String extractJti(String token) {
+        return validate(token).getId(); // <- jti
     }
 
     public List<String> extractRoles(String token) {

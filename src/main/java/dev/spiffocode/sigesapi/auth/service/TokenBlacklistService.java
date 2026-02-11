@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Date;
 @RequiredArgsConstructor
 @Service
@@ -17,20 +16,20 @@ public class TokenBlacklistService {
 
     private static final String PREFIX = "blacklist:";
 
-    public void blacklist(String token, Date expiresAt) {
+    public void blacklist(String jti, Date expiresAt) {
 
         long ttlMillis = expiresAt.getTime() - clock.millis();
 
         if (ttlMillis > 0) {
             redis.opsForValue().set(
-                    PREFIX + token,
+                    PREFIX + jti,
                     "1",
                     Duration.ofMillis(ttlMillis)
             );
         }
     }
 
-    public boolean isBlacklisted(String token) {
-        return Boolean.TRUE.equals(redis.hasKey(PREFIX + token));
+    public boolean isBlacklisted(String jti) {
+        return Boolean.TRUE.equals(redis.hasKey(PREFIX + jti));
     }
 }
