@@ -48,6 +48,7 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
+    @SecurityRequirement(name = "jwt")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "logout success", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "401", description = "auth fails")
