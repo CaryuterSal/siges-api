@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.integration;
 
+import dev.spiffocode.sigesapi.FlushedIntegrationTest;
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 
 import dev.spiffocode.sigesapi.auth.controller.dto.AuthenticatedResponse;
@@ -27,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @IntegrationTestClass
-class AuthIT {
+class AuthIT extends FlushedIntegrationTest {
 
     private static final Logger log = LoggerFactory.getLogger(AuthIT.class);
     @Autowired MockMvc mvc;
