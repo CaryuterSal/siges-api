@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface SpaceRepository extends JpaRepository<Space, Long> {
 
-    List<Space> findBySpaceTypeId(Long spaceTypeId);
+    List<Space> findByTypeId(Long spaceTypeId);
 
     List<Space> findByBuildingId(Long buildingId);
 
