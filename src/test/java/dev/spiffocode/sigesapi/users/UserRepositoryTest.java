@@ -1,16 +1,13 @@
 package dev.spiffocode.sigesapi.users;
 
 import dev.spiffocode.sigesapi.DataTestClass;
-import dev.spiffocode.sigesapi.users.model.InstitutionalStaff;
-import dev.spiffocode.sigesapi.users.model.Student;
-import dev.spiffocode.sigesapi.users.repository.UserRepository;
+import dev.spiffocode.sigesapi.users.domain.model.InstitutionalStaff;
+import dev.spiffocode.sigesapi.users.domain.model.Student;
+import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
-import org.springframework.context.annotation.Import;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDate;
 

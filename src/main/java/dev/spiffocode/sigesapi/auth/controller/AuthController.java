@@ -1,14 +1,10 @@
 package dev.spiffocode.sigesapi.auth.controller;
 
-import dev.spiffocode.sigesapi.auth.controller.dto.*;
-import dev.spiffocode.sigesapi.auth.service.JwtAuthService;
+import dev.spiffocode.sigesapi.auth.presentation.*;
+import dev.spiffocode.sigesapi.auth.application.service.JwtAuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.responses.FailedApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,7 +51,7 @@ public class AuthController {
     })
     public ResponseEntity<@NonNull Void> logout(
             @RequestHeader("Authorization") String header,
-            @RequestBody @Valid  LogoutRequest logoutRequest){
+            @RequestBody @Valid LogoutRequest logoutRequest){
 
         String access = header.substring(7);
         authService.logout(access,  logoutRequest);

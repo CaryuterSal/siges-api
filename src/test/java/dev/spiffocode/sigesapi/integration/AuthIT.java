@@ -3,12 +3,12 @@ package dev.spiffocode.sigesapi.integration;
 import dev.spiffocode.sigesapi.FlushedIntegrationTest;
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 
-import dev.spiffocode.sigesapi.auth.controller.dto.AuthenticatedResponse;
-import dev.spiffocode.sigesapi.auth.controller.dto.LoginRequest;
-import dev.spiffocode.sigesapi.auth.controller.dto.RefreshRequest;
-import dev.spiffocode.sigesapi.auth.service.JwtAuthService;
-import dev.spiffocode.sigesapi.users.model.Student;
-import dev.spiffocode.sigesapi.users.repository.UserRepository;
+import dev.spiffocode.sigesapi.auth.presentation.AuthenticatedResponse;
+import dev.spiffocode.sigesapi.auth.presentation.LoginRequest;
+import dev.spiffocode.sigesapi.auth.presentation.RefreshRequest;
+import dev.spiffocode.sigesapi.auth.application.service.JwtAuthService;
+import dev.spiffocode.sigesapi.users.domain.model.Student;
+import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
