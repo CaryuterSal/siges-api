@@ -8,7 +8,6 @@ import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.LocalDate;
 
@@ -98,9 +97,7 @@ class UserRepositoryTest {
                 .employeeNumber("EMP1")
                 .build();
 
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            repo.save(st);
-        });
+        assertThrows(DataIntegrityViolationException.class, () -> repo.save(st));
     }
 
     @Test
@@ -118,9 +115,7 @@ class UserRepositoryTest {
                 .employeeNumber("EMP1")
                 .build();
 
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            repo.save(st);
-        });
+        assertThrows(DataIntegrityViolationException.class, () -> repo.save(st));
     }
 
     @Test
@@ -136,9 +131,7 @@ class UserRepositoryTest {
                 .password("x")
                 .registrationNumber(s1.getRegistrationNumber())
                 .build();
-        assertThrows(ConstraintViolationException.class, () -> {
-            repo.save(s);
-        });
+        assertThrows(ConstraintViolationException.class, () -> repo.save(s));
     }
 
     @Test
@@ -156,9 +149,7 @@ class UserRepositoryTest {
                 .employeeNumber(s1.getEmployeeNumber())
                 .build();
 
-        assertThrows(ConstraintViolationException.class, () -> {
-            repo.save(st);
-        });
+        assertThrows(ConstraintViolationException.class, () -> repo.save(st));
     }
 
 }

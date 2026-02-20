@@ -2,13 +2,14 @@ package dev.spiffocode.sigesapi.reservables.domain.repository;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
+import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface SpaceRepository extends JpaRepository<Space, Long> {
+public interface SpaceRepository extends JpaRepository<@NonNull Space, @NonNull Long> {
 
     List<Space> findByTypeId(Long spaceTypeId);
 

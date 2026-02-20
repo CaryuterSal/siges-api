@@ -14,7 +14,6 @@ import org.hibernate.annotations.SoftDeleteType;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -108,7 +107,7 @@ public abstract class User implements UserDetails {
 
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
+    public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
         String authority = RoleAuthority.fromClazz(getClass()).getAuthority();
         SimpleGrantedAuthority roleAuthority = new SimpleGrantedAuthority(authority);
         return List.of(roleAuthority);

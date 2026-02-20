@@ -1,13 +1,11 @@
 package dev.spiffocode.sigesapi.reservations.domain.model;
 
 
-import dev.spiffocode.sigesapi.reservables.domain.model.Reservable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.DayOfWeek;
 
