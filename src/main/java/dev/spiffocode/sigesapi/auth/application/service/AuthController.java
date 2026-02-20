@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @ExternalDocumentation(url = "https://www.jwt.io/", description = "Uso de JWT")
 public class AuthController {
 
-    private final JwtAuthService authService;
+    private final BearerAuthService authService;
 
 
     @PostMapping("/login")
@@ -29,8 +30,8 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "auth success", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "401", description = "auth fails")
     })
-    public AuthenticatedResponse login(@RequestBody @Valid LoginRequest req) {
-        return authService.login(req);
+    public AuthenticatedResponse login(@RequestBody @Valid LoginRequest body, HttpServletRequest request) {
+        return authService.login(body, request.getRemoteAddr());
     }
 
     @PostMapping("/refresh")

@@ -2,9 +2,9 @@ package dev.spiffocode.sigesapi.auth.application.service;
 
 import dev.spiffocode.sigesapi.auth.presentation.*;
 
-public interface JwtAuthService {
+public interface BearerAuthService {
 
-    AuthenticatedResponse login(LoginRequest request);
+    AuthenticatedResponse login(LoginRequest request, String requestIp);
 
     RefreshResponse refresh(RefreshRequest refreshToken);
 

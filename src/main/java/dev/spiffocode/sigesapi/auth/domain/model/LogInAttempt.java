@@ -8,16 +8,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Immutable;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 
+@Immutable
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Table(name = "log_in_attempts")
+@EntityListeners(AuditingEntityListener.class)
 @Entity
 public class LogInAttempt {
 
@@ -29,6 +34,7 @@ public class LogInAttempt {
     @Column(nullable = false, updatable = false)
     private String username;
 
+    @CreatedDate
     @NotNull
     @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;

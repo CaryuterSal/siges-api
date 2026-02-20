@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.common.infrastructure.exceptions;
+package dev.spiffocode.sigesapi.auth.domain.exception;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 

@@ -4,10 +4,10 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.spiffocode.sigesapi.UnitTestClass;
 import dev.spiffocode.sigesapi.auth.presentation.*;
-import dev.spiffocode.sigesapi.auth.infrastructure.BlacklistedJwtService;
+import dev.spiffocode.sigesapi.auth.infrastructure.BlacklistedJwtAuthService;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.auth.infrastructure.TokenBlacklistService;
-import dev.spiffocode.sigesapi.common.infrastructure.exceptions.JwtBlacklistedException;
+import dev.spiffocode.sigesapi.auth.domain.exception.JwtBlacklistedException;
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @UnitTestClass
-class JwtAuthServiceTest {
+class BearerAuthServiceTest {
 
     @Mock
     JwtService jwtService;
@@ -39,7 +39,7 @@ class JwtAuthServiceTest {
     TokenBlacklistService blacklistService;
 
     @InjectMocks
-    BlacklistedJwtService service;
+    BlacklistedJwtAuthService service;
 
 
     @Test
@@ -53,7 +53,7 @@ class JwtAuthServiceTest {
         when(authManager.authenticate(any())).thenReturn(authentication);
         when(jwtService.generateAccessToken(anyString(), any())).thenReturn("access");
         when(jwtService.generateRefreshToken(anyString())).thenReturn("refresh");
-        AuthenticatedResponse res = service.login(req);
+        AuthenticatedResponse res = service.login(req, "197.168.1.1");
 
         assertEquals("access", res.accessToken());
         assertEquals("refresh", res.refreshToken());
@@ -63,7 +63,7 @@ class JwtAuthServiceTest {
     void login_userNotFound_throws() {
         when(authManager.authenticate(any())).thenThrow(BadCredentialsException.class);
         assertThrows(BadCredentialsException.class,
-                () -> service.login(new LoginRequest("x", "x")));
+                () -> service.login(new LoginRequest("x", "x"), "197.168.1.1"));
     }
 
 

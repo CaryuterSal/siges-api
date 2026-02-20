@@ -6,7 +6,7 @@ import dev.spiffocode.sigesapi.IntegrationTestClass;
 import dev.spiffocode.sigesapi.auth.presentation.AuthenticatedResponse;
 import dev.spiffocode.sigesapi.auth.presentation.LoginRequest;
 import dev.spiffocode.sigesapi.auth.presentation.RefreshRequest;
-import dev.spiffocode.sigesapi.auth.application.service.JwtAuthService;
+import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
 import dev.spiffocode.sigesapi.users.domain.model.Student;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +35,8 @@ class AuthIT extends FlushedIntegrationTest {
     @Autowired ObjectMapper mapper;
     @Autowired UserRepository repo;
     @Autowired PasswordEncoder encoder;
-    @Autowired JwtAuthService jwtAuthService;
+    @Autowired
+    BearerAuthService bearerAuthService;
 
     private static final String API = "/auth";
     private static final String VERSION = "1.0.0";
@@ -188,7 +189,7 @@ class AuthIT extends FlushedIntegrationTest {
     @Test
     void logout_invalidBody_returns400_problemDetail() throws Exception {
 
-        AuthenticatedResponse authenticatedResponse = jwtAuthService.login(new LoginRequest("user@mail.com", "123456"));
+        AuthenticatedResponse authenticatedResponse = bearerAuthService.login(new LoginRequest("user@mail.com", "123456"), "197.168.1.1");
         mvc.perform(post(API + "/logout")
                         .header("X-API-Version", VERSION)
                         .header("Authorization", "Bearer " + authenticatedResponse.accessToken())
