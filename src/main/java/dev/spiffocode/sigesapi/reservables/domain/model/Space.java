@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.reservables.model;
+package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;

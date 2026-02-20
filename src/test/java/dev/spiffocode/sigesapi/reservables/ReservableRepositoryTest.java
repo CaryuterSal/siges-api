@@ -1,11 +1,11 @@
 package dev.spiffocode.sigesapi.reservables;
 
 import dev.spiffocode.sigesapi.DataTestClass;
-import dev.spiffocode.sigesapi.reservables.model.*;
-import dev.spiffocode.sigesapi.reservables.repository.BuildingRepository;
-import dev.spiffocode.sigesapi.reservables.repository.ReservableRepository;
-import dev.spiffocode.sigesapi.reservables.repository.SpaceRepository;
-import dev.spiffocode.sigesapi.reservables.repository.SpaceTypeRepository;
+import dev.spiffocode.sigesapi.reservables.domain.model.*;
+import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.ReservableRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceTypeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

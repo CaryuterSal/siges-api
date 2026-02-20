@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.reservables.model;
+package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -10,14 +10,13 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.DayOfWeek;
 
 @Entity
 @Getter
 @Setter
 @ToString
-@Table(name = "availabilities")
-public class Availability {
+@Table(name = "availability_exceptions")
+public class AvailabilityException {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,19 +34,15 @@ public class Availability {
     @Column
     private LocalTime endTime;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private DayOfWeek dayOfWeek;
-
     @CreationTimestamp
-    @Column
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column
+    @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "reservable_id", nullable = false)
     private Reservable reservable;
 

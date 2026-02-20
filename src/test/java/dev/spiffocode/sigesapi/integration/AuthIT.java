@@ -63,14 +63,15 @@ class AuthIT extends FlushedIntegrationTest {
     void setup() {
         repo.deleteAll();
 
-        Student s = new Student();
-        s.setEmail("user@mail.com");
-        s.setPhoneNumber("5551111111");
-        s.setFirstName("U");
-        s.setLastName("S");
-        s.setBirthDate(LocalDate.of(2000,1,1));
-        s.setPassword(encoder.encode("123456"));
-        s.setRegistrationNumber("REG1");
+        Student s = Student.builder()
+                .email("user@mail.com")
+                .phoneNumber("5551111111")
+                .firstName("U")
+                .lastName("S")
+                .birthDate(LocalDate.of(2000,1,1))
+                .password(encoder.encode("123456"))
+                .registrationNumber("REG1")
+                .build();
 
         repo.save(s);
     }

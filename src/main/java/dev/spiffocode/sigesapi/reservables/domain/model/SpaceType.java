@@ -1,16 +1,14 @@
-package dev.spiffocode.sigesapi.reservables.model;
+package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Getter
 @Setter
 @ToString
-@Table(name = "buildings")
-public class Building {
+@Table(name = "space_types")
+public class SpaceType {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,4 +17,6 @@ public class Building {
     @Column(nullable = false, length = 45)
     private String name;
 
+    @Column(nullable = false, length = 400)
+    private String description;
 }

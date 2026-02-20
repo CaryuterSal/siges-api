@@ -1,7 +1,7 @@
-package dev.spiffocode.sigesapi.reservables.repository;
+package dev.spiffocode.sigesapi.reservables.domain.repository;
 
-import dev.spiffocode.sigesapi.reservables.model.Reservable;
-import dev.spiffocode.sigesapi.reservables.model.ReservableStatus;
+import dev.spiffocode.sigesapi.reservables.domain.model.Reservable;
+import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

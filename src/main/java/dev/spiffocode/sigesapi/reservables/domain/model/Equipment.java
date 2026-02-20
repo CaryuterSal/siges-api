@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.reservables.model;
+package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -16,7 +16,7 @@ public class Equipment extends Reservable {
     @Column(nullable = false)
     private Integer inventory;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "spaces_id")
     private Space space;
 

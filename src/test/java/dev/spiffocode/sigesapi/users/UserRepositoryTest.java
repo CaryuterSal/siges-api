@@ -25,27 +25,28 @@ class UserRepositoryTest {
 
 
     private Student createStudent() {
-        Student s = new Student();
-        s.setEmail("s@mail.com");
-        s.setPhoneNumber("1111111111");
-        s.setFirstName("A");
-        s.setLastName("B");
-        s.setBirthDate(LocalDate.of(2000,1,1));
-        s.setPassword("x");
-        s.setRegistrationNumber("REG1");
+        Student s = Student.builder()
+                .email("s@mail.com")
+                .firstName("A")
+                .lastName("B")
+                .birthDate(LocalDate.of(2000,1,1))
+                .password("x")
+                .registrationNumber("REG1")
+                .build();
 
         return em.persistAndFlush(s);
     }
 
     private InstitutionalStaff createStaff() {
-        InstitutionalStaff st = new InstitutionalStaff();
-        st.setEmail("st@mail.com");
-        st.setPhoneNumber("2222222222");
-        st.setFirstName("A");
-        st.setLastName("B");
-        st.setBirthDate(LocalDate.of(2000,1,1));
-        st.setPassword("x");
-        st.setEmployeeNumber("EMP1");
+        InstitutionalStaff st = InstitutionalStaff.builder()
+                .email("st@mail.com")
+                .phoneNumber("2222222222")
+                .firstName("A")
+                .lastName("B")
+                .birthDate(LocalDate.of(2000,1,1))
+                .password("x")
+                .employeeNumber("EMP1")
+                .build();
 
         return em.persistAndFlush(st);
     }
@@ -89,13 +90,15 @@ class UserRepositoryTest {
 
         Student s1 = createStudent();
 
-        InstitutionalStaff st = new InstitutionalStaff();
-        st.setEmail(s1.getEmail());
-        st.setPhoneNumber("2222222222");
-        st.setFirstName("A");
-        st.setLastName("B");
-        st.setBirthDate(LocalDate.of(2000,1,1));
-        st.setPassword("x");
+        InstitutionalStaff st = InstitutionalStaff.builder()
+                .email(s1.getEmail())
+                .phoneNumber("2222222222")
+                .firstName("A")
+                .lastName("B")
+                .birthDate(LocalDate.of(2000,1,1))
+                .password("x")
+                .employeeNumber("EMP1")
+                .build();
 
         assertThrows(ConstraintViolationException.class, () -> {
             em.persistAndFlush(st);
@@ -107,13 +110,15 @@ class UserRepositoryTest {
 
         Student s1 = createStudent();
 
-        InstitutionalStaff st = new InstitutionalStaff();
-        st.setEmail("other@gmail.com");
-        st.setPhoneNumber(s1.getPhoneNumber());
-        st.setFirstName("A");
-        st.setLastName("B");
-        st.setBirthDate(LocalDate.of(2000,1,1));
-        st.setPassword("x");
+        InstitutionalStaff st = InstitutionalStaff.builder()
+                .email("other@gmail.com")
+                .phoneNumber(s1.getPhoneNumber())
+                .firstName("A")
+                .lastName("B")
+                .birthDate(LocalDate.of(2000,1,1))
+                .password("x")
+                .employeeNumber("EMP1")
+                .build();
 
         assertThrows(ConstraintViolationException.class, () -> {
             em.persistAndFlush(st);
@@ -125,15 +130,14 @@ class UserRepositoryTest {
 
         Student s1 = createStudent();
 
-        Student s = new Student();
-        s.setEmail("other@gmail.com");
-        s.setPhoneNumber("1111111122");
-        s.setFirstName("A");
-        s.setLastName("B");
-        s.setBirthDate(LocalDate.of(2000,1,1));
-        s.setPassword("x");
-        s.setRegistrationNumber(s1.getRegistrationNumber());
-
+        Student s = Student.builder()
+                .email("other@gmail.com")
+                .firstName("A")
+                .lastName("B")
+                .birthDate(LocalDate.of(2000,1,1))
+                .password("x")
+                .registrationNumber(s1.getRegistrationNumber())
+                .build();
         assertThrows(ConstraintViolationException.class, () -> {
             em.persistAndFlush(s);
         });
@@ -144,14 +148,15 @@ class UserRepositoryTest {
 
         InstitutionalStaff s1 = createStaff();
 
-        InstitutionalStaff st = new InstitutionalStaff();
-        st.setEmail("other@gmail.com");
-        st.setPhoneNumber("1111211111");
-        st.setFirstName("A");
-        st.setLastName("B");
-        st.setBirthDate(LocalDate.of(2000,1,1));
-        st.setPassword("x");
-        st.setEmployeeNumber(st.getEmployeeNumber());
+        InstitutionalStaff st = InstitutionalStaff.builder()
+                .email("other@gmail.com")
+                .phoneNumber("22284928193")
+                .firstName("A")
+                .lastName("B")
+                .birthDate(LocalDate.of(2000,1,1))
+                .password("x")
+                .employeeNumber(s1.getEmployeeNumber())
+                .build();
 
         assertThrows(ConstraintViolationException.class, () -> {
             em.persistAndFlush(st);

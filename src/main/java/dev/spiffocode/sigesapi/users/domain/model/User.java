@@ -1,13 +1,20 @@
 package dev.spiffocode.sigesapi.users.domain.model;
 
+import dev.spiffocode.sigesapi.notifications.domain.model.Notification;
+import dev.spiffocode.sigesapi.notifications.domain.model.PushToken;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SoftDelete;
 import org.hibernate.annotations.SoftDeleteType;
 import org.hibernate.envers.Audited;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +26,9 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
 @ToString
 @EqualsAndHashCode
 @Audited
@@ -29,6 +38,7 @@ import java.util.List;
         @Index(columnList = "first_name, last_name"),
         @Index(columnList = "deleted_at")
 })
+@EntityListeners(AuditingEntityListener.class)
 @SoftDelete(
         strategy = SoftDeleteType.TIMESTAMP,
         columnName = "deleted_at")
@@ -62,6 +72,28 @@ public abstract class User implements UserDetails {
     private String password;
 
     private LocalDateTime lastLogin;
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @CreatedBy
+    @Column(nullable = false, updatable = false)
+    private String createdBy;
+
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY
+    )
+    private List<Notification> notifications;
+
+
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY
+    )
+    private List<PushToken> tokens;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

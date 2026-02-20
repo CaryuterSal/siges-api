@@ -1,6 +1,6 @@
-package dev.spiffocode.sigesapi.reservables.repository;
+package dev.spiffocode.sigesapi.reservables.domain.repository;
 
-import dev.spiffocode.sigesapi.reservables.model.SpaceType;
+import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
