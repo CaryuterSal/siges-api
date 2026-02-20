@@ -1,7 +1,6 @@
-package dev.spiffocode.sigesapi.auth.controller;
+package dev.spiffocode.sigesapi.auth.application.service;
 
 import dev.spiffocode.sigesapi.auth.presentation.*;
-import dev.spiffocode.sigesapi.auth.application.service.JwtAuthService;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
