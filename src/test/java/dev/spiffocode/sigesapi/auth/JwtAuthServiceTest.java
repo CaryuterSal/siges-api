@@ -50,7 +50,6 @@ class JwtAuthServiceTest {
         Authentication authentication = mock(Authentication.class);
         UserDetails user = mock(UserDetails.class);
         when(user.getUsername()).thenReturn("mail@test.com");
-        doReturn(List.of(new SimpleGrantedAuthority("ROLE_USER"))).when(user).getAuthorities();
         when(authentication.getPrincipal()).thenReturn(user);
         when(authManager.authenticate(any())).thenReturn(authentication);
         when(jwtService.generateAccessToken(anyString(), any())).thenReturn("access");

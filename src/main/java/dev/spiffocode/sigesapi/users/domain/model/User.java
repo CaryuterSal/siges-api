@@ -4,6 +4,7 @@ import dev.spiffocode.sigesapi.notifications.domain.model.Notification;
 import dev.spiffocode.sigesapi.notifications.domain.model.PushToken;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
@@ -50,28 +51,39 @@ public abstract class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+    @NotNull
     @Email
     @Column(nullable = false, unique = true)
     private String email;
 
+    @NotNull
     @Pattern(regexp = "^(\\+\\d{1,2}\\s?)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$")
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
+    @NotNull
     @Column(nullable = false)
     private String firstName;
 
+
+    @NotNull
     @Column(nullable = false)
     private String lastName;
 
+
+    @NotNull
     @Column(nullable = false)
     @Past
     private LocalDate birthDate;
 
+
+    @NotNull
     @Column(nullable = false)
     private String password;
 
     private LocalDateTime lastLogin;
+
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

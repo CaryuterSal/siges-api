@@ -4,10 +4,11 @@ import dev.spiffocode.sigesapi.DataTestClass;
 import dev.spiffocode.sigesapi.users.domain.model.InstitutionalStaff;
 import dev.spiffocode.sigesapi.users.domain.model.Student;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
-import org.hibernate.exception.ConstraintViolationException;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.time.LocalDate;
 
@@ -20,13 +21,10 @@ class UserRepositoryTest {
     @Autowired
     UserRepository repo;
 
-    @Autowired
-    TestEntityManager em;
-
-
     private Student createStudent() {
         Student s = Student.builder()
                 .email("s@mail.com")
+                .phoneNumber("2222229899")
                 .firstName("A")
                 .lastName("B")
                 .birthDate(LocalDate.of(2000,1,1))
@@ -34,7 +32,7 @@ class UserRepositoryTest {
                 .registrationNumber("REG1")
                 .build();
 
-        return em.persistAndFlush(s);
+        return repo.save(s);
     }
 
     private InstitutionalStaff createStaff() {
@@ -48,7 +46,7 @@ class UserRepositoryTest {
                 .employeeNumber("EMP1")
                 .build();
 
-        return em.persistAndFlush(st);
+        return repo.save(st);
     }
 
 
@@ -63,7 +61,7 @@ class UserRepositoryTest {
     void findByPhone() {
         createStudent();
 
-        assertTrue(repo.findByIdentifier("1111111111").isPresent());
+        assertTrue(repo.findByIdentifier("2222229899").isPresent());
     }
 
     @Test
@@ -100,8 +98,8 @@ class UserRepositoryTest {
                 .employeeNumber("EMP1")
                 .build();
 
-        assertThrows(ConstraintViolationException.class, () -> {
-            em.persistAndFlush(st);
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            repo.save(st);
         });
     }
 
@@ -120,8 +118,8 @@ class UserRepositoryTest {
                 .employeeNumber("EMP1")
                 .build();
 
-        assertThrows(ConstraintViolationException.class, () -> {
-            em.persistAndFlush(st);
+        assertThrows(DataIntegrityViolationException.class, () -> {
+            repo.save(st);
         });
     }
 
@@ -139,7 +137,7 @@ class UserRepositoryTest {
                 .registrationNumber(s1.getRegistrationNumber())
                 .build();
         assertThrows(ConstraintViolationException.class, () -> {
-            em.persistAndFlush(s);
+            repo.save(s);
         });
     }
 
@@ -159,7 +157,7 @@ class UserRepositoryTest {
                 .build();
 
         assertThrows(ConstraintViolationException.class, () -> {
-            em.persistAndFlush(st);
+            repo.save(st);
         });
     }
 

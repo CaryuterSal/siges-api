@@ -36,6 +36,7 @@ public class Notification {
     private String body;
 
     @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime sent_at;
 
 

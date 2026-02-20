@@ -1,11 +1,14 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,6 +25,8 @@ public class AvailabilityException {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+
+    @NotNull
     @Column(nullable = false)
     private LocalDate dateFrom;
 
@@ -34,11 +39,13 @@ public class AvailabilityException {
     @Column
     private LocalTime endTime;
 
-    @CreationTimestamp
-    @Column(nullable = false)
+
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
+
+    @LastModifiedDate
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 

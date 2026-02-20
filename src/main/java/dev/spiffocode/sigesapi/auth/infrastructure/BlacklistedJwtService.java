@@ -32,23 +32,22 @@ public class BlacklistedJwtService implements JwtAuthService {
                 new UsernamePasswordAuthenticationToken(req.identifier(), req.password())
         );
 
-        UserDetails user = (UserDetails) auth.getPrincipal();
+        String username = ((UserDetails) Objects.requireNonNull(auth.getPrincipal())).getUsername();
 
-        assert user != null;
-        List<String> roles = user.getAuthorities()
+        List<String> roles = auth.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        String accessToken = jwtService.generateAccessToken(user.getUsername(), roles);
-        String refreshToken = jwtService.generateRefreshToken(user.getUsername());
+        String accessToken = jwtService.generateAccessToken(username, roles);
+        String refreshToken = jwtService.generateRefreshToken(username);
 
-        String role = user.getAuthorities().stream()
+        String role = auth.getAuthorities().stream()
                 .filter(a -> Objects.requireNonNull(a.getAuthority()).startsWith("ROLE_"))
                 .map(a -> a.getAuthority().substring(5))
                 .findFirst().orElse("ROLE_USER");
 
-        return new AuthenticatedResponse(accessToken, refreshToken, role, user.getAuthorities());
+        return new AuthenticatedResponse(accessToken, refreshToken, role, auth.getAuthorities());
     }
 
     @Override

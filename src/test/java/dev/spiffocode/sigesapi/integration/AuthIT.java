@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import tools.jackson.databind.ObjectMapper;
@@ -71,6 +72,7 @@ class AuthIT extends FlushedIntegrationTest {
                 .birthDate(LocalDate.of(2000,1,1))
                 .password(encoder.encode("123456"))
                 .registrationNumber("REG1")
+                .createdBy("user@example.com")
                 .build();
 
         repo.save(s);
@@ -91,8 +93,9 @@ class AuthIT extends FlushedIntegrationTest {
                 .andExpect(jsonPath("$.refreshToken").exists())
                 .andExpect(jsonPath("$.role").value("STUDENT"))
                 .andExpect(jsonPath("$.claims").isArray())
-                .andExpect(jsonPath("$.claims.length()").value(1))
-                .andExpect(jsonPath("$.claims[0].authority").value("ROLE_STUDENT"));
+                .andExpect(jsonPath("$.claims.length()").value(2))
+                .andExpect(jsonPath("$.claims[0].authority").value("ROLE_STUDENT"))
+                .andExpect(jsonPath("$.claims[1].authority").value("FACTOR_PASSWORD"));
     }
 
     @Test

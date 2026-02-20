@@ -35,6 +35,7 @@ public class PushToken {
     private Platform platform;
 
     @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime lastUsedAt;
