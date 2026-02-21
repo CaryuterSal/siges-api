@@ -54,16 +54,26 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(req.identifier(), req.password())
             );
+
+            LogInAttempt attempt = LogInAttempt.builder()
+                    .username(req.identifier())
+                    .ipAddress(requestIp)
+                    .success(true)
+                    .timestamp(LocalDateTime.now(clock))
+                    .build();
+            logInAttemptsRepository.save(attempt);
+
             return buildResponse(auth);
         } catch (AuthenticationException e) {
             LogInAttempt attempt = LogInAttempt.builder()
                     .username(req.identifier())
                     .ipAddress(requestIp)
                     .success(false)
+                    .timestamp(LocalDateTime.now(clock))
                     .build();
 
             logInAttemptsRepository.save(attempt);
-            throw new InvalidCredentialsException(e, loginProperties.getMaxAttempts() - Math.toIntExact(recentFailures));
+            throw new InvalidCredentialsException(e, loginProperties.getMaxAttempts() - Math.toIntExact(recentFailures) - 1);
         }
     }
 
