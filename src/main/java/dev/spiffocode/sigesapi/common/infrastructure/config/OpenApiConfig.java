@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.common.infrastructure.config;
 
+import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
@@ -77,6 +78,7 @@ public class OpenApiConfig {
                             log.debug("Adding default schema for content {}", response.getContent());
                             if(response.getContent() == null) continue;
                             response.getContent().forEach((code, mediaType) -> {
+                                if(mediaType.getSchema() != null) return;
                                 if (status.equals("400")) {
                                     mediaType.setSchema(validationErrorSchema);
                                 } else {

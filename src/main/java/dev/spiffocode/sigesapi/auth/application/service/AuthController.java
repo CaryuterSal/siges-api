@@ -1,7 +1,11 @@
 package dev.spiffocode.sigesapi.auth.application.service;
 
 import dev.spiffocode.sigesapi.auth.presentation.*;
+import dev.spiffocode.sigesapi.common.presentation.InvalidCredentialsProblem;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -11,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +33,12 @@ public class AuthController {
     @PostMapping("/login")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "auth success", useReturnTypeSchema = true),
-            @ApiResponse(responseCode = "401", description = "auth fails")
+            @ApiResponse(responseCode = "401", description = "auth fails", content = @Content(schema = @Schema( implementation = InvalidCredentialsProblem.class))),
+            @ApiResponse(responseCode = "429", description = "too many attempts", headers = {
+                    @Header(
+                            name = HttpHeaders.RETRY_AFTER,
+                            description = "seconds after which you can try logging in again")}
+            )
     })
     public AuthenticatedResponse login(@RequestBody @Valid LoginRequest body, HttpServletRequest request) {
         return authService.login(body, request.getRemoteAddr());

@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.common.infrastructure.config;
+package dev.spiffocode.sigesapi.common.presentation;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;

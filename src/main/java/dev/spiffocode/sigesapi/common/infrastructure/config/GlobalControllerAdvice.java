@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.common.infrastructure.config;
 
+import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
 import lombok.NonNull;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.*;
