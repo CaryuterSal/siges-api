@@ -3,11 +3,14 @@ package dev.spiffocode.sigesapi.auth;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.spiffocode.sigesapi.UnitTestClass;
-import dev.spiffocode.sigesapi.auth.presentation.*;
+import dev.spiffocode.sigesapi.auth.domain.exception.InvalidCredentialsException;
+import dev.spiffocode.sigesapi.auth.domain.exception.JwtBlacklistedException;
+import dev.spiffocode.sigesapi.auth.domain.model.LogInAttemptsRepository;
 import dev.spiffocode.sigesapi.auth.infrastructure.BlacklistedJwtAuthService;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
+import dev.spiffocode.sigesapi.auth.infrastructure.LogInAttemptsProperties;
 import dev.spiffocode.sigesapi.auth.infrastructure.TokenBlacklistService;
-import dev.spiffocode.sigesapi.auth.domain.exception.JwtBlacklistedException;
+import dev.spiffocode.sigesapi.auth.presentation.*;
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -18,9 +21,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,10 +43,15 @@ class BearerAuthServiceTest {
     AuthenticationManager authManager;
     @Mock
     TokenBlacklistService blacklistService;
+    @Mock
+    Clock clock;
+    @Mock
+    LogInAttemptsProperties logInAttemptsProperties;
+    @Mock
+    LogInAttemptsRepository logInAttemptsRepository;
 
     @InjectMocks
     BlacklistedJwtAuthService service;
-
 
     @Test
     void login_ok_returnsTokens() {
@@ -48,6 +59,14 @@ class BearerAuthServiceTest {
 
         Authentication authentication = mock(Authentication.class);
         UserDetails user = mock(UserDetails.class);
+
+
+        when(logInAttemptsRepository.countRecentFailuresSinceLastSuccess(any(), any(), any())).thenReturn(0L);
+        when(logInAttemptsProperties.getLockMinutes()).thenReturn(10);
+        when(logInAttemptsProperties.getMaxAttempts()).thenReturn(10);
+        when(clock.instant()).thenReturn(Instant.now());
+        when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
+
         when(user.getUsername()).thenReturn("mail@test.com");
         when(authentication.getPrincipal()).thenReturn(user);
         when(authManager.authenticate(any())).thenReturn(authentication);
@@ -61,8 +80,15 @@ class BearerAuthServiceTest {
 
     @Test
     void login_userNotFound_throws() {
+
+        when(logInAttemptsRepository.countRecentFailuresSinceLastSuccess(any(), any(), any())).thenReturn(0L);
+        when(logInAttemptsProperties.getLockMinutes()).thenReturn(10);
+        when(logInAttemptsProperties.getMaxAttempts()).thenReturn(10);
+        when(clock.instant()).thenReturn(Instant.now());
+        when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
+
         when(authManager.authenticate(any())).thenThrow(BadCredentialsException.class);
-        assertThrows(BadCredentialsException.class,
+        assertThrows(InvalidCredentialsException.class,
                 () -> service.login(new LoginRequest("x", "x"), "197.168.1.1"));
     }
 
