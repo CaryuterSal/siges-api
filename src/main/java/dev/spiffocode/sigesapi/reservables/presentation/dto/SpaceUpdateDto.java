@@ -21,4 +21,8 @@ public class SpaceUpdateDto extends ReservableUpdateDto{
 
     @Schema(description = "Time period for which the space must be booked in advance. In case the space requires booking in advance")
     Duration bookInAdvanceDuration;
+
+    @Schema(description = "Maximum person capacity of the space")
+    @NotNull
+    Integer capacity;
 }

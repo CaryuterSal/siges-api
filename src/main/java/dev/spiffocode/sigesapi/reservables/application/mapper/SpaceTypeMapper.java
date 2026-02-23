@@ -13,6 +13,7 @@ public interface SpaceTypeMapper {
 
     SpaceTypeDto toDto(SpaceType spaceType);
 
+    @Mapping(target = "id", ignore = true)
     SpaceType toEntity(SpaceTypeRegisterDto dto);
 
     @Mapping(target = "id", ignore = true)

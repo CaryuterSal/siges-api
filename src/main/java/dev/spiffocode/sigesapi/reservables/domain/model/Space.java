@@ -29,4 +29,8 @@ public class Space extends Reservable{
     @Positive
     private Duration bookInAdvance;
 
+    @NotNull
+    @Positive
+    private Integer capacity;
+
 }

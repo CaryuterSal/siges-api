@@ -6,6 +6,7 @@ import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotUpdateDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 import java.time.DayOfWeek;
@@ -30,6 +31,10 @@ public interface AvailabilityMapper {
                 .build();
     }
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "reservable", ignore = true)
     default AvailabilitySlot toEntity(AvailabilitySlotRegisterDto dto){
         List<Availability> members = dtoToMembers(
                 dto.daysOfWeek(),
@@ -43,6 +48,11 @@ public interface AvailabilityMapper {
                 .build();
     }
 
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "reservable", ignore = true)
     default AvailabilitySlot updateEntity(@MappingTarget AvailabilitySlot entity, AvailabilitySlotUpdateDto dto){
         List<Availability> members = dtoToMembers(
                 dto.daysOfWeek(),

@@ -25,5 +25,5 @@ public class ReservableDto {
     @Schema(example = "admin@example.com")
     String createdBy;
     List<AvailabilityExceptionDto> availabilityExceptions;
-    List<AvailabilitySlotDto> availabilityGroups;
+    List<AvailabilitySlotDto> availabilitySlots;
 }

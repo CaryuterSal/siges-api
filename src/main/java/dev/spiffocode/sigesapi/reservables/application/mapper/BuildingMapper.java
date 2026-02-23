@@ -13,6 +13,7 @@ public interface BuildingMapper {
 
     BuildingDto toDto(Building building);
 
+    @Mapping(target = "id", ignore = true)
     Building toEntity(BuildingRegisterDto dto);
 
     @Mapping(target = "id", ignore = true)

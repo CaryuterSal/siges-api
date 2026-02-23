@@ -16,10 +16,16 @@ public interface EquipmentMapper {
     @Mapping(target = "spaceAttached", source = "space")
     @Mapping(target = "inventoryIdNum", source = "inventoryNum")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")
+    @Mapping(target = "availabilitySlots", source = "availability")
     EquipmentDto toDto(Equipment equipment);
 
     @Mapping(target = "space", source = "space")
     @Mapping(target = "building", source = "building")
+    @Mapping(target = "status", source = "dto.status")
+    @Mapping(target = "description", source = "dto.description")
+    @Mapping(target = "studentsAvailable", source = "dto.studentsAvailable")
+    @Mapping(target = "availability", source = "dto.availability")
+    @Mapping(target = "availabilityExceptions", source = "dto.exceptions")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
@@ -27,6 +33,11 @@ public interface EquipmentMapper {
 
     @Mapping(target = "space", source = "space")
     @Mapping(target = "building", source = "building")
+    @Mapping(target = "status", source = "dto.status")
+    @Mapping(target = "description", source = "dto.description")
+    @Mapping(target = "studentsAvailable", source = "dto.studentsAvailable")
+    @Mapping(target = "availability", ignore = true)
+    @Mapping(target = "availabilityExceptions", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
