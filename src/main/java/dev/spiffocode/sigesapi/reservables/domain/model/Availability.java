@@ -5,15 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.DayOfWeek;
 
 @Entity
 @Getter
@@ -34,10 +32,10 @@ public class Availability {
     @Column
     private LocalDate dateTo;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime startTime;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime endTime;
 
     @NotNull

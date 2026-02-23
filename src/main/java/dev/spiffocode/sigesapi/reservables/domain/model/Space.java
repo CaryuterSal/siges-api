@@ -2,8 +2,14 @@ package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+
+import java.time.Duration;
 
 @Entity
 @Getter
@@ -20,5 +26,9 @@ public class Space extends Reservable{
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "space_types_id", nullable = false)
     private SpaceType type;
+
+    @NotNull
+    @Positive
+    private Duration bookInAdvance;
 
 }

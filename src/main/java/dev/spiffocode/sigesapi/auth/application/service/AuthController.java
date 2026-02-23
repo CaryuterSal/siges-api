@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.auth.application.service;
 
 import dev.spiffocode.sigesapi.auth.presentation.*;
 import dev.spiffocode.sigesapi.common.presentation.InvalidCredentialsProblem;
+import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,6 +34,7 @@ public class AuthController {
     @PostMapping("/login")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "auth success", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "bad request", content = @Content(schema = @Schema( implementation = ValidationProblem.class))),
             @ApiResponse(responseCode = "401", description = "auth fails", content = @Content(schema = @Schema( implementation = InvalidCredentialsProblem.class))),
             @ApiResponse(responseCode = "429", description = "too many attempts", headers = {
                     @Header(
@@ -47,6 +49,7 @@ public class AuthController {
     @PostMapping("/refresh")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "refresh success", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "bad request", content = @Content(schema = @Schema( implementation = ValidationProblem.class))),
             @ApiResponse(responseCode = "401", description = "refresh fails")
     })
     public RefreshResponse refresh(@RequestBody @Valid RefreshRequest req){
@@ -57,6 +60,7 @@ public class AuthController {
     @SecurityRequirement(name = "jwt")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "logout success", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "400", description = "bad request", content = @Content(schema = @Schema( implementation = ValidationProblem.class))),
             @ApiResponse(responseCode = "401", description = "auth fails")
     })
     public ResponseEntity<@NonNull Void> logout(
