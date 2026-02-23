@@ -1,6 +1,7 @@
-package dev.spiffocode.sigesapi.auth.application.service;
+package dev.spiffocode.sigesapi.auth.presentation.controller;
 
-import dev.spiffocode.sigesapi.auth.presentation.*;
+import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
+import dev.spiffocode.sigesapi.auth.presentation.dto.*;
 import dev.spiffocode.sigesapi.common.presentation.InvalidCredentialsProblem;
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
 import io.swagger.v3.oas.annotations.ExternalDocumentation;

@@ -1,8 +1,8 @@
 package dev.spiffocode.sigesapi.reservables.application.service;
 
-import dev.spiffocode.sigesapi.reservables.presentation.BuildingDto;
-import dev.spiffocode.sigesapi.reservables.presentation.BuildingRegisterDto;
-import dev.spiffocode.sigesapi.reservables.presentation.BuildingUpdateDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingRegisterDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingUpdateDto;
 
 import java.util.List;
 

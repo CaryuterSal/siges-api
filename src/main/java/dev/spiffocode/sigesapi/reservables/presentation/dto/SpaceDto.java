@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.reservables.presentation;
+package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
 import lombok.EqualsAndHashCode;
 import lombok.Value;

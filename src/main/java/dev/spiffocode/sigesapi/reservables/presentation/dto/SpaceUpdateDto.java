@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.reservables.presentation;
+package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
@@ -8,9 +8,9 @@ import lombok.Value;
 
 import java.time.Duration;
 
-@Value
 @EqualsAndHashCode(callSuper = true)
-public class SpaceRegisterDto extends ReservableRegisterDto {
+@Value
+public class SpaceUpdateDto extends ReservableUpdateDto{
 
     @Schema(description = "ID of the space type/category to be registered")
     @NotNull

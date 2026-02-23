@@ -1,7 +1,9 @@
 package dev.spiffocode.sigesapi.reservables.application.service;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
-import dev.spiffocode.sigesapi.reservables.presentation.*;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceRegisterDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceUpdateDto;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

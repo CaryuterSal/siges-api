@@ -1,9 +1,9 @@
 package dev.spiffocode.sigesapi.reservables.application.service;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
-import dev.spiffocode.sigesapi.reservables.presentation.EquipmentDto;
-import dev.spiffocode.sigesapi.reservables.presentation.EquipmentRegisterDto;
-import dev.spiffocode.sigesapi.reservables.presentation.EquipmentUpdateDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentRegisterDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentUpdateDto;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;

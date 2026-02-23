@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.reservables.presentation;
+package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -13,7 +13,8 @@ import java.util.List;
 
 @Value
 @NonFinal
-public class ReservableUpdateDto {
+public class ReservableRegisterDto {
+
     @Schema(description = "resource's status. Available by default")
     ReservableStatus status = ReservableStatus.AVAILABLE;
 

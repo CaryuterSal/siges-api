@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.auth.infrastructure;
+package dev.spiffocode.sigesapi.auth.infrastructure.service.impl;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
@@ -7,7 +7,10 @@ import dev.spiffocode.sigesapi.auth.domain.exception.InvalidCredentialsException
 import dev.spiffocode.sigesapi.auth.domain.exception.JwtBlacklistedException;
 import dev.spiffocode.sigesapi.auth.domain.model.LogInAttempt;
 import dev.spiffocode.sigesapi.auth.domain.model.LogInAttemptsRepository;
-import dev.spiffocode.sigesapi.auth.presentation.*;
+import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
+import dev.spiffocode.sigesapi.auth.infrastructure.LogInAttemptsProperties;
+import dev.spiffocode.sigesapi.auth.infrastructure.TokenBlacklistService;
+import dev.spiffocode.sigesapi.auth.presentation.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
