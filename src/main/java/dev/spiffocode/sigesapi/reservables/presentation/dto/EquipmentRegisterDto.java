@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class EquipmentRegisterDto extends ReservableRegisterDto{

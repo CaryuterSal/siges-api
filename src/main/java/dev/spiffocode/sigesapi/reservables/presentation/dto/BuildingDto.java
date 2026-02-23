@@ -1,7 +1,9 @@
 package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Builder;
 
+@Builder
 public record BuildingDto(
         Long id,
         @Schema(example = "Docencia 1")

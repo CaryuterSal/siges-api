@@ -5,9 +5,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Duration;
 
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @Value
 public class SpaceUpdateDto extends ReservableUpdateDto{

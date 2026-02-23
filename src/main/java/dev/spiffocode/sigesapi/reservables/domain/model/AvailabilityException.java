@@ -3,9 +3,8 @@ package dev.spiffocode.sigesapi.reservables.domain.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -13,11 +12,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@Audited
+@Builder(toBuilder = true)
 @Entity
 @Getter
 @Setter
 @ToString
 @Table(name = "availability_exceptions")
+@NoArgsConstructor
+@AllArgsConstructor
 public class AvailabilityException {
 
     @Id

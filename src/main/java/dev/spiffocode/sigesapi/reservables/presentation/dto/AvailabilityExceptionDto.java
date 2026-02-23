@@ -4,10 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@Builder
 public record AvailabilityExceptionDto(
 
         @Schema(description = "Date from which this availability exception begins")

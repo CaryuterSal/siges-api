@@ -3,7 +3,9 @@ package dev.spiffocode.sigesapi.reservables.presentation.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @Value
 public class EquipmentDto extends ReservableDto {

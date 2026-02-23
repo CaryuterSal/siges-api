@@ -4,13 +4,26 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import lombok.Builder;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 
+@Builder
 public record AvailabilitySlotDto(
+
+
+    @Schema(description = "ID of this slot/group of availability")
+    @Positive
+    Long id,
+
+    @Schema(description = "ID of the reservable that is described by this slot")
+    @Positive
+    Long reservableId,
+
     @Schema(description = "Date from which this availability statement is valid. If NULL or not specified, it is interpreted as immediate validity.")
     @FutureOrPresent
     LocalDate dateFrom,

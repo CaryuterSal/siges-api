@@ -16,6 +16,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
@@ -59,7 +60,7 @@ public abstract class Reservable {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
-    List<Availability> availability;
+    List<AvailabilitySlot> availability;
 
     @OneToMany(
             mappedBy = "reservable",

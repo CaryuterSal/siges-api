@@ -1,0 +1,20 @@
+package dev.spiffocode.sigesapi.reservables.application.mapper;
+
+import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeRegisterDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeUpdateDto;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
+@Mapper(componentModel = "spring")
+public interface SpaceTypeMapper {
+
+    SpaceTypeDto toDto(SpaceType spaceType);
+
+    SpaceType toEntity(SpaceTypeRegisterDto dto);
+
+    @Mapping(target = "id", ignore = true)
+    void updateEntityFromDto(SpaceTypeUpdateDto dto, @MappingTarget SpaceType entity);
+}

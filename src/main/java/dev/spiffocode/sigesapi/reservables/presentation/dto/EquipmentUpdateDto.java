@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder
 @EqualsAndHashCode(callSuper = true)
 @Value
 public class EquipmentUpdateDto extends ReservableUpdateDto{

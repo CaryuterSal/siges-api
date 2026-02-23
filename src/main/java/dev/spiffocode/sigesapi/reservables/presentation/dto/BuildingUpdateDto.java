@@ -2,7 +2,9 @@ package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 
+@Builder
 public record BuildingUpdateDto(
 
         @Schema(description = "unique short name for the building", example = "Docencia 1")

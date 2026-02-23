@@ -4,15 +4,13 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 
-@Builder
-public record AvailabilitySlotRegisterDto(
+public record AvailabilitySlotUpdateDto(
 
         @Schema(description = "Date from which this availability statement is valid. If NULL or not specified, it is interpreted as immediate validity.")
         @FutureOrPresent
@@ -34,4 +32,5 @@ public record AvailabilitySlotRegisterDto(
         @ArraySchema(uniqueItems = true, minItems = 1, maxItems = 7)
         Set<DayOfWeek> daysOfWeek
 ) {
+
 }

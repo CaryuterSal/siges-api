@@ -2,8 +2,10 @@ package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Builder;
 import org.hibernate.validator.constraints.Length;
 
+@Builder
 public record SpaceTypeUpdateDto(
 
         @Schema(description = "short name, not necessarily unique, that identifies the type of space", example = "Aula")

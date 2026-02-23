@@ -7,10 +7,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
 
+@SuperBuilder
 @Value
 @NonFinal
 public class ReservableRegisterDto {

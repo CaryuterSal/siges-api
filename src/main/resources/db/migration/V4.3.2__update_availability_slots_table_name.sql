@@ -1,0 +1,2 @@
+ALTER TABLE availability_groups
+RENAME TO availability_slots;
