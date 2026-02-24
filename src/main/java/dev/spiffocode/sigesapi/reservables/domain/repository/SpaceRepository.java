@@ -1,10 +1,12 @@
 package dev.spiffocode.sigesapi.reservables.domain.repository;
 
+import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -12,6 +14,13 @@ import java.util.List;
 @Repository
 public interface SpaceRepository
         extends JpaRepository<@NonNull Space, @NonNull Long>, JpaSpecificationExecutor<@NonNull Space> {
+
+    @Query(value = """
+    SELECT r.* FROM spaces s
+    INNER JOIN reservables r ON r.id = s.id
+    WHERE r.deleted_at IS NOT NULL
+    """, nativeQuery = true)
+    List<Equipment> findAllDeleted();
 
     List<Space> findByTypeId(Long spaceTypeId);
 

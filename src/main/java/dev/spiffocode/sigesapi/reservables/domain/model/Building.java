@@ -3,6 +3,8 @@ package dev.spiffocode.sigesapi.reservables.domain.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
@@ -14,6 +16,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Builder
 @ToString
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+@SoftDelete(strategy = SoftDeleteType.TIMESTAMP, columnName = "deleted_at")
 @Table(name = "buildings")
 public class Building {
 

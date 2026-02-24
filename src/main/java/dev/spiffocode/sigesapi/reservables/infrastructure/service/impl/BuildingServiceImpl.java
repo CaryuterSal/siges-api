@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.reservables.application.mapper.BuildingMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.BuildingService;
+import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
@@ -26,10 +27,11 @@ public class BuildingServiceImpl implements BuildingService {
     private final BuildingMapper buildingMapper;
     private final EntityManager entityManager;
 
+
     @Override
     public BuildingDto getBuilding(long id) {
         Building building = buildingRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Building not found"));
+                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(id), id));
         return buildingMapper.toDto(building);
     }
 
