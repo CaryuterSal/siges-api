@@ -2,9 +2,9 @@ package dev.spiffocode.sigesapi.reservables.domain.exception;
 
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.NotFoundException;
 
-public class SpaceTypeNotFound extends NotFoundException {
+public class SpaceTypeNotFoundException extends NotFoundException {
 
-    public SpaceTypeNotFound(String message, long id) {
+    public SpaceTypeNotFoundException(String message, long id) {
         super(message, id);
     }
 }

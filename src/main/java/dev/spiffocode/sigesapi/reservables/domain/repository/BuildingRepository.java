@@ -18,5 +18,5 @@ public interface BuildingRepository extends JpaRepository<@NonNull Building, @No
 
     @Modifying
     @Query(value = "UPDATE buildings SET deleted_at = NULL WHERE id = :id", nativeQuery = true)
-    int activateBuilding(@Param("id") Long id);
+    int restore(@Param("id") Long id);
 }

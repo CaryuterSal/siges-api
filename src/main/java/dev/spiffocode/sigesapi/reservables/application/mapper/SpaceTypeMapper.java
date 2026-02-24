@@ -8,10 +8,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface SpaceTypeMapper {
 
     SpaceTypeDto toDto(SpaceType spaceType);
+
+    List<SpaceTypeDto> toDto(List<SpaceType> spaceType);
 
     @Mapping(target = "id", ignore = true)
     SpaceType toEntity(SpaceTypeRegisterDto dto);

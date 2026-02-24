@@ -69,7 +69,7 @@ public class BuildingServiceImpl implements BuildingService {
 
     @Override
     public void activateBuilding(long id) {
-        int updated = buildingRepository.activateBuilding(id);
+        int updated = buildingRepository.restore(id);
         if (updated == 0) {
             throw new BuildingNotFoundException("Building with ID %dl not found or already active".formatted(id), id);
         }
