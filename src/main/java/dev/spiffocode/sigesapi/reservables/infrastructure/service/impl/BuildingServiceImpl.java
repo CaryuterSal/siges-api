@@ -40,7 +40,7 @@ public class BuildingServiceImpl implements BuildingService {
     }
 
     private List<Building> findBuildingByActive(boolean onlyActive) {
-        return onlyActive? buildingRepository.findAll() : buildingRepository.findAllDeleted();
+        return onlyActive ? buildingRepository.findAll() : buildingRepository.findAllDeleted();
     }
 
     @Override

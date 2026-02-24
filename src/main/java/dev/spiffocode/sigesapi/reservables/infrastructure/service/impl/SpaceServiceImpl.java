@@ -2,6 +2,8 @@ package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceService;
+import dev.spiffocode.sigesapi.reservables.domain.exception.ReservableNotFoundException;
+import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
@@ -12,7 +14,9 @@ import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceUpdateDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.Predicate;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -24,6 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dev.spiffocode.sigesapi.common.domain.specification.SpecificationHelper.cast;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.inSpace;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.inventoryNumContains;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.*;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -33,18 +42,34 @@ public class SpaceServiceImpl implements SpaceService {
     private final SpaceMapper spaceMapper;
     private final SpaceTypeRepository spaceTypeRepository;
     private final BuildingRepository buildingRepository;
-    private final EntityManager entityManager;
 
     @Override
     public SpaceDto getSpaceById(long id) {
         Space space = spaceRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Space not found"));
+                .orElseThrow(() -> new ReservableNotFoundException("Space with ID %dl not found".formatted(id), id));
         return spaceMapper.toDto(space);
     }
 
     @Override
-    public List<SpaceDto> searchSpacesByFilter(String searchQuery, Pageable pageable, ReservableStatus statusFilter,
-            Long buildingIdFilter, Boolean studentsAvailableFilter, Long spaceTypeIdFilter, Boolean onlyActiveFilter) {
+    public Page<@NonNull SpaceDto> searchSpacesByFilter(String searchQuery,
+                                                        Pageable pageable,
+                                                        ReservableStatus statusFilter,
+                                                        Long buildingIdFilter,
+                                                        Boolean studentsAvailableFilter,
+                                                        Long spaceTypeIdFilter,
+                                                        Boolean onlyActiveFilter) {
+
+        Specification<@NonNull Equipment> spec = Specification
+                .where(inSpace(spaceIdFilter))
+                .and(cast(statusIs(statusFilter)))
+                .and(
+                        inventoryNumContains(searchQuery)
+                                .or(cast(descriptionContains(searchQuery)))
+                                .or(cast(nameContains(searchQuery)))
+                )
+                .and(cast(inBuilding(buildingIdFilter)))
+                .and(cast(availableForStudents(studentsAvailableFilter)));
+        spaceRepository.finda
         Specification<Space> spec = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (searchQuery != null && !searchQuery.isBlank()) {

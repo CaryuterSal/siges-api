@@ -2,6 +2,8 @@ package dev.spiffocode.sigesapi.reservables.domain.repository;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import lombok.NonNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -15,6 +17,22 @@ public interface BuildingRepository extends JpaRepository<@NonNull Building, @No
 
     @Query(value = "SELECT * from buildings WHERE deleted_at IS NOT NULL", nativeQuery = true)
     List<Building> findAllDeleted();
+
+    @Query(
+            value = "SELECT * from buildings WHERE deleted_at IS NOT NULL",
+            countQuery = "SELECT COUNT(*) FROM buildings WHERE deleted_at IS NOT NULL",
+            nativeQuery = true)
+    Page<@NonNull Building> findAllDeletedPaged(Pageable pageable);
+
+    @Query(value = "SELECT * from buildings", nativeQuery = true)
+    List<Building> findAllActiveAndDeleted();
+
+
+    @Query(
+            value = "SELECT * from buildings",
+            countQuery = "SELECT COUNT(*) FROM buildings",
+            nativeQuery = true)
+    Page<@NonNull Building> findAllActiveAndDeletedPaged(Pageable pageable);
 
     @Modifying
     @Query(value = "UPDATE buildings SET deleted_at = NULL WHERE id = :id", nativeQuery = true)

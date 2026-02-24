@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 public interface EquipmentService {
 
     EquipmentDto getEquipmentById(long id);
-    Page<@NonNull EquipmentDto> searchEquipmentsByFilter(String searchQuery, Pageable pageable, ReservableStatus statusFilter, Long buildingIdFilter, Boolean studentsAvailableFilter, Long spaceIdFilter, Boolean onlyActiveFilter);
+    Page<@NonNull EquipmentDto> searchEquipmentsByFilter(String searchQuery, Pageable pageable, ReservableStatus statusFilter, Long buildingIdFilter, Boolean studentsAvailableFilter, Long spaceIdFilter, ActiveFilter activeFilter);
     EquipmentDto registerEquipment(EquipmentRegisterDto request);
     EquipmentDto updateEquipment(long id, EquipmentUpdateDto request);
     void deactivateEquipment(long id);
