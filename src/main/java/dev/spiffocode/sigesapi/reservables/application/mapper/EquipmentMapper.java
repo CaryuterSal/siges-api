@@ -21,6 +21,7 @@ public interface EquipmentMapper {
 
     @Mapping(target = "space", source = "space")
     @Mapping(target = "building", source = "building")
+    @Mapping(target = "name", source = "dto.name")
     @Mapping(target = "status", source = "dto.status")
     @Mapping(target = "description", source = "dto.description")
     @Mapping(target = "studentsAvailable", source = "dto.studentsAvailable")
@@ -33,6 +34,7 @@ public interface EquipmentMapper {
 
     @Mapping(target = "space", source = "space")
     @Mapping(target = "building", source = "building")
+    @Mapping(target = "name", source = "dto.name")
     @Mapping(target = "status", source = "dto.status")
     @Mapping(target = "description", source = "dto.description")
     @Mapping(target = "studentsAvailable", source = "dto.studentsAvailable")

@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -32,6 +33,9 @@ public abstract class Reservable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
+    @Column(nullable = false, length = 200)
+    private String name;
 
     @NotNull
     @Builder.Default
@@ -40,8 +44,8 @@ public abstract class Reservable {
     private ReservableStatus status = ReservableStatus.AVAILABLE;
 
 
-    @NotNull
-    @Column(nullable = false, length = 400)
+    @NotBlank
+    @Column(length = 400)
     private String description;
 
 

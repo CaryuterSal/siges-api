@@ -15,6 +15,8 @@ import java.util.List;
 @NonFinal
 public class ReservableDto {
     long id;
+    @Schema(example = "Cable HDMI")
+    String name;
     @Schema(examples = {"AVAILABLE", "MAINTENANCE", "LOANED"}, example = "AVAILABLE")
     String status;
     @Schema(example = "Cable HDMI de 10 Mts")

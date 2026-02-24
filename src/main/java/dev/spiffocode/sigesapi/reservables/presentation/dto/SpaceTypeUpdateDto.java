@@ -2,19 +2,19 @@ package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import org.hibernate.validator.constraints.Length;
 
 @Builder
 public record SpaceTypeUpdateDto(
 
         @Schema(description = "short name, not necessarily unique, that identifies the type of space", example = "Aula")
-        @Length(max = 45)
+        @Size(max = 45)
         @NotBlank
         String name,
 
         @Schema(description = "Short description with details about the type of space", example = "Salón de clases útil para presentaciones y pequeñas conferencias")
-        @Length(max = 400)
+        @Size(max = 400)
         @NotBlank
         String description
 ) {

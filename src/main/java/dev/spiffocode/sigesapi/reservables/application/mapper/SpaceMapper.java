@@ -20,6 +20,7 @@ public interface SpaceMapper {
     SpaceDto toDto(Space space);
 
     @Mapping(target = "type", source = "spaceType")
+    @Mapping(target = "name", source = "dto.name")
     @Mapping(target = "bookInAdvance", source = "dto.bookInAdvanceDuration")
     @Mapping(target = "description", source = "dto.description")
     @Mapping(target = "building", source = "building")
@@ -31,6 +32,7 @@ public interface SpaceMapper {
     Space toEntity(SpaceRegisterDto dto, SpaceType spaceType, Building building);
 
     @Mapping(target = "type", source = "type")
+    @Mapping(target = "name", source = "dto.name")
     @Mapping(target = "bookInAdvance", source = "dto.bookInAdvanceDuration")
     @Mapping(target = "description", source = "dto.description")
     @Mapping(target = "building", source = "building")

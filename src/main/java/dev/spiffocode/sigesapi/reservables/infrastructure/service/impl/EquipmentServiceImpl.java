@@ -2,27 +2,31 @@ package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.reservables.application.mapper.EquipmentMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentService;
+import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
+import dev.spiffocode.sigesapi.reservables.domain.exception.ReservableNotFoundException;
+import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceNotFoundException;
+import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
+import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceRepository;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentUpdateDto;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.Predicate;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import static dev.spiffocode.sigesapi.common.domain.specification.SpecificationHelper.cast;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.inSpace;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.inventoryNumContains;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.*;
 
 @Service
 @RequiredArgsConstructor
@@ -33,55 +37,49 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final EquipmentMapper equipmentMapper;
     private final SpaceRepository spaceRepository;
     private final BuildingRepository buildingRepository;
-    private final EntityManager entityManager;
 
     @Override
     public EquipmentDto getEquipmentById(long id) {
         Equipment equipment = equipmentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Equipment not found"));
+                .orElseThrow(() -> new ReservableNotFoundException("Equipment with ID %dl not found".formatted(id), id));
         return equipmentMapper.toDto(equipment);
     }
 
     @Override
-    public List<EquipmentDto> searchEquipmentsByFilter(String searchQuery, Pageable pageable,
-            ReservableStatus statusFilter, Long buildingIdFilter, Boolean studentsAvailableFilter, Long spaceIdFilter,
-            Boolean onlyActiveFilter) {
-        Specification<Equipment> spec = (root, query, cb) -> {
-            List<Predicate> predicates = new ArrayList<>();
-            if (searchQuery != null && !searchQuery.isBlank()) {
-                predicates.add(cb.like(cb.lower(root.get("description")), "%" + searchQuery.toLowerCase() + "%"));
-            }
-            if (statusFilter != null) {
-                predicates.add(cb.equal(root.get("status"), statusFilter));
-            }
-            if (buildingIdFilter != null) {
-                predicates.add(cb.equal(root.get("building").get("id"), buildingIdFilter));
-            }
-            if (studentsAvailableFilter != null) {
-                predicates.add(cb.equal(root.get("studentsAvailable"), studentsAvailableFilter));
-            }
-            if (spaceIdFilter != null) {
-                predicates.add(cb.equal(root.get("space").get("id"), spaceIdFilter));
-            }
+    public Page<@NonNull EquipmentDto> searchEquipmentsByFilter(String searchQuery,
+                                                                Pageable pageable,
+                                                                ReservableStatus statusFilter,
+                                                                Long buildingIdFilter,
+                                                                Boolean studentsAvailableFilter,
+                                                                Long spaceIdFilter,
+                                                                Boolean onlyActiveFilter)
+    {
+            Specification<@NonNull Equipment> spec = Specification
+                .where(inSpace(spaceIdFilter))
+                .and(cast(statusIs(statusFilter)))
+                .and(
+                    inventoryNumContains(searchQuery)
+                    .or(cast(descriptionContains(searchQuery)))
+                    .or(cast(nameContains(searchQuery)))
+                )
+                .and(cast(inBuilding(buildingIdFilter)))
+                .and(cast(availableForStudents(studentsAvailableFilter)));
 
-            return cb.and(predicates.toArray(new Predicate[0]));
-        };
-
-        return equipmentRepository.findAll(spec, pageable).getContent().stream()
-                .map(equipmentMapper::toDto)
-                .collect(Collectors.toList());
+        return equipmentRepository.findAll(spec, pageable)
+                .map(equipmentMapper::toDto);
     }
 
     @Override
     public EquipmentDto registerEquipment(EquipmentRegisterDto request) {
-        if (request.getSpaceId() != null && !spaceRepository.existsById(request.getSpaceId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Space does not exist");
-        }
-        if (!buildingRepository.existsById(request.getBuildingId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Building does not exist");
-        }
+        Long spaceId = request.getSpaceId();
+        Space space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(spaceId), spaceId));
 
-        Equipment equipment = equipmentMapper.toEntity(request);
+        Long buildingId = request.getBuildingId();
+        Building building = buildingRepository.findById(buildingId)
+                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));
+
+        Equipment equipment = equipmentMapper.toEntity(request, building, space);
         equipment = equipmentRepository.save(equipment);
         return equipmentMapper.toDto(equipment);
     }
@@ -89,16 +87,17 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public EquipmentDto updateEquipment(long id, EquipmentUpdateDto request) {
         Equipment equipment = equipmentRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Equipment not found"));
+                .orElseThrow(() -> new ReservableNotFoundException("Equipment with ID %dl not found".formatted(id), id));
 
-        if (request.getSpaceId() != null && !spaceRepository.existsById(request.getSpaceId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Space does not exist");
-        }
-        if (!buildingRepository.existsById(request.getBuildingId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Building does not exist");
-        }
+        Long spaceId = request.getSpaceId();
+        Space space = spaceRepository.findById(spaceId)
+                .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(spaceId), spaceId));
 
-        equipmentMapper.updateEntityFromDto(request, equipment);
+        Long buildingId = request.getBuildingId();
+        Building building = buildingRepository.findById(buildingId)
+                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));
+
+        equipmentMapper.updateEntityFromDto(request, building, space,  equipment);
         equipment = equipmentRepository.save(equipment);
         return equipmentMapper.toDto(equipment);
     }
@@ -106,18 +105,16 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public void deactivateEquipment(long id) {
         if (!equipmentRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Equipment not found");
+            throw new ReservableNotFoundException("Equipment with ID %dl not found".formatted(id), id);
         }
         equipmentRepository.deleteById(id);
     }
 
     @Override
     public void activateEquipment(long id) {
-        int updated = entityManager.createNativeQuery("UPDATE reservables SET deleted_at = NULL WHERE id = :id")
-                .setParameter("id", id)
-                .executeUpdate();
+        int updated = equipmentRepository.restore(id);
         if (updated == 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Equipment not found or already active");
+            throw new ReservableNotFoundException("Equipment with ID %dl not found or already active".formatted(id), id);
         }
     }
 }
