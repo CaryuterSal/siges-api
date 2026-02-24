@@ -8,15 +8,12 @@ import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingUpdateDto;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.repository.core.support.RepositoryMethodInvocationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +22,7 @@ public class BuildingServiceImpl implements BuildingService {
 
     private final BuildingRepository buildingRepository;
     private final BuildingMapper buildingMapper;
-    private final EntityManager entityManager;
+    private final RepositoryMethodInvocationListener repositoryMethodInvocationListener;
 
 
     @Override
@@ -37,22 +34,19 @@ public class BuildingServiceImpl implements BuildingService {
 
     @Override
     public List<BuildingDto> getAllBuildings(boolean onlyActive) {
-        List<Building> buildings;
-        if (onlyActive) {
-            buildings = buildingRepository.findAll();
-        } else {
-            // Using native query to bypass Hibernate's @SoftDelete (if it were applied)
-            buildings = entityManager.createNativeQuery("SELECT * FROM buildings", Building.class).getResultList();
-        }
-        return buildings.stream()
-                .map(buildingMapper::toDto)
-                .collect(Collectors.toList());
+        List<Building> buildings = findBuildingByActive(onlyActive);
+
+        return buildingMapper.toDto(buildings);
+    }
+
+    private List<Building> findBuildingByActive(boolean onlyActive) {
+        return onlyActive? buildingRepository.findAll() : buildingRepository.findAllDeleted();
     }
 
     @Override
     public BuildingDto updateBuilding(long id, BuildingUpdateDto request) {
         Building building = buildingRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Building not found"));
+                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(id), id));
         buildingMapper.updateEntityFromDto(request, building);
         building = buildingRepository.save(building);
         return buildingMapper.toDto(building);
@@ -68,19 +62,16 @@ public class BuildingServiceImpl implements BuildingService {
     @Override
     public void deactivateBuilding(long id) {
         if (!buildingRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Building not found");
+            throw new BuildingNotFoundException("Building with ID %dl not found".formatted(id), id);
         }
         buildingRepository.deleteById(id);
     }
 
     @Override
     public void activateBuilding(long id) {
-        // Since deleteById uses SoftDelete, restoring it requires a native update
-        int updated = entityManager.createNativeQuery("UPDATE buildings SET deleted_at = NULL WHERE id = :id")
-                .setParameter("id", id)
-                .executeUpdate();
+        int updated = buildingRepository.activateBuilding(id);
         if (updated == 0) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Building not found or already active");
+            throw new BuildingNotFoundException("Building with ID %dl not found or already active".formatted(id), id);
         }
     }
 }

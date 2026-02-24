@@ -8,10 +8,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface BuildingMapper {
 
     BuildingDto toDto(Building building);
+
+    List<BuildingDto> toDto(List<Building> buildings);
 
     @Mapping(target = "id", ignore = true)
     Building toEntity(BuildingRegisterDto dto);
