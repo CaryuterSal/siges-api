@@ -1,11 +1,11 @@
 package dev.spiffocode.sigesapi.reservables;
 
 import dev.spiffocode.sigesapi.DataTestClass;
-import dev.spiffocode.sigesapi.reservables.model.*;
-import dev.spiffocode.sigesapi.reservables.repository.BuildingRepository;
-import dev.spiffocode.sigesapi.reservables.repository.ReservableRepository;
-import dev.spiffocode.sigesapi.reservables.repository.SpaceRepository;
-import dev.spiffocode.sigesapi.reservables.repository.SpaceTypeRepository;
+import dev.spiffocode.sigesapi.reservables.domain.model.*;
+import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.ReservableRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceTypeRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,53 +23,53 @@ class ReservableRepositoryTest {
 
     @Test
     void shouldFindSpaceByBuilding() {
-        Building building = new Building();
-        building.setName("Docencia 1");
+        Building building = Building.builder()
+                .name("Docencia 1")
+                .build();
         buildingRepository.save(building);
 
-        SpaceType tipoAula = new SpaceType();
-        tipoAula.setName("Aula");
-        tipoAula.setDescription("Salón de Clases");
+        SpaceType tipoAula = SpaceType.builder()
+                .name("Aula")
+                .description("Salón de clasees")
+                .build();
         spaceTypeRepository.save(tipoAula);
 
-        Space aula = new Space();
-        aula.setDescription("Aula 1");
-        aula.setStatus(ReservableStatus.AVAILABLE);
-        aula.setStudentsAvailable(true);
-        aula.setBuilding(building);
-        aula.setType(tipoAula);
+        Space aula = Space.builder()
+                .description("Aula 1")
+                .studentsAvailable(true)
+                .building(building)
+                .type(tipoAula)
+                .build();
         spaceRepository.save(aula);
 
         List<Space> spaces = spaceRepository.findByBuildingId(building.getId());
 
         assertThat(spaces).hasSize(1);
-        assertThat(spaces.get(0).getDescription()).isEqualTo("Aula 1");
+        assertThat(spaces.getFirst().getDescription()).isEqualTo("Aula 1");
     }
 
     @Test
     void polymorphism_shouldFindSpaceUsingReservableRepo() {
-
-        Building building = new Building();
-        building.setName("Docencia 4");
+        Building building = Building.builder()
+                .name("Docencia 4")
+                .build();
         buildingRepository.save(building);
 
-        SpaceType tipoLab = new SpaceType();
-        tipoLab.setName("Compu Aula");
-        tipoLab.setDescription("Laboratorio de Computo");
-        tipoLab = spaceTypeRepository.save(tipoLab);
+        SpaceType tipoLab = SpaceType.builder()
+                .name("Compu Aula")
+                .description("Laboratorio de Computo")
+                .build();
+        spaceTypeRepository.save(tipoLab);
 
-        Space lab = new Space();
-        lab.setDescription("CA1");
-        lab.setStatus(ReservableStatus.MAINTENANCE);
-        lab.setStudentsAvailable(false);
-
-        lab.setBuilding(building);
-        lab.setType(tipoLab);
-
+        Space lab = Space.builder()
+                .description("CA1")
+                .status(ReservableStatus.MAINTENANCE)
+                .studentsAvailable(false)
+                .building(building)
+                .type(tipoLab)
+                .build();
         spaceRepository.save(lab);
-
         List<Reservable> result = reservableRepository.findAll();
-
         assertThat(result).extracting(Reservable::getStatus)
                 .contains(ReservableStatus.MAINTENANCE);
     }

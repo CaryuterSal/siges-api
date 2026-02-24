@@ -1,7 +1,10 @@
 package dev.spiffocode.sigesapi;
 
+import dev.spiffocode.sigesapi.common.infrastructure.config.AuditingConfig;
+import dev.spiffocode.sigesapi.common.infrastructure.config.SecurityAuditorAware;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.annotation.*;
@@ -10,7 +13,8 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Inherited
 @UnitTestClass
-@Import(TestcontainersConfiguration.class)
+@Import({AuditingConfig.class, SecurityAuditorAware.class, TestcontainersConfiguration.class})
+@WithMockUser("user@example.com")
 @Transactional
 @DataJpaTest
 public @interface DataTestClass {

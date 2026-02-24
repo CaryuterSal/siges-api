@@ -1,14 +1,12 @@
 package dev.spiffocode.sigesapi.users;
 
 import dev.spiffocode.sigesapi.UnitTestClass;
-import dev.spiffocode.sigesapi.users.model.User;
-import dev.spiffocode.sigesapi.users.repository.UserRepository;
-import dev.spiffocode.sigesapi.users.service.UserService;
+import dev.spiffocode.sigesapi.users.domain.model.User;
+import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
+import dev.spiffocode.sigesapi.users.application.service.UserService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 

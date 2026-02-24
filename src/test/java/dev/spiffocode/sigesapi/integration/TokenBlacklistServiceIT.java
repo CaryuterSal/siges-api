@@ -1,7 +1,7 @@
 package dev.spiffocode.sigesapi.integration;
 
 import dev.spiffocode.sigesapi.IntegrationTestClass;
-import dev.spiffocode.sigesapi.auth.service.TokenBlacklistService;
+import dev.spiffocode.sigesapi.auth.infrastructure.TokenBlacklistService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
