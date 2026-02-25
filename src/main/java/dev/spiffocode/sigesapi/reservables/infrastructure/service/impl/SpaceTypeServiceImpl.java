@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceTypeMapper;
+import dev.spiffocode.sigesapi.reservables.application.service.ActiveFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceTypeService;
 import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceTypeNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
@@ -30,14 +31,19 @@ public class SpaceTypeServiceImpl implements SpaceTypeService {
     }
 
     @Override
-    public List<SpaceTypeDto> getAllSpaceTypes(boolean onlyActive) {
+    public List<SpaceTypeDto> getAllSpaceTypes(ActiveFilter onlyActive) {
         List<SpaceType> spaceTypes = findSpaceTypeByActive(onlyActive);
         return spaceTypeMapper.toDto(spaceTypes);
     }
 
 
-    private List<SpaceType> findSpaceTypeByActive(boolean onlyActive) {
-        return onlyActive? spaceTypeRepository.findAll() : spaceTypeRepository.findAllDeleted();
+    //TODO: Really use only active filter
+    private List<SpaceType> findSpaceTypeByActive(ActiveFilter onlyActive) {
+        return switch (onlyActive) {
+            case ACTIVE ->  spaceTypeRepository.findAll();
+            case INACTIVE ->  spaceTypeRepository.findAllDeleted();
+            case ALL -> spaceTypeRepository.findAll();
+        };
     }
 
     @Override

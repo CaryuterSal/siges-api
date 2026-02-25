@@ -1,6 +1,5 @@
 package dev.spiffocode.sigesapi.reservables.application.service;
 
-import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentUpdateDto;
@@ -11,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 public interface EquipmentService {
 
     EquipmentDto getEquipmentById(long id);
-    Page<@NonNull EquipmentDto> searchEquipmentsByFilter(String searchQuery, Pageable pageable, ReservableStatus statusFilter, Long buildingIdFilter, Boolean studentsAvailableFilter, Long spaceIdFilter, ActiveFilter activeFilter);
+    Page<@NonNull EquipmentDto> searchEquipmentsByFilter(Pageable pageable, EquipmentFilter equipmentFilter);
     EquipmentDto registerEquipment(EquipmentRegisterDto request);
     EquipmentDto updateEquipment(long id, EquipmentUpdateDto request);
     void deactivateEquipment(long id);

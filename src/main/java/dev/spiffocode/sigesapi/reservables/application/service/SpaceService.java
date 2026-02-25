@@ -1,6 +1,5 @@
 package dev.spiffocode.sigesapi.reservables.application.service;
 
-import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceUpdateDto;
@@ -11,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 public interface SpaceService {
 
     SpaceDto getSpaceById(long id);
-    Page<@NonNull SpaceDto> searchSpacesByFilter(String searchQuery, Pageable pageable, ReservableStatus statusFilter, Long buildingIdFilter, Boolean studentsAvailableFilter, Long spaceTypeIdFilter, ActiveFilter activeFilter);
+    Page<@NonNull SpaceDto> searchSpacesByFilter(Pageable pageable, SpaceFilter spaceFilter);
     SpaceDto registerSpace(SpaceRegisterDto request);
     SpaceDto updateSpace(long id, SpaceUpdateDto request);
     void deactivateSpace(long id);

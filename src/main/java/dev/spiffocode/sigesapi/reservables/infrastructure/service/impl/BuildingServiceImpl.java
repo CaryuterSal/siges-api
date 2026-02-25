@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.reservables.application.mapper.BuildingMapper;
+import dev.spiffocode.sigesapi.reservables.application.service.ActiveFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.BuildingService;
 import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
@@ -33,14 +34,19 @@ public class BuildingServiceImpl implements BuildingService {
     }
 
     @Override
-    public List<BuildingDto> getAllBuildings(boolean onlyActive) {
+    public List<BuildingDto> getAllBuildings(ActiveFilter onlyActive) {
         List<Building> buildings = findBuildingByActive(onlyActive);
 
         return buildingMapper.toDto(buildings);
     }
 
-    private List<Building> findBuildingByActive(boolean onlyActive) {
-        return onlyActive ? buildingRepository.findAll() : buildingRepository.findAllDeleted();
+    // TODO: Use only active filter
+    private List<Building> findBuildingByActive(ActiveFilter onlyActive) {
+        return switch (onlyActive) {
+            case ACTIVE ->  buildingRepository.findAll();
+            case INACTIVE ->  buildingRepository.findAllDeleted();
+            case ALL -> buildingRepository.findAll();
+        };
     }
 
     @Override

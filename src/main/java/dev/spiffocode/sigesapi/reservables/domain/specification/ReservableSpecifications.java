@@ -14,7 +14,19 @@ import java.time.LocalTime;
 
 public class ReservableSpecifications {
 
-    public static <T extends Reservable> Specification<@NonNull ? extends T> nameContains(String name){
+    public static Specification<@NonNull Reservable> onlyActive(){
+        return (root, query, cb) -> {
+            return cb.isNull(root.get("deleted_at"));
+        };
+    }
+
+    public static Specification<@NonNull Reservable> onlyDeleted(){
+        return (root, query, cb) -> {
+            return cb.isNotNull(root.get("deleted_at"));
+        };
+    }
+
+    public static Specification<@NonNull Reservable> nameContains(String name){
         return (root, query, cb) -> {
             if(name == null || name.isEmpty()){
                 return null;

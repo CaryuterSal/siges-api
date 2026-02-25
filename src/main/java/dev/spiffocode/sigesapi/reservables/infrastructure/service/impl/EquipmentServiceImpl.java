@@ -1,13 +1,13 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.reservables.application.mapper.EquipmentMapper;
+import dev.spiffocode.sigesapi.reservables.application.service.EquipmentFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentService;
 import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.exception.ReservableNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
-import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
@@ -19,14 +19,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static dev.spiffocode.sigesapi.common.domain.specification.SpecificationHelper.cast;
-import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.inSpace;
-import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.inventoryNumContains;
-import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.*;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.equipmentSpecification;
 
 @Service
 @RequiredArgsConstructor
@@ -46,26 +42,9 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     @Override
-    public Page<@NonNull EquipmentDto> searchEquipmentsByFilter(String searchQuery,
-                                                                Pageable pageable,
-                                                                ReservableStatus statusFilter,
-                                                                Long buildingIdFilter,
-                                                                Boolean studentsAvailableFilter,
-                                                                Long spaceIdFilter,
-                                                                Boolean onlyActiveFilter)
+    public Page<@NonNull EquipmentDto> searchEquipmentsByFilter(Pageable pageable, EquipmentFilter filter)
     {
-            Specification<@NonNull Equipment> spec = Specification
-                .where(inSpace(spaceIdFilter))
-                .and(cast(statusIs(statusFilter)))
-                .and(
-                    inventoryNumContains(searchQuery)
-                    .or(cast(descriptionContains(searchQuery)))
-                    .or(cast(nameContains(searchQuery)))
-                )
-                .and(cast(inBuilding(buildingIdFilter)))
-                .and(cast(availableForStudents(studentsAvailableFilter)));
-
-        return equipmentRepository.findAll(spec, pageable)
+        return equipmentRepository.findAll(equipmentSpecification(filter), pageable)
                 .map(equipmentMapper::toDto);
     }
 
