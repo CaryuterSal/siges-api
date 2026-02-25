@@ -1,6 +1,8 @@
 package dev.spiffocode.sigesapi.reservables.presentation.controller;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
+import dev.spiffocode.sigesapi.reservables.application.service.ActiveFilter;
+import dev.spiffocode.sigesapi.reservables.application.service.SpaceFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceService;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceDto;
@@ -9,6 +11,7 @@ import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceUpdateDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.DependentRequired;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,7 +21,10 @@ import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springdoc.core.converters.models.PageableAsQueryParam;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -26,7 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping(path = "/spaces", version = "1.0.0")
@@ -48,18 +54,53 @@ public class SpaceController {
     }
 
     @GetMapping
+    @PageableAsQueryParam
     @Operation(summary = "Search spaces by filters")
-    public List<SpaceDto> searchSpaces(
-            @RequestParam(required = false) String searchQuery,
-            @ParameterObject Pageable pageable,
-            @RequestParam(required = false) ReservableStatus statusFilter,
-            @RequestParam(required = false) Long buildingIdFilter,
-            @RequestParam(required = false) Boolean studentsAvailableFilter,
-            @RequestParam(required = false) Long spaceTypeIdFilter,
-            @RequestParam(name = "onlyActive", defaultValue = "true") Boolean onlyActiveFilter) {
+    public Page<SpaceDto> searchSpaces(
+            @RequestParam(required = false)
+            @Schema(description = "Query for searching an space by containing name or description String", example = "auditorio")
+            String searchQuery,
+            @ParameterObject
+            @SortDefault("updatedAt")
+            @Schema(description = "Information por paging and sorting by any field")
+            Pageable pageable,
+            @RequestParam(required = false)
+            @Schema(description = "Filter by simple space state (ACTIVE or MAINTENANCE)")
+            ReservableStatus status,
+            @RequestParam(required = false)
+            @Schema(description = "Filter by building the space is which the space is located")
+            Long buildingId,
+            @RequestParam(required = false)
+            @Schema(description = "Filter depending on whether the space is visible to students or not")
+            Boolean studentsAvailable,
+            @RequestParam(required = false)
+            @Schema(description = "Filter by the Space Type that categorizes this space")
+            Long spaceTypeIdFilter,
+            @RequestParam(required = false)
+            @Schema(description = "Filter by the start time of a desired availability window", dependentRequiredMap = @DependentRequired("requestEnd"))
+            LocalDateTime requestStart,
+            @RequestParam(required = false)
+            @Schema(description = "Filter by the end time of a desired availability window", dependentRequiredMap = @DependentRequired("requestEnd"))
+            LocalDateTime requestEnd,
+            @RequestParam(required = false)
+            @Schema(description = "Filter by the minimum number of people the space should accommodate.")
+            Integer capacity,
+            @RequestParam(defaultValue = "ACTIVE")
+            @Schema(description = "Whether to fetch only ACTIVE records, only DELETED records, or ALL")
+            ActiveFilter fetchTyper) {
 
-        return spaceService.searchSpacesByFilter(searchQuery, pageable, statusFilter, buildingIdFilter,
-                studentsAvailableFilter, spaceTypeIdFilter, onlyActiveFilter);
+        SpaceFilter filter = SpaceFilter.builder()
+                .searchQuery(searchQuery)
+                .buildingIdFilter(buildingId)
+                .studentsAvailableFilter(studentsAvailable)
+                .spaceTypeIdFilter(spaceTypeIdFilter)
+                .requestStartFilter(requestStart)
+                .requestEndFilter(requestEnd)
+                .activeFilter(fetchTyper)
+                .capacityAtLeastFilter(capacity)
+                .build();
+
+        return spaceService.searchSpacesByFilter(pageable, filter);
     }
 
     @PostMapping
