@@ -7,6 +7,7 @@ import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceUpdateDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,6 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +23,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -34,7 +38,6 @@ public class SpaceController {
     private final SpaceService spaceService;
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('STUDENT')")
     @Operation(summary = "Get a space by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Space found", useReturnTypeSchema = true),
@@ -45,7 +48,6 @@ public class SpaceController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('STUDENT')")
     @Operation(summary = "Search spaces by filters")
     public List<SpaceDto> searchSpaces(
             @RequestParam(required = false) String searchQuery,
@@ -65,11 +67,18 @@ public class SpaceController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register a new space")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Space registered", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "201", description = "Space registered", useReturnTypeSchema = true, headers = {
+                    @Header(name = "Location", description = "Relative URI to which retrieve the currently created equipment")}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ValidationProblem.class)))
     })
-    public SpaceDto registerSpace(@RequestBody @Valid SpaceRegisterDto request) {
-        return spaceService.registerSpace(request);
+    public ResponseEntity<@NonNull SpaceDto> registerSpace(@RequestBody @Valid SpaceRegisterDto request) {
+        SpaceDto response = spaceService.registerSpace(request);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .pathSegment("{id}")
+                .buildAndExpand(response.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(response);
     }
 
     @PutMapping("/{id}")
@@ -91,7 +100,7 @@ public class SpaceController {
             @ApiResponse(responseCode = "204", description = "Space deactivated"),
             @ApiResponse(responseCode = "404", description = "Space not found")
     })
-    public ResponseEntity<Void> deactivateSpace(@PathVariable long id) {
+    public ResponseEntity<@NonNull Void> deactivateSpace(@PathVariable long id) {
         spaceService.deactivateSpace(id);
         return ResponseEntity.noContent().build();
     }
@@ -103,7 +112,7 @@ public class SpaceController {
             @ApiResponse(responseCode = "204", description = "Space activated"),
             @ApiResponse(responseCode = "404", description = "Space not found")
     })
-    public ResponseEntity<Void> activateSpace(@PathVariable long id) {
+    public ResponseEntity<@NonNull Void> activateSpace(@PathVariable long id) {
         spaceService.activateSpace(id);
         return ResponseEntity.noContent().build();
     }

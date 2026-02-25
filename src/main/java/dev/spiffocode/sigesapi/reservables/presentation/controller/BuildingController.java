@@ -1,11 +1,13 @@
 package dev.spiffocode.sigesapi.reservables.presentation.controller;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
+import dev.spiffocode.sigesapi.reservables.application.service.ActiveFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.BuildingService;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingUpdateDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -13,12 +15,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -31,7 +36,6 @@ public class BuildingController {
     private final BuildingService buildingService;
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('STUDENT')")
     @Operation(summary = "Get a building by ID")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Building found", useReturnTypeSchema = true),
@@ -42,10 +46,9 @@ public class BuildingController {
     }
 
     @GetMapping
-    @PreAuthorize("hasRole('STUDENT')")
     @Operation(summary = "Get all buildings")
     public List<BuildingDto> getAllBuildings(
-            @RequestParam(name = "onlyActive", defaultValue = "true") boolean onlyActive) {
+            @RequestParam(defaultValue = "ACTIVE") ActiveFilter onlyActive) {
         return buildingService.getAllBuildings(onlyActive);
     }
 
@@ -54,11 +57,18 @@ public class BuildingController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register a new building")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Building registered", useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "201", description = "Building registered", useReturnTypeSchema = true, headers = {
+                    @Header(name = "Location", description = "Relative URI to which retrieve the currently created building")}),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ValidationProblem.class)))
     })
-    public BuildingDto registerBuilding(@RequestBody @Valid BuildingRegisterDto request) {
-        return buildingService.registerBuilding(request);
+    public ResponseEntity<@NonNull BuildingDto> registerBuilding(@RequestBody @Valid BuildingRegisterDto request) {
+        BuildingDto response = buildingService.registerBuilding(request);
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequestUri()
+                .pathSegment("{id}")
+                .buildAndExpand(response.id())
+                .toUri();
+        return ResponseEntity.created(location).body(response);
     }
 
     @PutMapping("/{id}")
@@ -80,7 +90,7 @@ public class BuildingController {
             @ApiResponse(responseCode = "204", description = "Building deactivated"),
             @ApiResponse(responseCode = "404", description = "Building not found")
     })
-    public ResponseEntity<Void> deactivateBuilding(@PathVariable long id) {
+    public ResponseEntity<@NonNull Void> deactivateBuilding(@PathVariable long id) {
         buildingService.deactivateBuilding(id);
         return ResponseEntity.noContent().build();
     }
@@ -92,7 +102,7 @@ public class BuildingController {
             @ApiResponse(responseCode = "204", description = "Building activated"),
             @ApiResponse(responseCode = "404", description = "Building not found")
     })
-    public ResponseEntity<Void> activateBuilding(@PathVariable long id) {
+    public ResponseEntity<@NonNull Void> activateBuilding(@PathVariable long id) {
         buildingService.activateBuilding(id);
         return ResponseEntity.noContent().build();
     }
