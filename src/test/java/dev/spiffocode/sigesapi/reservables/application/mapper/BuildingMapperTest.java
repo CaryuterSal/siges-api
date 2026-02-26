@@ -1,23 +1,18 @@
-package dev.spiffocode.sigesapi.reservables.presentation;
+package dev.spiffocode.sigesapi.reservables.application.mapper;
 
 import dev.spiffocode.sigesapi.UnitTestClass;
-import dev.spiffocode.sigesapi.reservables.application.mapper.BuildingMapper;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingUpdateDto;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Import;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @UnitTestClass
-@Import({BuildingMapper.class})
 public class BuildingMapperTest {
 
-    @Autowired
-    BuildingMapper mapper;
+    static BuildingMapper mapper = new BuildingMapperImpl();
 
     @Test
     void register_dto_to_entity(){
