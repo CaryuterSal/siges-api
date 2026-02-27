@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.integration;
+package dev.spiffocode.sigesapi.integration.auth;
 
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 import dev.spiffocode.sigesapi.auth.infrastructure.TokenBlacklistService;

@@ -38,4 +38,8 @@ public interface BuildingRepository extends JpaRepository<@NonNull Building, @No
     @Modifying
     @Query(value = "UPDATE buildings SET deleted_at = NULL WHERE id = :id", nativeQuery = true)
     int restore(@Param("id") Long id);
+
+    boolean existsByName(String name);
+
+    boolean existsByNameAndIdNot(String name, Long id);
 }

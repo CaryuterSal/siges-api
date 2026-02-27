@@ -9,10 +9,12 @@ import jakarta.validation.constraints.Size;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
 
 @SuperBuilder
+@Jacksonized
 @Value
 @NonFinal
 public class ReservableRegisterDto {

@@ -6,10 +6,12 @@ import jakarta.validation.constraints.Positive;
 import lombok.EqualsAndHashCode;
 import lombok.Value;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 
 import java.time.Duration;
 
 @SuperBuilder
+@Jacksonized
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class SpaceRegisterDto extends ReservableRegisterDto {

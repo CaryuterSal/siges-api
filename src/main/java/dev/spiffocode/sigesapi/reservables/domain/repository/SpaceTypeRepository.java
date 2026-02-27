@@ -32,4 +32,7 @@ public interface SpaceTypeRepository extends JpaRepository<@NonNull SpaceType, @
     @Modifying
     @Query(value = "UPDATE space_types SET deleted_at = NULL WHERE id = :id", nativeQuery = true)
     int restore(@Param("id") Long id);
+
+    boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
 }

@@ -41,6 +41,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final EquipmentMapper equipmentMapper;
     private final SpaceRepository spaceRepository;
     private final BuildingRepository buildingRepository;
+    private final EquipmentUniqueValidatorService uniqueValidator;
 
 
     @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
@@ -82,6 +83,8 @@ public class EquipmentServiceImpl implements EquipmentService {
         Building building = buildingRepository.findById(buildingId)
                 .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));
 
+        uniqueValidator.assertRegisterUnique(request.getInventoryNum());
+
         Equipment equipment = equipmentMapper.toEntity(request, building, space);
         equipment = equipmentRepository.save(equipment);
         return equipmentMapper.toDto(equipment);
@@ -99,6 +102,8 @@ public class EquipmentServiceImpl implements EquipmentService {
         Long buildingId = request.getBuildingId();
         Building building = buildingRepository.findById(buildingId)
                 .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));
+
+        uniqueValidator.assertUpdateUnique(id, request.getInventoryNum());
 
         equipmentMapper.updateEntityFromDto(request, building, space,  equipment);
         equipment = equipmentRepository.save(equipment);

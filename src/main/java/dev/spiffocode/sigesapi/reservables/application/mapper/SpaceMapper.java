@@ -13,6 +13,9 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring", uses = { BuildingMapper.class, SpaceTypeMapper.class, AvailabilityMapper.class })
 public interface SpaceMapper {
 
+
+    //TODO: field delete
+    // @Mapping(target = "deletedAt", source = "deletedAt")
     @Mapping(target = "spaceType", source = "type")
     @Mapping(target = "bookInAdvanceDuration", source = "bookInAdvance")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")

@@ -34,4 +34,6 @@ public interface EquipmentRepository
     int restore(@Param("id") Long id);
 
     List<Equipment> findBySpaceId(Long spaceId);
+    boolean existsByInventoryNum(String inventoryNum);
+    boolean existsByInventoryNumAndIdNot(String inventoryNum, Long id);
 }

@@ -26,6 +26,7 @@ public class SpaceTypeServiceImpl implements SpaceTypeService {
 
     private final SpaceTypeRepository spaceTypeRepository;
     private final SpaceTypeMapper spaceTypeMapper;
+    private final SpaceTypeUniqueValidatorService uniqueValidator;
 
     @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
     @WithDeletedRecords
@@ -47,6 +48,9 @@ public class SpaceTypeServiceImpl implements SpaceTypeService {
     public SpaceTypeDto updateSpaceType(long id, SpaceTypeUpdateDto request) {
         SpaceType spaceType = spaceTypeRepository.findById(id)
                 .orElseThrow(() -> new SpaceTypeNotFoundException("Space type with ID %dl not found".formatted(id), id));
+
+        uniqueValidator.assertUpdateUnique(spaceType.getId(), request.name());
+
         spaceTypeMapper.updateEntityFromDto(request, spaceType);
         spaceType = spaceTypeRepository.save(spaceType);
         return spaceTypeMapper.toDto(spaceType);
@@ -54,6 +58,8 @@ public class SpaceTypeServiceImpl implements SpaceTypeService {
 
     @Override
     public SpaceTypeDto registerSpaceType(SpaceTypeRegisterDto request) {
+        uniqueValidator.assertRegisterUnique(request.getName());
+
         SpaceType spaceType = spaceTypeMapper.toEntity(request);
         spaceType = spaceTypeRepository.save(spaceType);
         return spaceTypeMapper.toDto(spaceType);

@@ -19,7 +19,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -53,7 +52,6 @@ public class SpaceTypeController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register a new space type")
     @ApiResponses({
@@ -72,7 +70,6 @@ public class SpaceTypeController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update an existing space type")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "SpaceType updated", useReturnTypeSchema = true),
@@ -84,7 +81,6 @@ public class SpaceTypeController {
     }
 
     @PatchMapping("/{id}/deactivate")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Deactivate a space type")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "SpaceType deactivated"),
@@ -96,7 +92,6 @@ public class SpaceTypeController {
     }
 
     @PatchMapping("/{id}/activate")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Activate a space type")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "SpaceType activated"),

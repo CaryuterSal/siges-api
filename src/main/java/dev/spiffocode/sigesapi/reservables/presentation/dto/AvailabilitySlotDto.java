@@ -6,6 +6,7 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
+import lombok.extern.jackson.Jacksonized;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -13,6 +14,7 @@ import java.time.LocalTime;
 import java.util.Set;
 
 @Builder
+@Jacksonized
 public record AvailabilitySlotDto(
 
 

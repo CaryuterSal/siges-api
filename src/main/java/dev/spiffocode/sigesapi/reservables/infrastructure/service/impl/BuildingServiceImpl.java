@@ -4,6 +4,7 @@ import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.application.mapper.BuildingMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.BuildingService;
 import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
+import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingExistsException;
 import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
@@ -11,7 +12,6 @@ import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingUpdateDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.core.support.RepositoryMethodInvocationListener;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +27,7 @@ public class BuildingServiceImpl implements BuildingService {
 
     private final BuildingRepository buildingRepository;
     private final BuildingMapper buildingMapper;
-    private final RepositoryMethodInvocationListener repositoryMethodInvocationListener;
-
+    private final BuildingUniqueValidatorService uniqueValidator;
 
     @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
     @WithDeletedRecords
@@ -50,6 +49,9 @@ public class BuildingServiceImpl implements BuildingService {
     public BuildingDto updateBuilding(long id, BuildingUpdateDto request) {
         Building building = buildingRepository.findById(id)
                 .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(id), id));
+
+        uniqueValidator.assertUpdateUnique(id, request.name());
+
         buildingMapper.updateEntityFromDto(request, building);
         building = buildingRepository.save(building);
         return buildingMapper.toDto(building);
@@ -57,6 +59,12 @@ public class BuildingServiceImpl implements BuildingService {
 
     @Override
     public BuildingDto registerBuilding(BuildingRegisterDto request) {
+        if(buildingRepository.existsByName(request.name())){
+            throw new BuildingExistsException("Building with name '%s' already exists".formatted(request.name()));
+        }
+
+        uniqueValidator.assertRegisterUnique(request.name());
+
         Building building = buildingMapper.toEntity(request);
         building = buildingRepository.save(building);
         return buildingMapper.toDto(building);

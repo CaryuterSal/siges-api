@@ -27,7 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -104,7 +103,6 @@ public class SpaceController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register a new space")
     @ApiResponses({
@@ -123,7 +121,6 @@ public class SpaceController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update an existing space")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Space updated", useReturnTypeSchema = true),
@@ -135,7 +132,6 @@ public class SpaceController {
     }
 
     @PatchMapping("/{id}/deactivate")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Deactivate a space")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Space deactivated"),
@@ -147,7 +143,6 @@ public class SpaceController {
     }
 
     @PatchMapping("/{id}/activate")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Activate a space")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Space activated"),

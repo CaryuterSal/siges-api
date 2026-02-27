@@ -4,10 +4,7 @@ import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceService;
-import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
-import dev.spiffocode.sigesapi.reservables.domain.exception.ReservableNotFoundException;
-import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceNotFoundException;
-import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceTypeNotFoundException;
+import dev.spiffocode.sigesapi.reservables.domain.exception.*;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
@@ -42,6 +39,7 @@ public class SpaceServiceImpl implements SpaceService {
     private final SpaceMapper spaceMapper;
     private final SpaceTypeRepository spaceTypeRepository;
     private final BuildingRepository buildingRepository;
+    private final SpaceUniqueValidatorService uniqueValidator;
 
 
     @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
@@ -82,6 +80,8 @@ public class SpaceServiceImpl implements SpaceService {
         Building building = buildingRepository.findById(buildingId)
                 .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));
 
+        uniqueValidator.assertRegisterUnique(request.getName(), building);
+
         Space space = spaceMapper.toEntity(request, spaceType, building);
         space = spaceRepository.save(space);
         return spaceMapper.toDto(space);
@@ -100,6 +100,8 @@ public class SpaceServiceImpl implements SpaceService {
         Long buildingId = request.getBuildingId();
         Building building = buildingRepository.findById(buildingId)
                 .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));
+
+        uniqueValidator.assertUpdateUnique(space.getId(), request.getName(), building);
 
         spaceMapper.updateEntityFromDto(request, spaceType, building, space);
         space = spaceRepository.save(space);

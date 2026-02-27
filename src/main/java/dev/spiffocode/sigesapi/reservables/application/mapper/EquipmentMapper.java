@@ -13,6 +13,8 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring", uses = { BuildingMapper.class, SpaceMapper.class, AvailabilityMapper.class })
 public interface EquipmentMapper {
 
+    //TODO: field delete
+    // @Mapping(target = "deletedAt", source = "deletedAt")
     @Mapping(target = "spaceAttached", source = "space")
     @Mapping(target = "inventoryIdNum", source = "inventoryNum")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")

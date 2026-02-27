@@ -1,9 +1,9 @@
 package dev.spiffocode.sigesapi.reservables.presentation.controller;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
-import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentService;
+import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentRegisterDto;
@@ -27,7 +27,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -99,7 +98,6 @@ public class EquipmentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register a new equipment")
     @ApiResponses({
@@ -119,19 +117,17 @@ public class EquipmentController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update an existing equipment")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Equipment updated", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ValidationProblem.class))),
             @ApiResponse(responseCode = "404", description = "Equipment not found")
     })
-    public EquipmentDto updateEquipment(@PathVariable long id, @RequestBody @Valid EquipmentUpdateDto request) {
+    public EquipmentDto updateEquipment(@PathVariable("id") long id, @RequestBody @Valid EquipmentUpdateDto request) {
         return equipmentService.updateEquipment(id, request);
     }
 
     @PatchMapping("/{id}/deactivate")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Deactivate an equipment")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Equipment deactivated"),
@@ -143,7 +139,6 @@ public class EquipmentController {
     }
 
     @PatchMapping("/{id}/activate")
-    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Activate an equipment")
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Equipment activated"),

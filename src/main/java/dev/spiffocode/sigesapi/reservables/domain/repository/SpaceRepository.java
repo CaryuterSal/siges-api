@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.domain.repository;
 
+import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
@@ -39,4 +40,8 @@ public interface SpaceRepository
     List<Space> findByBuildingId(Long buildingId);
 
     List<Space> findByBuildingIdAndStatus(Long buildingId, ReservableStatus status);
+
+
+    boolean existsByNameAndBuilding(String name, Building building);
+    boolean existsByNameAndBuildingAndIdNot(String name, Building building, Long id);
 }
