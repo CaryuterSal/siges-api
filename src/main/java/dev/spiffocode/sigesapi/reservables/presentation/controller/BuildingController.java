@@ -57,7 +57,8 @@ public class BuildingController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Building registered", useReturnTypeSchema = true, headers = {
                     @Header(name = "Location", description = "Relative URI to which retrieve the currently created building")}),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ValidationProblem.class)))
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ValidationProblem.class))),
+            @ApiResponse(responseCode = "409", description = "Name already exists")
     })
     public ResponseEntity<@NonNull BuildingDto> registerBuilding(@RequestBody @Valid BuildingRegisterDto request) {
         BuildingDto response = buildingService.registerBuilding(request);
@@ -74,7 +75,8 @@ public class BuildingController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Building updated", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ValidationProblem.class))),
-            @ApiResponse(responseCode = "404", description = "Building not found")
+            @ApiResponse(responseCode = "404", description = "Building not found"),
+            @ApiResponse(responseCode = "409", description = "Name already exists")
     })
     public BuildingDto updateBuilding(@PathVariable long id, @RequestBody @Valid BuildingUpdateDto request) {
         return buildingService.updateBuilding(id, request);

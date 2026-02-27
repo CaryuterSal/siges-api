@@ -5,9 +5,12 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.SQLDelete;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -32,5 +35,12 @@ public class Space extends Reservable {
     @NotNull
     @Positive
     private Integer capacity;
+
+    @Filter(name = "softDeleteFilter")
+    @OneToMany(
+            mappedBy = "space",
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
+    )
+    private List<Equipment> equipments = new ArrayList<>();
 
 }

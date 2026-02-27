@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
+import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceService;
@@ -110,8 +111,11 @@ public class SpaceServiceImpl implements SpaceService {
 
     @Override
     public void deactivateSpace(long id) {
-        if (!spaceRepository.existsById(id)) {
-            throw new SpaceNotFoundException("Space with ID %dl not found".formatted(id), id);
+        Space space = spaceRepository.findById(id)
+                .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(id), id));
+
+        if(!space.getEquipments().isEmpty()){
+            throw new ConflictingStateException("Cannot deactivate Space. Still have equipments linked to. Either deactivate those equipments or re-assign them to other space");
         }
         spaceRepository.deleteById(id);
     }

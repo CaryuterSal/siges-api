@@ -7,6 +7,8 @@ import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.SQLDelete;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,5 +35,12 @@ public class SpaceType {
 
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
+
+    @Filter(name = "softDeleteFilter")
+    @OneToMany(
+            mappedBy = "type",
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
+    )
+    private List<Space> spaces = new ArrayList<>();
 
 }

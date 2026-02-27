@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
+import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
 import dev.spiffocode.sigesapi.reservables.application.mapper.BuildingMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.BuildingService;
 import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
@@ -59,7 +60,7 @@ public class BuildingServiceImpl implements BuildingService {
 
     @Override
     public BuildingDto registerBuilding(BuildingRegisterDto request) {
-        if(buildingRepository.existsByName(request.name())){
+        if (buildingRepository.existsByName(request.name())) {
             throw new BuildingExistsException("Building with name '%s' already exists".formatted(request.name()));
         }
 
@@ -72,8 +73,10 @@ public class BuildingServiceImpl implements BuildingService {
 
     @Override
     public void deactivateBuilding(long id) {
-        if (!buildingRepository.existsById(id)) {
-            throw new BuildingNotFoundException("Building with ID %dl not found".formatted(id), id);
+        Building building = buildingRepository.findById(id)
+                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(id), id));
+        if(!building.getReservables().isEmpty()){
+            throw new ConflictingStateException("Cannot deactivate building. Still have reservables linked to. Either deactivate those reservables or re-locate them to other building");
         }
         buildingRepository.deleteById(id);
     }

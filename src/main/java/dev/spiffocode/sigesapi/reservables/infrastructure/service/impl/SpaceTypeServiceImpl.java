@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
+import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceTypeMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceTypeService;
@@ -67,8 +68,11 @@ public class SpaceTypeServiceImpl implements SpaceTypeService {
 
     @Override
     public void deactivateSpaceType(long id) {
-        if (!spaceTypeRepository.existsById(id)) {
-            throw new SpaceTypeNotFoundException("Space type with ID %dl not found".formatted(id), id);
+        SpaceType spaceType = spaceTypeRepository.findById(id)
+                .orElseThrow(() -> new SpaceTypeNotFoundException("Space type with ID %dl not found".formatted(id), id));
+
+        if(!spaceType.getSpaces().isEmpty()){
+            throw new ConflictingStateException("Cannot deactivate Space Type. Still have spaces linked to. Either deactivate those spaces or re-assign them to other space type");
         }
         spaceTypeRepository.deleteById(id);
     }

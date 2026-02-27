@@ -10,6 +10,8 @@ import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -36,4 +38,10 @@ public class Building {
     @Column(insertable = false, updatable = false)
     LocalDateTime deletedAt;
 
+    @Filter(name = "softDeleteFilter")
+    @OneToMany(
+            mappedBy = "building",
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
+    )
+    private List<Reservable> reservables = new ArrayList<>();
 }
