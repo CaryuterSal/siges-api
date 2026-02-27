@@ -105,7 +105,8 @@ class AuthIT extends FlushedIntegrationTest {
     @Test
     void login_badCredentials_returns401_problemDetail() throws Exception {
 
-        mvc.perform(post(API + "/login")
+        mvc.perform(
+                post(API + "/login")
                         .header("X-API-Version", VERSION)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

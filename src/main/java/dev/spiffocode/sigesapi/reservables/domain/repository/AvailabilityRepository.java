@@ -11,7 +11,5 @@ import java.util.List;
 @Repository
 public interface AvailabilityRepository extends JpaRepository<@NonNull Availability, @NonNull Long> {
 
-    List<Availability> findByReservableId(Long reservableId);
-
     List<Availability> findByDayOfWeek(DayOfWeek dayOfWeek);
 }

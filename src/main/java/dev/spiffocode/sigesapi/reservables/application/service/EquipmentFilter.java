@@ -7,6 +7,6 @@ import java.time.LocalDateTime;
 
 @Builder
 public record EquipmentFilter(String searchQuery, ReservableStatus statusFilter, Long buildingIdFilter,
-                              Boolean studentsAvailableFilter, Long spaceIdFilter, ActiveFilter activeFilter,
+                              Boolean studentsAvailableFilter, Long spaceIdFilter, ShowModeFilter showModeFilter,
                               LocalDateTime requestStartFilter, LocalDateTime requestEndFilter) {
 }

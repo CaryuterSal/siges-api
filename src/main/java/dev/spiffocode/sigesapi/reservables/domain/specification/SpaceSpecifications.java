@@ -23,7 +23,8 @@ public class SpaceSpecifications {
                                 .or(nameContains(filter.searchQuery())))
                 )
                 .and(cast(inBuilding(filter.buildingIdFilter())))
-                .and(cast(availableForStudents(filter.studentsAvailableFilter())));
+                .and(cast(availableForStudents(filter.studentsAvailableFilter())))
+                .and(cast(byActiveFilter(filter.showModeFilter())));
     }
 
     public static Specification<@NonNull Space> isOfType(Long spaceTypeId){

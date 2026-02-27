@@ -1,7 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.presentation.controller;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
-import dev.spiffocode.sigesapi.reservables.application.service.ActiveFilter;
+import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceTypeService;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeRegisterDto;
@@ -48,8 +48,8 @@ public class SpaceTypeController {
     @GetMapping
     @Operation(summary = "Get all space types")
     public List<SpaceTypeDto> getAllSpaceTypes(
-            @RequestParam(defaultValue = "ACTIVE") ActiveFilter onlyActive) {
-        return spaceTypeService.getAllSpaceTypes(onlyActive);
+            @RequestParam(defaultValue = "ACTIVE") ShowModeFilter showMode) {
+        return spaceTypeService.getAllSpaceTypes(showMode);
     }
 
     @PostMapping

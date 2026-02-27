@@ -7,6 +7,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.SQLDelete;
 
 @Entity
 @Getter
@@ -15,11 +17,11 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
+@SQLDelete(sql = "UPDATE app_users SET deleted_at = NOW() WHERE id = ?")
 @Table(indexes = {
         @Index(columnList = "registration_number")
 })
-public class Student extends Applicant{
-
+public class Student extends Applicant {
 
     @NotNull
     @Column(nullable = false, unique = true)

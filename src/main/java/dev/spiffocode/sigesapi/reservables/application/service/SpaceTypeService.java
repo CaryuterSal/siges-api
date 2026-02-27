@@ -9,7 +9,7 @@ import java.util.List;
 public interface SpaceTypeService {
     SpaceTypeDto getSpaceType(long id);
 
-    List<SpaceTypeDto> getAllSpaceTypes(ActiveFilter activeFilter);
+    List<SpaceTypeDto> getAllSpaceTypes(ShowModeFilter showModeFilter);
 
     SpaceTypeDto updateSpaceType(long id, SpaceTypeUpdateDto request);
 

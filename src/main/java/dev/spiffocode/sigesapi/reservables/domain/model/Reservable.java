@@ -1,12 +1,12 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SoftDelete;
-import org.hibernate.annotations.SoftDeleteType;
+import org.hibernate.annotations.*;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -24,7 +24,9 @@ import java.util.List;
 @ToString
 @Table(name = "reservables")
 @Audited
-@SoftDelete(strategy = SoftDeleteType.TIMESTAMP, columnName = "deleted_at")
+@FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
+@Filter(name = "softDeleteFilter")
+@SQLDelete(sql = "UPDATE reservables SET deleted_at = NOW() WHERE id = ?")
 @EntityListeners(AuditingEntityListener.class)
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Reservable {

@@ -1,7 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.presentation.controller;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
-import dev.spiffocode.sigesapi.reservables.application.service.ActiveFilter;
+import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceService;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
@@ -56,7 +56,7 @@ public class SpaceController {
     @GetMapping
     @PageableAsQueryParam
     @Operation(summary = "Search spaces by filters")
-    public Page<SpaceDto> searchSpaces(
+    public Page<@NonNull SpaceDto> searchSpaces(
             @RequestParam(required = false)
             @Schema(description = "Query for searching an space by containing name or description String", example = "auditorio")
             String searchQuery,
@@ -87,7 +87,7 @@ public class SpaceController {
             Integer capacity,
             @RequestParam(defaultValue = "ACTIVE")
             @Schema(description = "Whether to fetch only ACTIVE records, only DELETED records, or ALL")
-            ActiveFilter fetchTyper) {
+            ShowModeFilter showMode) {
 
         SpaceFilter filter = SpaceFilter.builder()
                 .searchQuery(searchQuery)
@@ -96,7 +96,7 @@ public class SpaceController {
                 .spaceTypeIdFilter(spaceTypeIdFilter)
                 .requestStartFilter(requestStart)
                 .requestEndFilter(requestEnd)
-                .activeFilter(fetchTyper)
+                .showModeFilter(showMode)
                 .capacityAtLeastFilter(capacity)
                 .build();
 

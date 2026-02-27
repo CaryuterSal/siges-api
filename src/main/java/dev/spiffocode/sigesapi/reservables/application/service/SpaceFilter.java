@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Builder
 public record SpaceFilter(String searchQuery, ReservableStatus statusFilter, Long buildingIdFilter,
-                          Boolean studentsAvailableFilter, Long spaceTypeIdFilter, ActiveFilter activeFilter,
+                          Boolean studentsAvailableFilter, Long spaceTypeIdFilter, ShowModeFilter showModeFilter,
                           Integer capacityAtLeastFilter, LocalDateTime requestStartFilter,
                           LocalDateTime requestEndFilter) {
 }

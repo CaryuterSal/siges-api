@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
+import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.application.mapper.EquipmentMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentService;
@@ -19,10 +20,17 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static dev.spiffocode.sigesapi.common.domain.specification.SpecificationHelper.cast;
 import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.equipmentSpecification;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.availableForStudents;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +42,9 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final SpaceRepository spaceRepository;
     private final BuildingRepository buildingRepository;
 
+
+    @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
+    @WithDeletedRecords
     @Override
     public EquipmentDto getEquipmentById(long id) {
         Equipment equipment = equipmentRepository.findById(id)
@@ -41,11 +52,24 @@ public class EquipmentServiceImpl implements EquipmentService {
         return equipmentMapper.toDto(equipment);
     }
 
+    @WithDeletedRecords
     @Override
     public Page<@NonNull EquipmentDto> searchEquipmentsByFilter(Pageable pageable, EquipmentFilter filter)
     {
-        return equipmentRepository.findAll(equipmentSpecification(filter), pageable)
+        return equipmentRepository.findAll(resolveSpecification(filter), pageable)
                 .map(equipmentMapper::toDto);
+    }
+
+    private Specification<@NonNull Equipment> resolveSpecification(EquipmentFilter filter) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        Specification<@NonNull Equipment> spec = equipmentSpecification(filter);
+        if(auth == null) return spec;
+
+        boolean isStudent = auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STUDENT"));
+
+        if(isStudent) return spec.and(cast(availableForStudents(true)));
+        return spec;
     }
 
     @Override

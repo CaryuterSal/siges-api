@@ -26,6 +26,7 @@ public class ReservableDto {
     LocalDateTime createdAt;
     @Schema(example = "admin@example.com")
     String createdBy;
+    LocalDateTime deletedAt;
     List<AvailabilityExceptionDto> availabilityExceptions;
     List<AvailabilitySlotDto> availabilitySlots;
 }

@@ -1,6 +1,9 @@
 package dev.spiffocode.sigesapi.common.infrastructure.config;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.NonNull;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.*;
@@ -22,6 +25,7 @@ public class GlobalControllerAdvice extends ResponseEntityExceptionHandler {
      */
     @Override
     @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ApiResponse(content = @Content(schema = @Schema(implementation = ValidationProblem.class)), responseCode = "400")
     protected ResponseEntity<@NonNull Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
             @NonNull HttpHeaders headers,

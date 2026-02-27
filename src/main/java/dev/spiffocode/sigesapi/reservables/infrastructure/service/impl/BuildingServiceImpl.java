@@ -1,8 +1,9 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
+import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.application.mapper.BuildingMapper;
-import dev.spiffocode.sigesapi.reservables.application.service.ActiveFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.BuildingService;
+import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
@@ -11,10 +12,13 @@ import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingUpdateDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.core.support.RepositoryMethodInvocationListener;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static dev.spiffocode.sigesapi.reservables.domain.specification.BuildingSpecifications.byActiveFilter;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,8 @@ public class BuildingServiceImpl implements BuildingService {
     private final RepositoryMethodInvocationListener repositoryMethodInvocationListener;
 
 
+    @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
+    @WithDeletedRecords
     @Override
     public BuildingDto getBuilding(long id) {
         Building building = buildingRepository.findById(id)
@@ -33,20 +39,11 @@ public class BuildingServiceImpl implements BuildingService {
         return buildingMapper.toDto(building);
     }
 
+    @WithDeletedRecords
     @Override
-    public List<BuildingDto> getAllBuildings(ActiveFilter onlyActive) {
-        List<Building> buildings = findBuildingByActive(onlyActive);
-
+    public List<BuildingDto> getAllBuildings(ShowModeFilter showMode) {
+        List<Building> buildings = buildingRepository.findAll(byActiveFilter(showMode));
         return buildingMapper.toDto(buildings);
-    }
-
-    // TODO: Use only active filter
-    private List<Building> findBuildingByActive(ActiveFilter onlyActive) {
-        return switch (onlyActive) {
-            case ACTIVE ->  buildingRepository.findAll();
-            case INACTIVE ->  buildingRepository.findAllDeleted();
-            case ALL -> buildingRepository.findAll();
-        };
     }
 
     @Override

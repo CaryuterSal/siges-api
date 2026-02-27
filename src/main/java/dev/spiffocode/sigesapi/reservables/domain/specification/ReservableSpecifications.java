@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.domain.specification;
 
+import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.domain.model.*;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Root;
@@ -14,15 +15,20 @@ import java.time.LocalTime;
 
 public class ReservableSpecifications {
 
-    public static Specification<@NonNull Reservable> onlyActive(){
-        return (root, query, cb) -> {
-            return cb.isNull(root.get("deleted_at"));
-        };
-    }
 
     public static Specification<@NonNull Reservable> onlyDeleted(){
-        return (root, query, cb) -> {
-            return cb.isNotNull(root.get("deleted_at"));
+        return (root, query, cb) -> cb.isNotNull(root.get("deletedAt"));
+    }
+
+    public static Specification<@NonNull Reservable> onlyActive(){
+        return (root, query, cb) -> cb.isNull(root.get("deletedAt"));
+    }
+
+    public static Specification<@NonNull Reservable> byActiveFilter(ShowModeFilter filter) {
+        return switch (filter) {
+            case ACTIVE -> onlyActive();
+            case INACTIVE -> onlyDeleted();
+            case ALL -> (root, query, cb) -> null;
         };
     }
 

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.SQLDelete;
 
 import java.time.Duration;
 
@@ -15,10 +16,10 @@ import java.time.Duration;
 @AllArgsConstructor
 @SuperBuilder
 @ToString
+@SQLDelete(sql = "UPDATE reservables SET deleted_at = NOW() WHERE id = ?")
 @Table(name = "spaces")
 @PrimaryKeyJoinColumn(name = "id")
-public class Space extends Reservable{
-
+public class Space extends Reservable {
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
@@ -26,7 +27,6 @@ public class Space extends Reservable{
     private SpaceType type;
 
     @NotNull
-    @Positive
     private Duration bookInAdvance;
 
     @NotNull

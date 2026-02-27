@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface BuildingService {
     BuildingDto getBuilding(long id);
-    List<BuildingDto> getAllBuildings(ActiveFilter activeFilter);
+    List<BuildingDto> getAllBuildings(ShowModeFilter showModeFilter);
     BuildingDto updateBuilding(long id, BuildingUpdateDto request);
     BuildingDto registerBuilding(BuildingRegisterDto  request);
     void deactivateBuilding(long id);

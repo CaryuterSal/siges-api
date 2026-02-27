@@ -9,8 +9,9 @@ import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SoftDelete;
-import org.hibernate.annotations.SoftDeleteType;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -39,9 +40,9 @@ import java.util.List;
         @Index(columnList = "deleted_at")
 })
 @EntityListeners(AuditingEntityListener.class)
-@SoftDelete(
-        strategy = SoftDeleteType.TIMESTAMP,
-        columnName = "deleted_at")
+@FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
+@Filter(name = "softDeleteFilter")
+@SQLDelete(sql = "UPDATE app_users SET deleted_at = NOW() WHERE id = ?")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User implements UserDetails {
 
@@ -91,6 +92,9 @@ public abstract class User implements UserDetails {
     @CreatedBy
     @Column(nullable = false, updatable = false)
     private String createdBy;
+
+    @Column(insertable = false, updatable = false)
+    private LocalDateTime deletedAt;
 
     @OneToMany(
             mappedBy = "user",

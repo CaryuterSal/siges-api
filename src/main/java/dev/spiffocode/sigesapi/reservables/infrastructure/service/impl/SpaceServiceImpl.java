@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
+import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceService;
@@ -20,9 +21,16 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static dev.spiffocode.sigesapi.common.domain.specification.SpecificationHelper.cast;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.availableForStudents;
 import static dev.spiffocode.sigesapi.reservables.domain.specification.SpaceSpecifications.spaceSpecification;
 
 @Service
@@ -35,6 +43,9 @@ public class SpaceServiceImpl implements SpaceService {
     private final SpaceTypeRepository spaceTypeRepository;
     private final BuildingRepository buildingRepository;
 
+
+    @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
+    @WithDeletedRecords
     @Override
     public SpaceDto getSpaceById(long id) {
         Space space = spaceRepository.findById(id)
@@ -42,10 +53,23 @@ public class SpaceServiceImpl implements SpaceService {
         return spaceMapper.toDto(space);
     }
 
+    @WithDeletedRecords
     @Override
     public Page<@NonNull SpaceDto> searchSpacesByFilter(Pageable pageable, SpaceFilter filter) {
-        return spaceRepository.findAll(spaceSpecification(filter), pageable)
+        return spaceRepository.findAll(resolveSpecification(filter), pageable)
                 .map(spaceMapper::toDto);
+    }
+
+    private Specification<@NonNull Space> resolveSpecification(SpaceFilter filter) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        Specification<@NonNull Space> spec = spaceSpecification(filter);
+        if(auth == null) return spec;
+
+        boolean isStudent = auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STUDENT"));
+
+        if(isStudent) return spec.and(cast(availableForStudents(true)));
+        return spec;
     }
 
     @Override

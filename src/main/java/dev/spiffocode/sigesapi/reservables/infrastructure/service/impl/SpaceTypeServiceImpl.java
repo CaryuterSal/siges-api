@@ -1,7 +1,8 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
+import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceTypeMapper;
-import dev.spiffocode.sigesapi.reservables.application.service.ActiveFilter;
+import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceTypeService;
 import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceTypeNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
@@ -10,10 +11,13 @@ import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeUpdateDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static dev.spiffocode.sigesapi.reservables.domain.specification.SpaceTypeSpecifications.byActiveFilter;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +27,8 @@ public class SpaceTypeServiceImpl implements SpaceTypeService {
     private final SpaceTypeRepository spaceTypeRepository;
     private final SpaceTypeMapper spaceTypeMapper;
 
+    @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
+    @WithDeletedRecords
     @Override
     public SpaceTypeDto getSpaceType(long id) {
         SpaceType spaceType = spaceTypeRepository.findById(id)
@@ -30,20 +36,11 @@ public class SpaceTypeServiceImpl implements SpaceTypeService {
         return spaceTypeMapper.toDto(spaceType);
     }
 
+    @WithDeletedRecords
     @Override
-    public List<SpaceTypeDto> getAllSpaceTypes(ActiveFilter onlyActive) {
-        List<SpaceType> spaceTypes = findSpaceTypeByActive(onlyActive);
+    public List<SpaceTypeDto> getAllSpaceTypes(ShowModeFilter showMode) {
+        List<SpaceType> spaceTypes = spaceTypeRepository.findAll(byActiveFilter(showMode));
         return spaceTypeMapper.toDto(spaceTypes);
-    }
-
-
-    //TODO: Really use only active filter
-    private List<SpaceType> findSpaceTypeByActive(ActiveFilter onlyActive) {
-        return switch (onlyActive) {
-            case ACTIVE ->  spaceTypeRepository.findAll();
-            case INACTIVE ->  spaceTypeRepository.findAllDeleted();
-            case ALL -> spaceTypeRepository.findAll();
-        };
     }
 
     @Override

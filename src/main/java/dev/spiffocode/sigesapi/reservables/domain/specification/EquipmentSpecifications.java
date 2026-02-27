@@ -21,7 +21,8 @@ public class EquipmentSpecifications {
                                 .or(cast(nameContains(filter.searchQuery())))
                 )
                 .and(cast(inBuilding(filter.buildingIdFilter())))
-                .and(cast(availableForStudents(filter.studentsAvailableFilter())));
+                .and(cast(availableForStudents(filter.studentsAvailableFilter())))
+                .and(cast(byActiveFilter(filter.showModeFilter())));
 
     }
 

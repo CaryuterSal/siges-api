@@ -1,7 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.presentation.controller;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
-import dev.spiffocode.sigesapi.reservables.application.service.ActiveFilter;
+import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.BuildingService;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingRegisterDto;
@@ -48,8 +48,8 @@ public class BuildingController {
     @GetMapping
     @Operation(summary = "Get all buildings")
     public List<BuildingDto> getAllBuildings(
-            @RequestParam(defaultValue = "ACTIVE") ActiveFilter onlyActive) {
-        return buildingService.getAllBuildings(onlyActive);
+            @RequestParam(defaultValue = "ACTIVE") ShowModeFilter showMode) {
+        return buildingService.getAllBuildings(showMode);
     }
 
     @PostMapping

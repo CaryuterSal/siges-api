@@ -1,7 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.presentation.controller;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
-import dev.spiffocode.sigesapi.reservables.application.service.ActiveFilter;
+import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentService;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
@@ -84,7 +84,7 @@ public class EquipmentController {
             LocalDateTime requestEnd,
             @RequestParam(defaultValue = "ACTIVE")
             @Schema(description = "Whether to fetch only ACTIVE records, only DELETED records, or ALL")
-            ActiveFilter fetchType) {
+            ShowModeFilter showMode) {
 
         EquipmentFilter filter = EquipmentFilter.builder()
                 .statusFilter(status)
@@ -93,7 +93,7 @@ public class EquipmentController {
                 .spaceIdFilter(spaceId)
                 .requestStartFilter(requestStart)
                 .requestEndFilter(requestEnd)
-                .activeFilter(fetchType).build();
+                .showModeFilter(showMode).build();
 
         return equipmentService.searchEquipmentsByFilter(pageable, filter);
     }

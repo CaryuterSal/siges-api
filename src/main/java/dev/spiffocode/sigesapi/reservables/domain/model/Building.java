@@ -3,10 +3,13 @@ package dev.spiffocode.sigesapi.reservables.domain.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.SoftDelete;
-import org.hibernate.annotations.SoftDeleteType;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -16,7 +19,9 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Builder
 @ToString
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-@SoftDelete(strategy = SoftDeleteType.TIMESTAMP, columnName = "deleted_at")
+@FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
+@Filter(name = "softDeleteFilter")
+@SQLDelete(sql = "UPDATE buildings SET deleted_at = NOW() WHERE id = ?")
 @Table(name = "buildings")
 public class Building {
 
@@ -27,5 +32,8 @@ public class Building {
     @NotNull
     @Column(nullable = false, unique = true, length = 45)
     private String name;
+
+    @Column(insertable = false, updatable = false)
+    LocalDateTime deletedAt;
 
 }
