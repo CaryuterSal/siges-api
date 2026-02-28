@@ -8,13 +8,13 @@ import lombok.extern.jackson.Jacksonized;
 
 import java.time.Duration;
 
-
 @Setter
 @SuperBuilder
 @Jacksonized
 @EqualsAndHashCode(callSuper = true)
 @Value
-public class SpaceDto extends  ReservableDto {
+public class SpaceDto extends ReservableDto {
     SpaceTypeDto spaceType;
     Duration bookInAdvanceDuration;
+    Integer capacity;
 }
