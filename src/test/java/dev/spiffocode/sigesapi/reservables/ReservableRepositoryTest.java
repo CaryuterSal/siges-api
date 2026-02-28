@@ -9,6 +9,7 @@ import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceTypeRepository
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +36,10 @@ class ReservableRepositoryTest {
         spaceTypeRepository.save(tipoAula);
 
         Space aula = Space.builder()
-                .description("Aula 1")
+                .name("Aula 1")
+                .description("Aula grande para presentaciones")
+                .bookInAdvance(Duration.ofSeconds(1))
+                .capacity(20)
                 .studentsAvailable(true)
                 .building(building)
                 .type(tipoAula)
@@ -45,7 +49,7 @@ class ReservableRepositoryTest {
         List<Space> spaces = spaceRepository.findByBuildingId(building.getId());
 
         assertThat(spaces).hasSize(1);
-        assertThat(spaces.getFirst().getDescription()).isEqualTo("Aula 1");
+        assertThat(spaces.getFirst().getDescription()).isEqualTo("Aula grande para presentaciones");
     }
 
     @Test
@@ -62,7 +66,10 @@ class ReservableRepositoryTest {
         spaceTypeRepository.save(tipoLab);
 
         Space lab = Space.builder()
-                .description("CA1")
+                .name("CA1")
+                .description("Aula de computadoras")
+                .bookInAdvance(Duration.ofMinutes(30))
+                .capacity(15)
                 .status(ReservableStatus.MAINTENANCE)
                 .studentsAvailable(false)
                 .building(building)

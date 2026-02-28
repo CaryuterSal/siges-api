@@ -2,24 +2,27 @@ package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.*;
+import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.DayOfWeek;
 
+@Audited
+@Builder
 @Entity
 @Getter
 @Setter
 @ToString
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "availabilities")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Availability {
 
     @Id
@@ -34,10 +37,10 @@ public class Availability {
     @Column
     private LocalDate dateTo;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime startTime;
 
-    @Column
+    @Column(nullable = false)
     private LocalTime endTime;
 
     @NotNull
@@ -55,11 +58,12 @@ public class Availability {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-
-
+    @ToString.Exclude
     @NotNull
-    @ManyToOne
-    @JoinColumn(name = "reservable_id", nullable = false)
-    private Reservable reservable;
+    @ManyToOne(
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+            optional = false
+    )
+    private AvailabilitySlot group;
 
 }

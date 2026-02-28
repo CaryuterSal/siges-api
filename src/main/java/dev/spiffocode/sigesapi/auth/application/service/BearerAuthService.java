@@ -1,6 +1,6 @@
 package dev.spiffocode.sigesapi.auth.application.service;
 
-import dev.spiffocode.sigesapi.auth.presentation.*;
+import dev.spiffocode.sigesapi.auth.presentation.dto.*;
 
 public interface BearerAuthService {
 

@@ -3,10 +3,11 @@ package dev.spiffocode.sigesapi.notifications.domain.model;
 
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.SoftDelete;
-import org.hibernate.annotations.SoftDeleteType;
+import org.hibernate.annotations.*;
+import org.hibernate.annotations.Generated;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,7 +23,8 @@ import java.time.LocalDateTime;
 @Table(name = "push_tokens")
 @EntityListeners(AuditingEntityListener.class)
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-@SoftDelete(strategy = SoftDeleteType.ACTIVE, columnName = "is_active")
+@FilterDef(name = "softDeleteFilter", defaultCondition = "is_active = TRUE")
+@Filter(name = "softDeleteFilter")
 @Entity
 public class PushToken {
 
@@ -45,4 +47,8 @@ public class PushToken {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE}
     )
     private User user;
+
+    @Generated
+    @Column(nullable = false, insertable = false, updatable = false)
+    private Boolean isActive;
 }

@@ -1,0 +1,5 @@
+ALTER TABLE buildings
+    ADD deleted_at TIMESTAMP WITHOUT TIME ZONE;
+
+ALTER TABLE space_types
+    ADD deleted_at TIMESTAMP WITHOUT TIME ZONE;

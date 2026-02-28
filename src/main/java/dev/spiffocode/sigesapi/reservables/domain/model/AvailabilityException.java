@@ -1,12 +1,10 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.*;
+import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -14,11 +12,15 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+@Audited
+@Builder(toBuilder = true)
 @Entity
 @Getter
 @Setter
 @ToString
 @Table(name = "availability_exceptions")
+@NoArgsConstructor
+@AllArgsConstructor
 public class AvailabilityException {
 
     @Id
@@ -30,14 +32,21 @@ public class AvailabilityException {
     @Column(nullable = false)
     private LocalDate dateFrom;
 
-    @Column
+    @NotNull
+    @Column(nullable = false)
     private LocalDate dateTo;
 
-    @Column
+    @NotNull
+    @Column(nullable = false)
     private LocalTime startTime;
 
-    @Column
+    @NotNull
+    @Column(nullable = false)
     private LocalTime endTime;
+
+    @NotBlank
+    @Column(nullable = false)
+    private String reason;
 
 
     @CreatedDate
@@ -49,6 +58,7 @@ public class AvailabilityException {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "reservable_id", nullable = false)
     private Reservable reservable;

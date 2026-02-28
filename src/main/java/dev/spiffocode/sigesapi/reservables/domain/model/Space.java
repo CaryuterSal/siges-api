@@ -2,23 +2,47 @@ package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Filter;
+import org.hibernate.envers.Audited;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+
+@Audited
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @ToString
 @Table(name = "spaces")
 @PrimaryKeyJoinColumn(name = "id")
-public class Space extends Reservable{
-
+public class Space extends Reservable {
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "space_types_id", nullable = false)
     private SpaceType type;
+
+    @NotNull
+    private Duration bookInAdvance;
+
+    @NotNull
+    @Positive
+    private Integer capacity;
+
+    @Builder.Default
+    @ToString.Exclude
+    @Filter(name = "softDeleteFilter")
+    @OneToMany(
+            mappedBy = "space",
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
+    )
+    private List<Equipment> equipments = new ArrayList<>();
 
 }

@@ -9,8 +9,9 @@ import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SoftDelete;
-import org.hibernate.annotations.SoftDeleteType;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -21,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,9 +41,8 @@ import java.util.List;
         @Index(columnList = "deleted_at")
 })
 @EntityListeners(AuditingEntityListener.class)
-@SoftDelete(
-        strategy = SoftDeleteType.TIMESTAMP,
-        columnName = "deleted_at")
+@FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
+@Filter(name = "softDeleteFilter")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User implements UserDetails {
 
@@ -92,18 +93,23 @@ public abstract class User implements UserDetails {
     @Column(nullable = false, updatable = false)
     private String createdBy;
 
+    @Column(insertable = false, updatable = false)
+    private LocalDateTime deletedAt;
+
+    @Builder.Default
     @OneToMany(
             mappedBy = "user",
             fetch = FetchType.LAZY
     )
-    private List<Notification> notifications;
+    private List<Notification> notifications = new ArrayList<>();
 
 
+    @Builder.Default
     @OneToMany(
             mappedBy = "user",
             fetch = FetchType.LAZY
     )
-    private List<PushToken> tokens;
+    private List<PushToken> tokens = new ArrayList<>();
 
 
     @Override

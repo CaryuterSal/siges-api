@@ -1,13 +1,14 @@
 package dev.spiffocode.sigesapi.common.infrastructure.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.accept.SemanticApiVersionParser;
 import org.springframework.web.servlet.config.annotation.ApiVersionConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebMvc
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
     @Override

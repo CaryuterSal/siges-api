@@ -7,7 +7,6 @@ import dev.spiffocode.sigesapi.auth.domain.exception.AccountTemporarilyLockedExc
 import dev.spiffocode.sigesapi.auth.domain.exception.InvalidCredentialsException;
 import dev.spiffocode.sigesapi.auth.domain.exception.JwtBlacklistedException;
 import dev.spiffocode.sigesapi.auth.infrastructure.LogInAttemptsProperties;
-import dev.spiffocode.sigesapi.common.infrastructure.exceptions.AccessDeniedException;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +58,7 @@ public class SecurityControllerAdvice {
         return unauthorized("Invalid token");
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ProblemDetail forbidden() {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.FORBIDDEN);
