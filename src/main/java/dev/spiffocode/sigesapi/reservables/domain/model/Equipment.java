@@ -4,9 +4,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.SQLDelete;
+import org.hibernate.envers.Audited;
 
+@Audited
 @Entity
 @Getter
 @Setter
@@ -14,14 +14,21 @@ import org.hibernate.annotations.SQLDelete;
 @AllArgsConstructor
 @SuperBuilder
 @ToString
-@SQLDelete(sql = "UPDATE reservables SET deleted_at = NOW() WHERE id = ?")
 @Table(name = "equipments")
 @PrimaryKeyJoinColumn(name = "id")
 public class Equipment extends Reservable {
 
-    @ManyToOne
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
+    )
     @JoinColumn(name = "spaces_id")
     private Space space;
+
+    public void attachSpace(Space space){
+        this.space = space;
+        space.getEquipments().add(this);
+    }
 
     @NotBlank
     @Column(unique = true)

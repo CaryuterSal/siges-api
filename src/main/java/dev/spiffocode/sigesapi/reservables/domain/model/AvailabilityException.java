@@ -58,6 +58,7 @@ public class AvailabilityException {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "reservable_id", nullable = false)
     private Reservable reservable;

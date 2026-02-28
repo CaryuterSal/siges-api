@@ -5,9 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -20,10 +18,9 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @ToString
-@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+@Audited
 @FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
 @Filter(name = "softDeleteFilter")
-@SQLDelete(sql = "UPDATE buildings SET deleted_at = NOW() WHERE id = ?")
 @Table(name = "buildings")
 public class Building {
 
@@ -38,10 +35,18 @@ public class Building {
     @Column(insertable = false, updatable = false)
     LocalDateTime deletedAt;
 
+    @Builder.Default
     @Filter(name = "softDeleteFilter")
     @OneToMany(
             mappedBy = "building",
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
+            fetch = FetchType.LAZY,
+            orphanRemoval = true,
+            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
     )
     private List<Reservable> reservables = new ArrayList<>();
+
+    public void addReservable(Reservable reservable) {
+        reservables.add(reservable);
+        reservable.setBuilding(this);
+    }
 }

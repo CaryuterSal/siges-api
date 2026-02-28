@@ -56,6 +56,7 @@ public class Availability {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @ToString.Exclude
     @NotNull
     @ManyToOne(
             cascade = {CascadeType.MERGE, CascadeType.PERSIST},

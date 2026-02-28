@@ -29,8 +29,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static dev.spiffocode.sigesapi.common.domain.specification.SpecificationHelper.cast;
-import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.equipmentSpecification;
-import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.availableForStudents;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.*;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.*;
 
 @Service
 @RequiredArgsConstructor
@@ -115,7 +115,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         if (!equipmentRepository.existsById(id)) {
             throw new ReservableNotFoundException("Equipment with ID %dl not found".formatted(id), id);
         }
-        equipmentRepository.deleteById(id);
+        equipmentRepository.softDeleteById(id);
     }
 
     @Override

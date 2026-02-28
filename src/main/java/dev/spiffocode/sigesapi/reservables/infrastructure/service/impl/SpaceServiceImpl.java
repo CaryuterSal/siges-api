@@ -114,10 +114,10 @@ public class SpaceServiceImpl implements SpaceService {
         Space space = spaceRepository.findById(id)
                 .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(id), id));
 
-        if(!space.getEquipments().isEmpty()){
+        if(space.getEquipments() != null && !space.getEquipments().isEmpty()){
             throw new ConflictingStateException("Cannot deactivate Space. Still have equipments linked to. Either deactivate those equipments or re-assign them to other space");
         }
-        spaceRepository.deleteById(id);
+        spaceRepository.softDeleteById(id);
     }
 
     @Override

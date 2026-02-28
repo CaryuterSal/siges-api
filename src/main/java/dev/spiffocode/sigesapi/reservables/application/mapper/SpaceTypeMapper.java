@@ -17,10 +17,12 @@ public interface SpaceTypeMapper {
 
     List<SpaceTypeDto> toDto(List<SpaceType> spaceType);
 
+    @Mapping(target = "spaces", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     SpaceType toEntity(SpaceTypeRegisterDto dto);
 
+    @Mapping(target = "spaces", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(SpaceTypeUpdateDto dto, @MappingTarget SpaceType entity);

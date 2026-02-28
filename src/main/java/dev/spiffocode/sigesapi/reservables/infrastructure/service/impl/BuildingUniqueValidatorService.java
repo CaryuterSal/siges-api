@@ -5,9 +5,11 @@ import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingExistsExcept
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BuildingUniqueValidatorService {
 
     private final BuildingRepository buildingRepository;

@@ -17,7 +17,6 @@ import org.hibernate.annotations.SQLDelete;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-@SQLDelete(sql = "UPDATE app_users SET deleted_at = NOW() WHERE id = ?")
 @Table(indexes = {
         @Index(columnList = "registration_number")
 })

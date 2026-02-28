@@ -6,12 +6,13 @@ import jakarta.validation.constraints.Positive;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.SQLDelete;
+import org.hibernate.envers.Audited;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+@Audited
 @Entity
 @Getter
 @Setter
@@ -19,13 +20,12 @@ import java.util.List;
 @AllArgsConstructor
 @SuperBuilder
 @ToString
-@SQLDelete(sql = "UPDATE reservables SET deleted_at = NOW() WHERE id = ?")
 @Table(name = "spaces")
 @PrimaryKeyJoinColumn(name = "id")
 public class Space extends Reservable {
 
     @NotNull
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "space_types_id", nullable = false)
     private SpaceType type;
 
@@ -36,6 +36,8 @@ public class Space extends Reservable {
     @Positive
     private Integer capacity;
 
+    @Builder.Default
+    @ToString.Exclude
     @Filter(name = "softDeleteFilter")
     @OneToMany(
             mappedBy = "space",

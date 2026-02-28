@@ -9,13 +9,14 @@ import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingExistsExcept
 import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingUpdateDto;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,7 +24,6 @@ import static dev.spiffocode.sigesapi.reservables.domain.specification.BuildingS
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class BuildingServiceImpl implements BuildingService {
 
     private final BuildingRepository buildingRepository;
@@ -71,14 +71,18 @@ public class BuildingServiceImpl implements BuildingService {
         return buildingMapper.toDto(building);
     }
 
+    //TODO: delete
+    private final EquipmentRepository er;
+    private final EntityManager em;
+
     @Override
     public void deactivateBuilding(long id) {
         Building building = buildingRepository.findById(id)
                 .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(id), id));
-        if(!building.getReservables().isEmpty()){
-            throw new ConflictingStateException("Cannot deactivate building. Still have reservables linked to. Either deactivate those reservables or re-locate them to other building");
+        if(building.getReservables() != null && !building.getReservables().isEmpty()){
+            throw new ConflictingStateException("Cannot deactivate building. Still have reservables linked to it. Either deactivate those reservables or re-locate them to other building");
         }
-        buildingRepository.deleteById(id);
+        buildingRepository.softDeleteById(id);
     }
 
     @Override

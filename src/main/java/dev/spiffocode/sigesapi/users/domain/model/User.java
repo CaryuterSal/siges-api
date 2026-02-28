@@ -22,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -42,7 +43,6 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
 @Filter(name = "softDeleteFilter")
-@SQLDelete(sql = "UPDATE app_users SET deleted_at = NOW() WHERE id = ?")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User implements UserDetails {
 
@@ -96,18 +96,20 @@ public abstract class User implements UserDetails {
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
 
+    @Builder.Default
     @OneToMany(
             mappedBy = "user",
             fetch = FetchType.LAZY
     )
-    private List<Notification> notifications;
+    private List<Notification> notifications = new ArrayList<>();
 
 
+    @Builder.Default
     @OneToMany(
             mappedBy = "user",
             fetch = FetchType.LAZY
     )
-    private List<PushToken> tokens;
+    private List<PushToken> tokens = new ArrayList<>();
 
 
     @Override

@@ -6,19 +6,19 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
-import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
 
-@SuperBuilder
-@Jacksonized
+@SuperBuilder(toBuilder = true)
 @Value
 @NonFinal
-public class ReservableRegisterDto {
+public abstract class ReservableRegisterDto {
 
+    @Builder.Default
     @Schema(description = "resource's status. Available by default")
     ReservableStatus status = ReservableStatus.AVAILABLE;
 

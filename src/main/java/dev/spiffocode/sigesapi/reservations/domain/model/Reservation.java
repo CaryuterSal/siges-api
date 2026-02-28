@@ -14,6 +14,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -72,15 +73,19 @@ public class Reservation {
 
     private LocalDateTime approvedAt;
 
+    @Builder.Default
     @OneToMany(
-            mappedBy = "reservation"
+            mappedBy = "reservation",
+            cascade = CascadeType.ALL
     )
-    private List<Note> notes;
+    private List<Note> notes = new ArrayList<>();
 
+    @Builder.Default
     @OneToMany(
-            mappedBy = "reservation"
+            mappedBy = "reservation",
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
     )
-    private List<ReservationRecurrence> recurrences;
+    private List<ReservationRecurrence> recurrences = new ArrayList<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

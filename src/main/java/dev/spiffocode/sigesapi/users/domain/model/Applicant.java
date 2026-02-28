@@ -14,7 +14,6 @@ import org.hibernate.envers.Audited;
 @Audited
 @AllArgsConstructor
 @SuperBuilder
-@SQLDelete(sql = "UPDATE app_users SET deleted_at = NOW() WHERE id = ?")
 @EqualsAndHashCode(callSuper = true)
 public class Applicant extends User {
 }

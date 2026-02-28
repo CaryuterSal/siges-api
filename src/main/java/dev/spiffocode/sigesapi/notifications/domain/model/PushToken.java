@@ -25,7 +25,6 @@ import java.time.LocalDateTime;
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @FilterDef(name = "softDeleteFilter", defaultCondition = "is_active = TRUE")
 @Filter(name = "softDeleteFilter")
-@SQLDelete(sql = "UPDATE push_tokens SET is_active = FALSE WHERE id = ?")
 @Entity
 public class PushToken {
 

@@ -4,12 +4,13 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.SQLDelete;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Audited
 @Entity
 @Getter
 @Setter
@@ -20,7 +21,6 @@ import java.util.List;
 @Table(name = "space_types")
 @FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
 @Filter(name = "softDeleteFilter")
-@SQLDelete(sql = "UPDATE reservables SET deleted_at = NOW() WHERE id = ?")
 public class SpaceType {
 
     @Id
@@ -36,11 +36,18 @@ public class SpaceType {
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
 
+    @Builder.Default
     @Filter(name = "softDeleteFilter")
     @OneToMany(
             mappedBy = "type",
             cascade = {CascadeType.MERGE, CascadeType.PERSIST}
     )
     private List<Space> spaces = new ArrayList<>();
+
+
+    public void addSpace(Space space) {
+        spaces.add(space);
+        space.setType(this);
+    }
 
 }

@@ -71,10 +71,10 @@ public class SpaceTypeServiceImpl implements SpaceTypeService {
         SpaceType spaceType = spaceTypeRepository.findById(id)
                 .orElseThrow(() -> new SpaceTypeNotFoundException("Space type with ID %dl not found".formatted(id), id));
 
-        if(!spaceType.getSpaces().isEmpty()){
+        if(spaceType.getSpaces() != null && !spaceType.getSpaces().isEmpty()){
             throw new ConflictingStateException("Cannot deactivate Space Type. Still have spaces linked to. Either deactivate those spaces or re-assign them to other space type");
         }
-        spaceTypeRepository.deleteById(id);
+        spaceTypeRepository.softDeleteById(id);
     }
 
     @Override

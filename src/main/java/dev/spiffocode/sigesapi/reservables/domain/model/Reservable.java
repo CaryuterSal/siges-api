@@ -1,18 +1,20 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
-import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,7 +28,6 @@ import java.util.List;
 @Audited
 @FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
 @Filter(name = "softDeleteFilter")
-@SQLDelete(sql = "UPDATE reservables SET deleted_at = NOW() WHERE id = ?")
 @EntityListeners(AuditingEntityListener.class)
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Reservable {
@@ -55,33 +56,54 @@ public abstract class Reservable {
     @Column(nullable = false)
     private boolean studentsAvailable;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}
+    )
     @JoinColumn(name = "buildings_id")
     @ToString.Exclude
     private Building building;
 
 
+    @Builder.Default
     @OneToMany(
             mappedBy = "reservable",
-            cascade = CascadeType.ALL,
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
             orphanRemoval = true
     )
-    List<AvailabilitySlot> availability;
+    List<AvailabilitySlot> availability = new ArrayList<>();
 
+    public void addAvailabilitySlot(AvailabilitySlot availabilitySlot){
+        availability.add(availabilitySlot);
+        availabilitySlot.setReservable(this);
+    }
+
+    @Builder.Default
     @OneToMany(
             mappedBy = "reservable",
-            cascade = CascadeType.ALL,
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
             orphanRemoval = true
     )
-    List<AvailabilityException> availabilityExceptions;
+    List<AvailabilityException> availabilityExceptions = new ArrayList<>();
+
+    public void addAvailabilityException(AvailabilityException availabilityException){
+        availabilityExceptions.add(availabilityException);
+        availabilityException.setReservable(this);
+    }
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
 
     @CreatedBy
     @Column(nullable = false, updatable = false)
     private String createdBy;
+
+    @Column(insertable = false, updatable = false)
+    private LocalDateTime deletedAt;
 
 }

@@ -1,22 +1,23 @@
 package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
+
 @SuperBuilder(toBuilder = true)
 @Jacksonized
-@JsonIgnoreProperties(ignoreUnknown = true)
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @Value
 @NonFinal
-public class EquipmentUpdateDto extends ReservableUpdateDto{
+public class EquipmentUpdateDto extends ReservableUpdateDto {
 
     @Schema(description = "Unique equipment ID in the internal inventory", example = "IN0032")
     @NotBlank

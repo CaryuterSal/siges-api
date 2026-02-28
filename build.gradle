@@ -24,6 +24,7 @@ configurations {
 repositories {
     mavenCentral()
     google()
+    maven { url 'https://projectlombok.org/edge-releases' }
 }
 
 ext {
@@ -45,12 +46,13 @@ dependencies {
     implementation 'org.springframework.data:spring-data-envers'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.mapstruct:mapstruct:1.6.3'
-    compileOnly 'org.projectlombok:lombok'
+    compileOnly 'org.projectlombok:lombok:edge-SNAPSHOT'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok:edge-SNAPSHOT'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    annotationProcessor("org.projectlombok:lombok-mapstruct-binding:0.2.0")
     testImplementation platform('org.testcontainers:testcontainers-bom:1.20.4')
     testImplementation 'org.springframework.boot:spring-boot-starter-actuator-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'

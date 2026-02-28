@@ -56,9 +56,9 @@ public class ReservableSpecifications {
         };
     }
 
-    public static Specification<@NonNull Reservable> availableForStudents(boolean available){
+    public static Specification<@NonNull Reservable> availableForStudents(Boolean available){
         return (root, query, cb) -> {
-            return cb.equal(root.get("studentsAvailable"), available);
+            return available == null ? null : cb.equal(root.get("studentsAvailable"), available);
         };
     }
 
@@ -83,6 +83,7 @@ public class ReservableSpecifications {
             LocalDateTime requestEnd
     ) {
         return (root, query, cb) -> {
+            if(requestStart == null && requestEnd == null) return null;
             query.distinct(true);
             Join<Reservable, AvailabilitySlot> slot = root.join("availability");
             Join<AvailabilitySlot, Availability> av = slot.join("members");
@@ -115,6 +116,7 @@ public class ReservableSpecifications {
             LocalDateTime requestEnd
     ) {
         return (root, query, cb) -> {
+            if(requestStart == null && requestEnd == null) return null;
             LocalDate reqDate = requestStart.toLocalDate();
             LocalTime reqStart = requestStart.toLocalTime();
             LocalTime reqEnd = requestEnd.toLocalTime();

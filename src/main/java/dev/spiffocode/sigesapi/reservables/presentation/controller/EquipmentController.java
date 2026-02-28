@@ -52,6 +52,9 @@ public class EquipmentController {
         return equipmentService.getEquipmentById(id);
     }
 
+    @ApiResponses({
+            @ApiResponse(responseCode = "400", description = "Invalid sort field")
+    })
     @GetMapping
     @PageableAsQueryParam
     @Operation(summary = "Search equipment by filters")

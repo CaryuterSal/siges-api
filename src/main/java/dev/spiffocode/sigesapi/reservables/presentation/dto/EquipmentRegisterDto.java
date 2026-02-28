@@ -4,13 +4,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import lombok.Value;
+import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
-@SuperBuilder
+
+@SuperBuilder(toBuilder = true)
 @Jacksonized
+@ToString(callSuper = true)
 @Value
+@NonFinal
 @EqualsAndHashCode(callSuper = true)
 public class EquipmentRegisterDto extends ReservableRegisterDto {
 

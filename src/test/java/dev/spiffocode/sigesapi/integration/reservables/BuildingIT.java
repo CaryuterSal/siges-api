@@ -1,15 +1,21 @@
 package dev.spiffocode.sigesapi.integration.reservables;
 
+import dev.spiffocode.sigesapi.FlushedIntegrationTest;
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
 import dev.spiffocode.sigesapi.auth.presentation.dto.LoginRequest;
+import dev.spiffocode.sigesapi.reservables.domain.model.Availability;
+import dev.spiffocode.sigesapi.reservables.domain.model.AvailabilitySlot;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
+import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingUpdateDto;
 import dev.spiffocode.sigesapi.users.domain.model.Admin;
 import dev.spiffocode.sigesapi.users.domain.model.Student;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +24,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @IntegrationTestClass
-public class BuildingIT {
+public class BuildingIT extends FlushedIntegrationTest {
 
     @Autowired
     MockMvc mvc;
@@ -44,6 +54,8 @@ public class BuildingIT {
 
     private String adminToken;
     private String studentToken;
+    @Autowired
+    private EquipmentRepository equipmentRepository;
 
     @BeforeEach
     void setup() {
@@ -160,6 +172,71 @@ public class BuildingIT {
         mvc.perform(patch(API + "/" + b.getId() + "/deactivate")
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+    }
+
+    private Equipment createValidEquipment() {
+        Availability av = Availability.builder()
+                .startTime(LocalTime.of(8, 0))
+                .endTime(LocalTime.of(20, 0))
+                .dateFrom(LocalDate.now())
+                .dateTo(LocalDate.now())
+                .dayOfWeek(DayOfWeek.MONDAY)
+                .updatedAt(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
+                .build();
+        AvailabilitySlot slot = AvailabilitySlot.builder()
+                .members(List.of(av))
+                .build();
+        av.setGroup(slot);
+
+        Equipment eq = Equipment.builder()
+                .inventoryNum("INV-1002")
+                .name("Proyector Epson")
+                .description("Proyector para clases")
+                .studentsAvailable(true)
+                .availability(List.of(slot))
+                .createdAt(LocalDateTime.now())
+                .createdBy("admin@test.com")
+                .build();
+        slot.setReservable(eq);
+        return eq;
+    }
+
+    @Test
+    void deactivateBuilding_with_reservables_active_returns409() throws Exception {
+        Building b = Building.builder()
+                .name("CCyC")
+                .build();
+        Equipment eq = createValidEquipment();
+        b.addReservable(eq);
+        buildingRepository.save(b);
+
+        mvc.perform(patch(API + "/" + b.getId() + "/deactivate")
+                        .header("X-API-Version", VERSION)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isConflict());
+    }
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @Test
+    void deactivateBuilding_with_deleted_reservable_returns204() throws Exception {
+        Building b = Building.builder()
+                .name("CCyC")
+                .build();
+
+        Equipment eq = createValidEquipment();
+        b.addReservable(eq);
+        b = buildingRepository.saveAndFlush(b);
+        int updated = equipmentRepository.softDeleteById( b.getReservables().getFirst().getId());
+        entityManager.flush();
+        entityManager.clear();
+
+        mvc.perform(patch(API + "/" + b.getId() + "/deactivate")
+                        .header("X-API-Version", VERSION)
+                        .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNoContent());
     }
 }

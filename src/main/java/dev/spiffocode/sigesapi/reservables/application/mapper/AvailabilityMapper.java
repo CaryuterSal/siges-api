@@ -5,6 +5,7 @@ import dev.spiffocode.sigesapi.reservables.domain.model.AvailabilitySlot;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotUpdateDto;
+import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -63,6 +64,16 @@ public interface AvailabilityMapper {
         );
         entity.setMembers(members);
         return entity;
+    }
+
+
+    @AfterMapping
+    default void linkRelation(@MappingTarget AvailabilitySlot entity){
+        if(entity.getMembers() == null || entity.getMembers().isEmpty()){
+            return;
+        }
+
+        entity.getMembers().forEach(entity::addMember);
     }
 
     private List<Availability> dtoToMembers(Set<DayOfWeek> daysOfWeek, LocalDate dateFrom, LocalDate dateTo, LocalTime startTime, LocalTime endTime) {

@@ -13,7 +13,6 @@ import org.hibernate.annotations.SQLDelete;
 @AllArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-@SQLDelete(sql = "UPDATE app_users SET deleted_at = NOW() WHERE id = ?")
 @Table(name = "user_admins")
 public class Admin extends User {
 }

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.envers.Audited;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Audited
@@ -31,11 +32,17 @@ public class AvailabilitySlot {
     @NotNull
     private Reservable reservable;
 
+    @Builder.Default
     @OneToMany(
             cascade = CascadeType.ALL,
             mappedBy = "group",
             orphanRemoval = true
     )
     @NotEmpty
-    private List<Availability> members;
+    private List<Availability> members = new ArrayList<>();
+
+    public void addMember(Availability availability) {
+        members.add(availability);
+        availability.setGroup(this);
+    }
 }

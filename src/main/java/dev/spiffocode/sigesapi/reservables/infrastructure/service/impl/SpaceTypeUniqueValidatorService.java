@@ -5,9 +5,11 @@ import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceTypeExistsExcep
 import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceTypeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class SpaceTypeUniqueValidatorService {
 
     private final SpaceTypeRepository spaceTypeRepository;

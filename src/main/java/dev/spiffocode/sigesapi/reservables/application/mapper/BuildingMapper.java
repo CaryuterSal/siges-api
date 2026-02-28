@@ -17,11 +17,14 @@ public interface BuildingMapper {
 
     List<BuildingDto> toDto(List<Building> buildings);
 
+    @Mapping(target = "reservables", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     Building toEntity(BuildingRegisterDto dto);
 
+    @Mapping(target = "reservables", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "id", ignore = true)
     Building updateEntityFromDto(BuildingUpdateDto dto, @MappingTarget Building entity);
+
 }

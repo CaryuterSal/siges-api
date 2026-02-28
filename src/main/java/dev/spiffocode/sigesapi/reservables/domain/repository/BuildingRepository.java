@@ -8,13 +8,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface BuildingRepository extends JpaRepository<@NonNull Building, @NonNull Long>, JpaSpecificationExecutor<@NonNull Building> {
+public interface BuildingRepository extends
+        JpaRepository<@NonNull Building, @NonNull Long>,
+        RevisionRepository<@NonNull Building, @NonNull Long, @NonNull Long>,
+        JpaSpecificationExecutor<@NonNull Building> {
 
     @Query(value = "SELECT * from buildings WHERE deleted_at IS NOT NULL", nativeQuery = true)
     List<Building> findAllDeleted();
@@ -28,12 +32,17 @@ public interface BuildingRepository extends JpaRepository<@NonNull Building, @No
     @Query(value = "SELECT * from buildings", nativeQuery = true)
     List<Building> findAllActiveAndDeleted();
 
-
     @Query(
             value = "SELECT * from buildings",
             countQuery = "SELECT COUNT(*) FROM buildings",
             nativeQuery = true)
     Page<@NonNull Building> findAllActiveAndDeletedPaged(Pageable pageable);
+
+
+    @Modifying
+    @Query(value = "UPDATE buildings SET deleted_at = NOW() WHERE id = :id", nativeQuery = true)
+    int softDeleteById(@Param("id") Long id);
+
 
     @Modifying
     @Query(value = "UPDATE buildings SET deleted_at = NULL WHERE id = :id", nativeQuery = true)

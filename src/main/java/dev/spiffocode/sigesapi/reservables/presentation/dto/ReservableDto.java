@@ -29,6 +29,7 @@ public class ReservableDto {
     boolean availableForStudents;
     BuildingDto building;
     LocalDateTime createdAt;
+    LocalDateTime updatedAt;
     @Schema(example = "admin@example.com")
     String createdBy;
     LocalDateTime deletedAt;
