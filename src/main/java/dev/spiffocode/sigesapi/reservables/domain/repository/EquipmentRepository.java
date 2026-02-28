@@ -27,7 +27,7 @@ public interface EquipmentRepository extends
     List<Equipment> findAllDeleted();
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
         UPDATE reservables
         SET deleted_at = NOW()
@@ -36,7 +36,7 @@ public interface EquipmentRepository extends
     """, nativeQuery = true)
     int softDeleteById(@Param("id") Long id);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
         UPDATE reservables
         SET deleted_at = NULL

@@ -44,9 +44,12 @@ public interface AvailabilityMapper {
                 dto.startTime(),
                 dto.endTime()
         );
-        return AvailabilitySlot.builder()
+        AvailabilitySlot entity = AvailabilitySlot.builder()
                 .members(members)
                 .build();
+
+        linkRelation(entity);
+        return entity;
     }
 
 
@@ -63,6 +66,7 @@ public interface AvailabilityMapper {
                 dto.endTime()
         );
         entity.setMembers(members);
+        linkRelation(entity);
         return entity;
     }
 
@@ -73,7 +77,7 @@ public interface AvailabilityMapper {
             return;
         }
 
-        entity.getMembers().forEach(entity::addMember);
+        entity.getMembers().forEach(av -> av.setGroup(entity));
     }
 
     private List<Availability> dtoToMembers(Set<DayOfWeek> daysOfWeek, LocalDate dateFrom, LocalDate dateTo, LocalTime startTime, LocalTime endTime) {

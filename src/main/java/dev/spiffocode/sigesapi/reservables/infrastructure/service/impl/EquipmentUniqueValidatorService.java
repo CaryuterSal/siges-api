@@ -32,7 +32,7 @@ public class EquipmentUniqueValidatorService {
      */
     @WithDeletedRecords
     public void assertUpdateUnique(Long currentId, String inventoryNum){
-        if (equipmentRepository.existsByInventoryNum(inventoryNum)) {
+        if (equipmentRepository.existsByInventoryNumAndIdNot(inventoryNum, currentId)) {
             throw new EquipmentExistsException("Equipment with Inventory Num '%s' already exists".formatted(inventoryNum));
         }
     }

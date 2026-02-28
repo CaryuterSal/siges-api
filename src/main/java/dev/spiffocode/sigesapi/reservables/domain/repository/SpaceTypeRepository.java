@@ -33,11 +33,11 @@ public interface SpaceTypeRepository extends
     @Query(value = "SELECT * from buildings", nativeQuery = true)
     List<SpaceType> findAllActiveAndDeleted();
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE space_types SET deleted_at = NOW() WHERE id = :id", nativeQuery = true)
     int softDeleteById(@Param("id") Long id);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE space_types SET deleted_at = NULL WHERE id = :id", nativeQuery = true)
     int restore(@Param("id") Long id);
 

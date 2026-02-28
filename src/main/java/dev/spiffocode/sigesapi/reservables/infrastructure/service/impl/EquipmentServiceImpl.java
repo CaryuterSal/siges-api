@@ -76,8 +76,11 @@ public class EquipmentServiceImpl implements EquipmentService {
     @Override
     public EquipmentDto registerEquipment(EquipmentRegisterDto request) {
         Long spaceId = request.getSpaceId();
-        Space space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(spaceId), spaceId));
+        Space space = null;
+        if(spaceId != null){
+            space = spaceRepository.findById(spaceId)
+                    .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(spaceId), spaceId));
+        }
 
         Long buildingId = request.getBuildingId();
         Building building = buildingRepository.findById(buildingId)
@@ -96,9 +99,11 @@ public class EquipmentServiceImpl implements EquipmentService {
                 .orElseThrow(() -> new ReservableNotFoundException("Equipment with ID %dl not found".formatted(id), id));
 
         Long spaceId = request.getSpaceId();
-        Space space = spaceRepository.findById(spaceId)
-                .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(spaceId), spaceId));
-
+        Space space = null;
+        if(spaceId != null){
+            space = spaceRepository.findById(spaceId)
+                    .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(spaceId), spaceId));
+        }
         Long buildingId = request.getBuildingId();
         Building building = buildingRepository.findById(buildingId)
                 .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));

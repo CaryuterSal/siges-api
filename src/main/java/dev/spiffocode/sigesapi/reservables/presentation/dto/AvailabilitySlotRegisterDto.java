@@ -15,7 +15,6 @@ import java.util.Set;
 @Builder
 @Jacksonized
 public record AvailabilitySlotRegisterDto(
-
         @Schema(description = "Date from which this availability statement is valid. If NULL or not specified, it is interpreted as immediate validity.")
         @FutureOrPresent
         LocalDate dateFrom,
@@ -36,4 +35,9 @@ public record AvailabilitySlotRegisterDto(
         @ArraySchema(uniqueItems = true, minItems = 1, maxItems = 7)
         Set<DayOfWeek> daysOfWeek
 ) {
+    public static class AvailabilitySlotRegisterDtoBuilder {
+        AvailabilitySlotRegisterDtoBuilder() {
+            dateFrom = LocalDate.now();
+        }
+    }
 }

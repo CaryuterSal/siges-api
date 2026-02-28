@@ -39,12 +39,12 @@ public interface BuildingRepository extends
     Page<@NonNull Building> findAllActiveAndDeletedPaged(Pageable pageable);
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE buildings SET deleted_at = NOW() WHERE id = :id", nativeQuery = true)
     int softDeleteById(@Param("id") Long id);
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "UPDATE buildings SET deleted_at = NULL WHERE id = :id", nativeQuery = true)
     int restore(@Param("id") Long id);
 

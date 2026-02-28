@@ -243,7 +243,7 @@ public class EquipmentIT extends FlushedIntegrationTest {
                 .content(mapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("New Laptop"))
-                .andExpect(jsonPath("$.studentsAvailable").value(false)); // From true to false
+                .andExpect(jsonPath("$.availableForStudents").value(false));
     }
 
     @Test

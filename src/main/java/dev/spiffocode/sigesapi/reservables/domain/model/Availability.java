@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -18,6 +19,7 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @ToString
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "availabilities")
 @NoArgsConstructor
 @AllArgsConstructor

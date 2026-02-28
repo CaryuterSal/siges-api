@@ -29,7 +29,7 @@ public interface SpaceRepository extends
     List<Space> findAllDeleted();
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
         UPDATE reservables
         SET deleted_at = NOW()
@@ -39,7 +39,7 @@ public interface SpaceRepository extends
     int softDeleteById(@Param("id") Long id);
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
         UPDATE reservables
         SET deleted_at = NOW()

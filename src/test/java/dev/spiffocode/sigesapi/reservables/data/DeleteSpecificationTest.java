@@ -96,7 +96,6 @@ public class DeleteSpecificationTest {
                 .build();
         buildingRepository.save(building);
         buildingRepository.softDeleteById(building.getId());
-
         Session session = em.unwrap(Session.class);
         try {
             session.disableFilter("softDeleteFilter");
