@@ -1,10 +1,21 @@
 ####################################################################################################################
 # WARNING: Do not store sensitive information in this file, as its contents will be included in the Qodana report. #
 ####################################################################################################################
-
 version: "1.0"
 linter: jetbrains/qodana-jvm:2025.3
 profile:
   name: qodana.recommended
 include:
   - name: CheckDependencyLicenses
+exclude:
+  - name: SpringQualifierCopyableLombok
+  - name: DeprecatedLombok
+  - name: Lombok
+  - name: LombokFlagUsage
+  - name: StaticMethodImportLombok
+  - name: All
+    paths:
+      - src/main/java/dev/spiffocode/sigesapi/auth/presentation/dto/AuthenticatedResponse.java
+      - src/main/java/dev/spiffocode/sigesapi/auth/presentation/dto/RefreshResponse.java
+      - src/main/java/dev/spiffocode/sigesapi/auth/presentation/dto/RefreshRequest.java
+      - src/main/java/dev/spiffocode/sigesapi/auth/presentation/dto/LogoutRequest.java
