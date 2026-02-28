@@ -3,6 +3,7 @@ package dev.spiffocode.sigesapi.mailsender.infrastructure;
 import dev.spiffocode.sigesapi.mailsender.domain.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.SimpleMailMessage;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 
+@Slf4j
 @Service
 public class EmailServiceImpl implements EmailService {
 
@@ -34,7 +36,7 @@ public class EmailServiceImpl implements EmailService {
         message.setText(text);
 
         emailSender.send(message);
-        System.out.println("¡Correo simple enviado con éxito a " + to + "!");
+        log.info("¡Correo simple enviado con éxito a {}!", to);
     }
 
     @Override
@@ -52,10 +54,10 @@ public class EmailServiceImpl implements EmailService {
             helper.addAttachment("Archivo_Adjunto", file);
 
             emailSender.send(message);
-            System.out.println("¡Correo con adjunto enviado con éxito a " + to + "!");
+            log.info("¡Correo con adjunto enviado con éxito a {}!", to);
 
         } catch (MessagingException e) {
-            System.err.println("Error al enviar el correo con adjunto: " + e.getMessage());
+            log.warn("Error al enviar el correo con adjunto: {}", e.getMessage());
         }
     }
 
