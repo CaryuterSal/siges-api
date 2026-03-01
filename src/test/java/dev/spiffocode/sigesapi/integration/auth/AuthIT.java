@@ -4,6 +4,7 @@ import dev.spiffocode.sigesapi.FixedClockConfig;
 import dev.spiffocode.sigesapi.FlushedIntegrationTest;
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
+import dev.spiffocode.sigesapi.auth.domain.model.LogInAttemptsRepository;
 import dev.spiffocode.sigesapi.auth.presentation.dto.AuthenticatedResponse;
 import dev.spiffocode.sigesapi.auth.presentation.dto.LoginRequest;
 import dev.spiffocode.sigesapi.auth.presentation.dto.RefreshRequest;
@@ -40,6 +41,9 @@ class AuthIT extends FlushedIntegrationTest {
     @Autowired PasswordEncoder encoder;
     @Autowired
     BearerAuthService bearerAuthService;
+
+    @Autowired
+    LogInAttemptsRepository logInAttemptsRepository;
 
     private static final String API = "/auth";
     private static final String VERSION = "1.0.0";

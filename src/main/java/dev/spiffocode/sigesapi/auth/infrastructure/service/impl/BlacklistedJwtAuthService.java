@@ -5,7 +5,6 @@ import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
 import dev.spiffocode.sigesapi.auth.domain.exception.AccountTemporarilyLockedException;
 import dev.spiffocode.sigesapi.auth.domain.exception.InvalidCredentialsException;
 import dev.spiffocode.sigesapi.auth.domain.exception.JwtBlacklistedException;
-import dev.spiffocode.sigesapi.auth.domain.model.LogInAttempt;
 import dev.spiffocode.sigesapi.auth.domain.model.LogInAttemptsRepository;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.auth.infrastructure.LogInAttemptsProperties;
@@ -38,6 +37,7 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
     private final TokenBlacklistService blacklistService;
     private final JwtService jwtService;
     private final Clock clock;
+    private final LoginAttemptRecorder loginAttemptRecorder;
 
     @Transactional
     @Override
@@ -57,25 +57,11 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(req.identifier(), req.password())
             );
-
-            LogInAttempt attempt = LogInAttempt.builder()
-                    .username(req.identifier())
-                    .ipAddress(requestIp)
-                    .success(true)
-                    .timestamp(LocalDateTime.now(clock))
-                    .build();
-            logInAttemptsRepository.save(attempt);
+            loginAttemptRecorder.recordSuccess(req.identifier(), requestIp);
 
             return buildResponse(auth);
         } catch (AuthenticationException e) {
-            LogInAttempt attempt = LogInAttempt.builder()
-                    .username(req.identifier())
-                    .ipAddress(requestIp)
-                    .success(false)
-                    .timestamp(LocalDateTime.now(clock))
-                    .build();
-
-            logInAttemptsRepository.save(attempt);
+            loginAttemptRecorder.recordFailure(req.identifier(), requestIp);
             throw new InvalidCredentialsException(e, loginProperties.getMaxAttempts() - Math.toIntExact(recentFailures) - 1);
         }
     }
