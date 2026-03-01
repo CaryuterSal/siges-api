@@ -10,6 +10,7 @@ import dev.spiffocode.sigesapi.auth.infrastructure.service.impl.BlacklistedJwtAu
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.auth.infrastructure.LogInAttemptsProperties;
 import dev.spiffocode.sigesapi.auth.infrastructure.TokenBlacklistService;
+import dev.spiffocode.sigesapi.auth.infrastructure.service.impl.LoginAttemptRecorder;
 import dev.spiffocode.sigesapi.auth.presentation.dto.*;
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,8 @@ import static org.mockito.Mockito.*;
 @UnitTestClass
 class BearerAuthServiceTest {
 
+    @Mock
+    LoginAttemptRecorder loginAttemptRecorder;
     @Mock
     JwtService jwtService;
     @Mock
