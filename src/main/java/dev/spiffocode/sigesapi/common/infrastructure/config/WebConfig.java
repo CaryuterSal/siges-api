@@ -1,7 +1,9 @@
 package dev.spiffocode.sigesapi.common.infrastructure.config;
 
+import dev.spiffocode.sigesapi.common.infrastructure.web.StringTrimmerConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.web.servlet.config.annotation.ApiVersionConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -10,6 +12,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+
+    private final StringTrimmerConverter stringTrimmerConverter;
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(stringTrimmerConverter);
+    }
 
     @Override
     public void configureApiVersioning(ApiVersionConfigurer configurer) {
