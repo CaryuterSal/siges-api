@@ -42,7 +42,7 @@ public interface SpaceRepository extends
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = """
         UPDATE reservables
-        SET deleted_at = NOW()
+        SET deleted_at = NULL
         FROM spaces s
         WHERE reservables.id = s.id AND reservables.id = :id
     """, nativeQuery = true)
