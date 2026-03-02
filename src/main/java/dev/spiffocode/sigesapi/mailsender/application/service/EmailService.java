@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.mailsender.domain;
+package dev.spiffocode.sigesapi.mailsender.application.service;
 
 public interface EmailService {
 
