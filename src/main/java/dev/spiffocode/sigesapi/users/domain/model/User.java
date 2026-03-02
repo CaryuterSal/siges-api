@@ -3,15 +3,11 @@ package dev.spiffocode.sigesapi.users.domain.model;
 import dev.spiffocode.sigesapi.notifications.domain.model.Notification;
 import dev.spiffocode.sigesapi.notifications.domain.model.PushToken;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -52,22 +48,22 @@ public abstract class User implements UserDetails {
     private Long id;
 
 
-    @NotNull
+    @NotBlank
     @Email
     @Column(nullable = false, unique = true)
     private String email;
 
-    @NotNull
+    @NotBlank
     @Pattern(regexp = "^(\\+\\d{1,2}\\s?)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$")
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @NotNull
+    @NotBlank
     @Column(nullable = false)
     private String firstName;
 
 
-    @NotNull
+    @NotBlank
     @Column(nullable = false)
     private String lastName;
 

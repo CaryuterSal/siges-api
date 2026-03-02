@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.common.infrastructure;
+package dev.spiffocode.sigesapi.common.infrastructure.persistence;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;

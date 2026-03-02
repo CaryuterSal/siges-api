@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.common.infrastructure.config;
+package dev.spiffocode.sigesapi.common.infrastructure.web;
 
 import lombok.Getter;
 import lombok.Setter;

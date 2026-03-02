@@ -3,7 +3,7 @@ package dev.spiffocode.sigesapi.users;
 import dev.spiffocode.sigesapi.UnitTestClass;
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
-import dev.spiffocode.sigesapi.users.application.service.UserService;
+import dev.spiffocode.sigesapi.users.infrastructure.service.impl.UserDetailsServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -18,13 +18,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @UnitTestClass
-class UserServiceTest {
+class UserDetailsServiceImplTest {
 
     @Mock
     UserRepository repo;
 
     @InjectMocks
-    UserService service;
+    UserDetailsServiceImpl service;
 
     @Test
     void loadUser_ok_returnsUser() {

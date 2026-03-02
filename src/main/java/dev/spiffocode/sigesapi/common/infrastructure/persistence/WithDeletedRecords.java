@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.common.infrastructure;
+package dev.spiffocode.sigesapi.common.infrastructure.persistence;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.users.application.service;
+package dev.spiffocode.sigesapi.users.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import lombok.NonNull;
@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class UserService implements UserDetailsService {
+public class UserDetailsServiceImpl implements UserDetailsService {
 
     private final UserRepository userRepository;
 

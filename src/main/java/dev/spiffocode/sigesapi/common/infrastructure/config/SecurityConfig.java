@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.common.infrastructure.config;
 
+import dev.spiffocode.sigesapi.common.infrastructure.web.JwtAuthenticationFilter;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;

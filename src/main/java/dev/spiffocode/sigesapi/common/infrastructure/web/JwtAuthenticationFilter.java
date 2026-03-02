@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.common.infrastructure.config;
+package dev.spiffocode.sigesapi.common.infrastructure.web;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;

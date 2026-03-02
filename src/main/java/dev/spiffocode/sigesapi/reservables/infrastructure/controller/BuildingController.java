@@ -1,4 +1,4 @@
-package dev.spiffocode.sigesapi.reservables.presentation.controller;
+package dev.spiffocode.sigesapi.reservables.infrastructure.controller;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
 import dev.spiffocode.sigesapi.reservables.application.service.BuildingService;
