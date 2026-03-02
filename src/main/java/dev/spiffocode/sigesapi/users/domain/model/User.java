@@ -126,6 +126,11 @@ public abstract class User implements UserDetails {
         return email;
     }
 
+    @Transient
+    public String fullName(){
+        return firstName + " " + lastName;
+    }
+
     public void recordLogin(Clock clock){
         this.lastLogin = LocalDateTime.now(clock);
     }

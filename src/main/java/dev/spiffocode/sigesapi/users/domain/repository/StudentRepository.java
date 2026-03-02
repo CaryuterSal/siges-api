@@ -32,4 +32,7 @@ public interface StudentRepository extends CommonUserRepository<Student>, Revisi
         WHERE app_users.id = s.id AND app_users.id = :id AND deleted_at IS NOT NULL
     """, nativeQuery = true)
     int restore(@Param("id") Long id);
+
+    boolean existsByRegistrationNumber(String registrationNumber);
+    boolean existsByRegistrationNumberAndIdNot(String registrationNumber, Long id);
 }

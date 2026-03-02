@@ -32,4 +32,7 @@ public interface InstitutionalStaffRepository extends CommonUserRepository<Insti
         WHERE app_users.id = isf.id AND app_users.id = :id AND deleted_at IS NOT NULL
     """, nativeQuery = true)
     int restore(@Param("id") Long id);
+
+    boolean existsByEmployeeNumber(String employeeNumber);
+    boolean existsByEmployeeNumberAndIdNot(String employeeNumber, Long id);
 }

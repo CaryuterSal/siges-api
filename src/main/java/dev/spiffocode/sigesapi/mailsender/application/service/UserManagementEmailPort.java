@@ -1,11 +1,13 @@
 package dev.spiffocode.sigesapi.mailsender.application.service;
 
 public interface UserManagementEmailPort {
-    void sendEmployeeNumberChangeEmail(String email);
-    void sendStudentRegistrationNumberChangeEmail(String email);
-    void sendEmailChangeEmail(String fromEmail, String toEmail);
-    void sendWelcomeEmail(String email);
-    void sendGoodbyeEmail(String email);
-    void sendPasswordChangedEmail(String email);
-    void sendRecoveryEmail(String email);
+    void sendEmployeeNumberChangeEmail(String email, String name, String oldEmployeeNumber, String newEmployeeNumber);
+    void sendStudentRegistrationNumberChangeEmail(String email, String name, String oldStudentNumber, String newStudentNumber);
+    void sendEmailChangeEmail(String fromEmail, String toEmail, String name);
+    void sendAdminWelcomeEmail(String email, String name, String generatedPassword);
+    void sendStudentWelcomeEmail(String email, String name, String generatedPassword);
+    void sendInstitutionalStaffWelcomeEmail(String email, String name, String generatedPassword);
+    void sendGoodbyeEmail(String email, String name);
+    void sendPasswordChangedEmail(String email, String name);
+    void sendRecoveryEmail(String email, String token);
 }

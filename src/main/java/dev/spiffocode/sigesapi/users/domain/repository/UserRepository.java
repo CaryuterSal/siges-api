@@ -34,4 +34,8 @@ public interface UserRepository extends CommonUserRepository<User>, RevisionRepo
     @Query(value = "UPDATE app_users SET deleted_at = NULL WHERE id = :id AND deleted_at IS NOT NULL", nativeQuery = true)
     int restoreById(@Param("id") Long id);
 
+    boolean existsByEmail(String email);
+    boolean existsByPhoneNumber(String phoneNumber);
+    boolean existsByEmailAndIdNot(String email, Long id);
+    boolean existsByPhoneNumberAndIdNot(String phoneNumber, Long id);
 }
