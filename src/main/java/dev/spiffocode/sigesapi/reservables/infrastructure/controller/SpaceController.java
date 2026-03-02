@@ -53,6 +53,7 @@ public class SpaceController {
     }
 
     @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK", useReturnTypeSchema = true),
             @ApiResponse(responseCode = "400", description = "Invalid sort field")
     })
     @GetMapping

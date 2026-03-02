@@ -7,15 +7,13 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
 import lombok.experimental.WithBy;
-import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDate;
 
 @SuperBuilder(toBuilder = true)
-@Jacksonized
 @Value
 @NonFinal
-public sealed class UserRegistrationRequest permits AdminRegistrationRequest, ApplicantRegistrationRequest {
+public sealed abstract class UserRegistrationRequest permits AdminRegistrationRequest, ApplicantRegistrationRequest {
 
     @Schema(
             description = "Email of the user to register. Must have 'utez.edu.mx' domain",
