@@ -11,11 +11,13 @@ import org.hibernate.annotations.FilterDef;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -89,6 +91,10 @@ public abstract class User implements UserDetails {
     @Column(nullable = false, updatable = false)
     private String createdBy;
 
+    @LastModifiedDate
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
 
@@ -118,5 +124,9 @@ public abstract class User implements UserDetails {
     @Override
     public @NonNull String getUsername() {
         return email;
+    }
+
+    public void recordLogin(Clock clock){
+        this.lastLogin = LocalDateTime.now(clock);
     }
 }

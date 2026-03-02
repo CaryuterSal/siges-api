@@ -1,15 +1,15 @@
 package dev.spiffocode.sigesapi.users.presentation.dto;
 
+
 import lombok.EqualsAndHashCode;
 import lombok.Value;
-import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
-@SuperBuilder(toBuilder = true)
+@SuperBuilder
 @Jacksonized
 @Value
-@NonFinal
 @EqualsAndHashCode(callSuper = true)
-public sealed class ApplicantRegistrationRequest extends UserRegistrationRequest permits StudentRegistrationRequest, InstitutionalStaffRegistrationRequest{
+public class InstitutionalStaffResponse extends ApplicantResponse {
+    String employeeNumber;
 }

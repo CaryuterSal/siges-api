@@ -10,6 +10,8 @@ import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.auth.infrastructure.LogInAttemptsProperties;
 import dev.spiffocode.sigesapi.auth.infrastructure.TokenBlacklistService;
 import dev.spiffocode.sigesapi.auth.presentation.dto.*;
+import dev.spiffocode.sigesapi.users.domain.model.User;
+import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,6 +34,7 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
     private final LogInAttemptsRepository logInAttemptsRepository;
     private final LogInAttemptsProperties loginProperties;
     private final TokenBlacklistService blacklistService;
@@ -58,6 +61,9 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
                     new UsernamePasswordAuthenticationToken(req.identifier(), req.password())
             );
             loginAttemptRecorder.recordSuccess(req.identifier(), requestIp);
+            User user = userRepository.findByIdentifier(((UserDetails) Objects.requireNonNull(auth.getPrincipal())).getUsername()).get();
+            user.recordLogin(clock);
+            userRepository.save(user);
 
             return buildResponse(auth);
         } catch (AuthenticationException e) {

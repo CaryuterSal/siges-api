@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
+import lombok.experimental.WithBy;
 import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDate;
@@ -14,7 +15,7 @@ import java.time.LocalDate;
 @Jacksonized
 @Value
 @NonFinal
-public class UserRegistrationRequest {
+public sealed class UserRegistrationRequest permits AdminRegistrationRequest, ApplicantRegistrationRequest {
 
     @Schema(
             description = "Email of the user to register. Must have 'utez.edu.mx' domain",
@@ -37,6 +38,7 @@ public class UserRegistrationRequest {
     )
     @NotBlank
     @PhoneNumber
+    @WithBy
     String phoneNumber;
 
     @Schema(
