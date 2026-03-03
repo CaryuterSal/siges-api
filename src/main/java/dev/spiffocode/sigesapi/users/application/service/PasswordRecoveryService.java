@@ -9,7 +9,7 @@ import java.net.URI;
 
 public interface PasswordRecoveryService {
 
-    void requestRecovery(@Valid RequestAccountRecovery request);
+    void requestRecovery(@Valid RequestAccountRecovery request, String baseUrl);
 
     URI redirectRecovery(@NotBlank String token);
 

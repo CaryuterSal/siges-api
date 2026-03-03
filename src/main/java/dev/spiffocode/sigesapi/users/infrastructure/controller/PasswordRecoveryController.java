@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
@@ -42,7 +43,11 @@ public class PasswordRecoveryController {
     @Operation(summary = "Requests a password recovery flow")
     @PostMapping("/password-recovery/request")
     public ResponseEntity<@NonNull Void> requestRecovery(@RequestBody @Valid RequestAccountRecovery request) {
-        recoveryService.requestRecovery(request);
+        String baseUrl = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .toUriString();
+
+        recoveryService.requestRecovery(request, baseUrl);
         return ResponseEntity.accepted().build();
     }
 

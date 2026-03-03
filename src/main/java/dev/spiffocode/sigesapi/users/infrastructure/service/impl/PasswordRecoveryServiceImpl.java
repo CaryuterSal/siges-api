@@ -44,7 +44,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     @Async
     @Transactional
     @Override
-    public void requestRecovery(RequestAccountRecovery request) {
+    public void requestRecovery(RequestAccountRecovery request, String baseUrl) {
         userRepository.findByEmail(request.email()).ifPresent(user -> {
             recoveryTokenRepository.deleteByUserAndUsedFalse(user);
 
@@ -58,14 +58,15 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                     .expiresAt(LocalDateTime.now(clock).plus(recoveryProperties.getTokenExpiration()))
                     .build());
 
+            String recoveryUrl = UriComponentsBuilder.fromUriString(baseUrl)
+                    .pathSegment("password-recovery", "redirect")
+                    .toUriString();
+
             emailPort.sendRecoveryEmail(
                     user.getEmail(),
                     user.fullName(),
                     token,
-                    ServletUriComponentsBuilder
-                            .fromCurrentContextPath()
-                            .pathSegment("password-recovery", "redirect")
-                            .toUriString()
+                    recoveryUrl
             );
         });
     }
