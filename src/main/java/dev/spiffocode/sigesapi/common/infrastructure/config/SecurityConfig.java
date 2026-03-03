@@ -49,12 +49,14 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/actuator/**").permitAll()
-                        .requestMatchers( "/*/register").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST,"/buildings/**", "/spaces/**", "/spacetypes/**", "/equipments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT,"/buildings/**", "/spaces/**", "/spacetypes/**", "/equipments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH,"/buildings/**", "/spaces/**", "/spacetypes/**", "/equipments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE,"/buildings/**", "/spaces/**", "/spacetypes/**", "/equipments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/users/*").hasRole("APPLICANT")
+                        .requestMatchers(HttpMethod.PATCH, "/users/*").hasRole("APPLICANT")
+                        .requestMatchers("/admins/**", "/institutional-staff/**", "/students/**", "/users/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/password-recovery/redirect").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
