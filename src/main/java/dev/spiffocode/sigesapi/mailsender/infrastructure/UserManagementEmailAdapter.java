@@ -49,7 +49,7 @@ public class UserManagementEmailAdapter implements UserManagementEmailPort {
         Context ctx = new Context();
         ctx.setVariable("name", fullName);
         ctx.setVariable("token", token);
-        ctx.setVariable("recoveryUrl", "https://tu-api.com/api/v1/password-recovery/redirect?token=" + token);
+        ctx.setVariable("recoveryUrl", recoveryUrl);
         sendHtml(email, "Recuperación de contraseña - SIGES", "email/recovery", ctx);
     }
 

@@ -20,7 +20,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
@@ -60,6 +59,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
             String recoveryUrl = UriComponentsBuilder.fromUriString(baseUrl)
                     .pathSegment("password-recovery", "redirect")
+                    .queryParam("token", token)
                     .toUriString();
 
             emailPort.sendRecoveryEmail(
