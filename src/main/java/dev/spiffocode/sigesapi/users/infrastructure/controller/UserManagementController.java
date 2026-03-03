@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ import java.util.List;
 @RestController
 @RequestMapping(version = "1.0.0")
 @RequiredArgsConstructor
+@Tag(name = "Users", description = "Endpoints for managing and querying users data")
 public class UserManagementController {
 
     private final UserManagementService managementService;
@@ -36,6 +38,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "400", description = "Validation problem", content = @Content(schema = @Schema(implementation = ValidationProblem.class))),
             @ApiResponse(responseCode = "409", description = "phone number already in use")
     })
+    @Operation(summary = "updates user common data. Available for all admins and the owner of the account")
     public UserResponse updateCommonInfo(
             @PathVariable Long id,
             @RequestBody @Valid UserInfoUpdateRequest request){
@@ -49,6 +52,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "400", description = "Validation problem", content = @Content(schema = @Schema(implementation = ValidationProblem.class))),
             @ApiResponse(responseCode = "409", description = "email already in use")
     })
+    @Operation(summary = "updates the email of any user. Only available for admins")
     public UserResponse updateEmail(
             @PathVariable Long id,
             @RequestBody @Valid EmailUpdateRequest request){
@@ -62,6 +66,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "400", description = "Validation problem", content = @Content(schema = @Schema(implementation = ValidationProblem.class))),
             @ApiResponse(responseCode = "409", description = "student registration number already in use")
     })
+    @Operation(summary = "updates the registration number of any student. Only available for admins")
     public StudentResponse updateStudentRegistrationNumber(
             @PathVariable Long id,
             @RequestBody @Valid RegNumberUpdateRequest request){
@@ -75,6 +80,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "400", description = "Validation problem", content = @Content(schema = @Schema(implementation = ValidationProblem.class))),
             @ApiResponse(responseCode = "409", description = "employee number already in use")
     })
+    @Operation(summary = "updates the employee number of any institutional staff. Only available for admins")
     public InstitutionalStaffResponse updateEmployeeNumber(
             @PathVariable Long id,
             @RequestBody @Valid EmpNumberUpdateRequest request){
@@ -86,6 +92,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "204", description = "Successfully deactivated"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @Operation(summary = "Soft deletes any user. Only available for admins")
     public ResponseEntity<@NonNull Void> deactivateUser(
             @PathVariable Long id){
         managementService.deleteUser(id);
@@ -97,6 +104,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "204", description = "Successfully restored"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @Operation(summary = "Restores any soft-deleted user. Only available for admins")
     public ResponseEntity<@NonNull Void> restoreUser(
             @PathVariable Long id){
         managementService.restoreUser(id);
@@ -143,6 +151,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/users/{id}")
+    @Operation(summary = "Finds a user by its ID. Only available for admins")
     public UserResponse findById(
             @PathVariable Long id)
     {
@@ -155,7 +164,7 @@ public class UserManagementController {
             @ApiResponse(responseCode = "404", description = "User not found")
     })
     @GetMapping("/users/lookup")
-    @Operation(description = "Search a user by its unique identifier")
+    @Operation(description = "Search a user by its unique identifier (email, phone number, employee number, or registration number)")
     public UserResponse lookupByIdentifier(
             @Schema(description = "Query for searching by its exact email, name, phone number, student registration number or employee number")
             @RequestParam String identifier)

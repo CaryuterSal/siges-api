@@ -12,7 +12,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
@@ -45,17 +44,6 @@ public class GlobalControllerAdvice extends ResponseEntityExceptionHandler {
                         .toList());
 
         return ResponseEntity.badRequest().body(pd);
-    }
-
-    /**
-     * 429 – Rate limiting
-     */
-    @ExceptionHandler(HttpClientErrorException.TooManyRequests.class)
-    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
-    public ProblemDetail rateLimit() {
-        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.TOO_MANY_REQUESTS);
-        pd.setTitle("Too many requests");
-        return pd;
     }
 
     /**

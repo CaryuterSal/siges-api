@@ -9,8 +9,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface InstitutionalStaffMapper {
 
+    @Mapping(target = "role", constant = "INSTITUTIONAL_STAFF")
     InstitutionalStaffResponse toResponse(InstitutionalStaff admin);
 
+
+    @Mapping(target = "tokenVersion", constant = "0")
     @Mapping(target = "phoneNumber", ignore = true)
     @Mapping(target = "password", source = "rawPassword")
     @Mapping(target = "lastLogin", ignore = true)

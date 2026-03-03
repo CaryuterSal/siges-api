@@ -6,7 +6,6 @@ import jakarta.validation.constraints.*;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
-import lombok.experimental.WithBy;
 
 import java.time.LocalDate;
 
@@ -36,7 +35,6 @@ public sealed abstract class UserRegistrationRequest permits AdminRegistrationRe
     )
     @NotBlank
     @PhoneNumber
-    @WithBy
     String phoneNumber;
 
     @Schema(

@@ -10,4 +10,5 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class StudentResponse extends ApplicantResponse{
+    String registrationNumber;
 }

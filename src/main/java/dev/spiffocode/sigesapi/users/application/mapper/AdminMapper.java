@@ -9,8 +9,10 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface AdminMapper {
 
+    @Mapping(target = "role", constant = "ADMIN")
     AdminResponse toResponse(Admin admin);
 
+    @Mapping(target = "tokenVersion", constant = "0")
     @Mapping(target = "phoneNumber", ignore = true)
     @Mapping(target = "password", source = "rawPassword")
     @Mapping(target = "lastLogin", ignore = true)

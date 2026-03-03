@@ -4,6 +4,7 @@ import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingState
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.NotFoundException;
 import dev.spiffocode.sigesapi.users.domain.exception.InvalidRecoveryTokenException;
 import dev.spiffocode.sigesapi.users.domain.exception.RecoveryTokenExpiredException;
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.core.PropertyReferenceException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 @Order(20)
+@Hidden
 @RequiredArgsConstructor
 public class SpecificControllerAdvice {
 

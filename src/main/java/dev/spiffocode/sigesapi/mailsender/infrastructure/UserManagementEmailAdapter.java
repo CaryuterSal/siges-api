@@ -119,7 +119,7 @@ public class UserManagementEmailAdapter implements UserManagementEmailPort {
         sendHtml(email, "Bienvenido a SIGES", "email/welcome", ctx);
     }
 
-    @Retryable(MessagingException.class)
+    @Retryable
     private void sendHtml(String to, String subject, String template, Context ctx) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -132,6 +132,7 @@ public class UserManagementEmailAdapter implements UserManagementEmailPort {
             log.info("Correo '{}' enviado a {}", subject, to);
         } catch (MessagingException e) {
             log.error("Error al enviar correo '{}' a {}: {}", subject, to, e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 }

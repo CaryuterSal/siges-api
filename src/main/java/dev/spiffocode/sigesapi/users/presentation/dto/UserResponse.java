@@ -3,12 +3,13 @@ package dev.spiffocode.sigesapi.users.presentation.dto;
 import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.NonFinal;
+import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Builder
+@SuperBuilder
 @Jacksonized
 @Value
 @NonFinal
