@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,31 +37,27 @@ public class JwtService {
     }
 
     public String generateAccessToken(String email, List<String> roles, Integer tokenVersion) {
-
-        String jti = UUID.randomUUID().toString();
-
+        Instant now = clock.instant();
         return JWT.create()
-                .withJWTId(jti)
+                .withJWTId(UUID.randomUUID().toString())
                 .withSubject(email)
                 .withClaim("roles", roles)
                 .withClaim("token_version", tokenVersion)
                 .withClaim("type", "access")
-                .withIssuedAt(clock.instant())
-                .withExpiresAt(new Date(clock.millis() + jwtProperties.getAccessExpiration()))
+                .withIssuedAt(now)
+                .withExpiresAt(now.plusMillis(jwtProperties.getAccessExpiration())) // ✅
                 .sign(algorithm);
     }
 
     public String generateRefreshToken(String email, Integer tokenVersion) {
-
-        String jti = UUID.randomUUID().toString();
-
+        Instant now = clock.instant();
         return JWT.create()
-                .withJWTId(jti)
+                .withJWTId(UUID.randomUUID().toString())
                 .withSubject(email)
                 .withClaim("type", "refresh")
                 .withClaim("token_version", tokenVersion)
-                .withIssuedAt(clock.instant())
-                .withExpiresAt(new Date(clock.millis() + jwtProperties.getRefreshExpiration()))
+                .withIssuedAt(now)
+                .withExpiresAt(now.plusMillis(jwtProperties.getRefreshExpiration())) // ✅
                 .sign(algorithm);
     }
 

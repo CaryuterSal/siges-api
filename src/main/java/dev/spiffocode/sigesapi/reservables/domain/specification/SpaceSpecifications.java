@@ -9,7 +9,6 @@ import java.time.Duration;
 
 import static dev.spiffocode.sigesapi.common.domain.specification.SpecificationHelper.cast;
 import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.*;
-import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.availableForStudents;
 
 public class SpaceSpecifications {
 

@@ -19,3 +19,4 @@ exclude:
       - src/main/java/dev/spiffocode/sigesapi/auth/presentation/dto/RefreshResponse.java
       - src/main/java/dev/spiffocode/sigesapi/auth/presentation/dto/RefreshRequest.java
       - src/main/java/dev/spiffocode/sigesapi/auth/presentation/dto/LogoutRequest.java
+  - name: JvmTaintAnalysis

@@ -4,6 +4,7 @@ import dev.spiffocode.sigesapi.users.domain.model.Admin;
 import dev.spiffocode.sigesapi.users.domain.model.InstitutionalStaff;
 import dev.spiffocode.sigesapi.users.domain.model.Student;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +35,7 @@ public class DevDataSeeder implements ApplicationRunner {
     private String testStaffEmail;
 
     @Override
-    public void run(ApplicationArguments args) {
+    public void run(@NonNull ApplicationArguments args) {
         log.info("TEST ADMIN EMAIL IS {}", testAdminEmail);
         log.info("TEST STUDENT EMAIL IS {}", testStudentEmail);
         log.info("TEST STAFF EMAIL IS {}", testStaffEmail);

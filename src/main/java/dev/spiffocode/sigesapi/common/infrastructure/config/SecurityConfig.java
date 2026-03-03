@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers(EndpointRequest.to(HealthEndpoint.class)).permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
