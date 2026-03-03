@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.users.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
+import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
 import dev.spiffocode.sigesapi.mailsender.application.service.UserManagementEmailPort;
 import dev.spiffocode.sigesapi.users.application.mapper.InstitutionalStaffMapper;
 import dev.spiffocode.sigesapi.users.application.mapper.StudentMapper;
@@ -112,11 +113,20 @@ public class UserManagementServiceImpl  implements UserManagementService {
 
     @Override
     public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        userRepository.softDeleteById(id);
 
+        emailPort.sendGoodbyeEmail(user.getEmail(), user.fullName());
+        //TODO: Cancel all reservations
     }
 
+    @WithDeletedRecords
     @Override
     public void restoreUser(Long id) {
-
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        userRepository.restoreById(id);
+        emailPort.sendAccountRestoredEmail(user.getEmail(), user.fullName());
     }
 }

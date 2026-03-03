@@ -8,6 +8,7 @@ public interface UserManagementEmailPort {
     void sendStudentWelcomeEmail(String email, String name, String generatedPassword);
     void sendInstitutionalStaffWelcomeEmail(String email, String name, String generatedPassword);
     void sendGoodbyeEmail(String email, String name);
+    void sendAccountRestoredEmail(String email, String name);
     void sendPasswordChangedEmail(String email, String name);
     void sendRecoveryEmail(String email, String token);
 }
