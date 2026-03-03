@@ -26,6 +26,8 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static dev.spiffocode.sigesapi.common.domain.specification.SpecificationHelper.cast;
 import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.equipmentSpecification;
 import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.availableForStudents;
@@ -69,16 +71,8 @@ public class EquipmentServiceImpl implements EquipmentService {
 
     @Override
     public EquipmentDto registerEquipment(EquipmentRegisterDto request) {
-        Long spaceId = request.getSpaceId();
-        Space space = null;
-        if(spaceId != null){
-            space = spaceRepository.findById(spaceId)
-                    .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(spaceId), spaceId));
-        }
-
-        Long buildingId = request.getBuildingId();
-        Building building = buildingRepository.findById(buildingId)
-                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));
+        Space space = findSpace(request.getSpaceId());
+        Building building = findBuilding(request.getBuildingId());
 
         uniqueValidator.assertRegisterUnique(request.getInventoryNum());
 
@@ -92,21 +86,27 @@ public class EquipmentServiceImpl implements EquipmentService {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ReservableNotFoundException("Equipment with ID %dl not found".formatted(id), id));
 
-        Long spaceId = request.getSpaceId();
-        Space space = null;
-        if(spaceId != null){
-            space = spaceRepository.findById(spaceId)
-                    .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(spaceId), spaceId));
-        }
-        Long buildingId = request.getBuildingId();
-        Building building = buildingRepository.findById(buildingId)
-                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));
+        Space space = findSpace(request.getSpaceId());
+        Building building = findBuilding(request.getBuildingId());
 
         uniqueValidator.assertUpdateUnique(id, request.getInventoryNum());
 
         equipmentMapper.updateEntityFromDto(request, building, space,  equipment);
         equipment = equipmentRepository.save(equipment);
         return equipmentMapper.toDto(equipment);
+    }
+
+    public Building findBuilding(Long id){
+        return buildingRepository.findById(id)
+                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(id), id));
+
+    }
+
+    public Space findSpace(Long id){
+        return Optional.ofNullable(id)
+                .map(actualId -> spaceRepository.findById(actualId)
+                        .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(actualId), actualId))
+                ).orElse(null);
     }
 
     @Override

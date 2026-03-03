@@ -71,13 +71,9 @@ public class SpaceServiceImpl implements SpaceService {
 
     @Override
     public SpaceDto registerSpace(SpaceRegisterDto request) {
-        Long spaceTypeId =  request.getSpaceTypeId();
-        SpaceType spaceType = spaceTypeRepository.findById(spaceTypeId)
-                .orElseThrow(() -> new SpaceTypeNotFoundException("Space Type with ID %dl not found".formatted(spaceTypeId), spaceTypeId));
 
-        Long buildingId = request.getBuildingId();
-        Building building = buildingRepository.findById(buildingId)
-                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));
+        SpaceType spaceType = findSpaceType(request.getSpaceTypeId());
+        Building building = findBuilding(request.getBuildingId());
 
         uniqueValidator.assertRegisterUnique(request.getName(), building);
 
@@ -91,20 +87,26 @@ public class SpaceServiceImpl implements SpaceService {
         Space space = spaceRepository.findById(id)
                 .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(id), id));
 
-
-        Long spaceTypeId =  request.getSpaceTypeId();
-        SpaceType spaceType = spaceTypeRepository.findById(spaceTypeId)
-                .orElseThrow(() -> new SpaceTypeNotFoundException("Space Type with ID %dl not found".formatted(spaceTypeId), spaceTypeId));
-
-        Long buildingId = request.getBuildingId();
-        Building building = buildingRepository.findById(buildingId)
-                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(buildingId), buildingId));
+        SpaceType spaceType = findSpaceType(request.getSpaceTypeId());
+        Building building = findBuilding(request.getBuildingId());
 
         uniqueValidator.assertUpdateUnique(space.getId(), request.getName(), building);
 
         spaceMapper.updateEntityFromDto(request, spaceType, building, space);
         space = spaceRepository.save(space);
         return spaceMapper.toDto(space);
+    }
+
+    private SpaceType findSpaceType(Long id){
+       return spaceTypeRepository.findById(id)
+                .orElseThrow(() -> new SpaceTypeNotFoundException("Space Type with ID %dl not found".formatted(id), id));
+
+    }
+
+    private Building findBuilding(Long id){
+        return buildingRepository.findById(id)
+                .orElseThrow(() -> new BuildingNotFoundException("Building with ID %dl not found".formatted(id), id));
+
     }
 
     @Override

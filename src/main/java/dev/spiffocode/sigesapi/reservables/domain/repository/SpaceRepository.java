@@ -1,7 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.domain.repository;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
-import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import lombok.NonNull;

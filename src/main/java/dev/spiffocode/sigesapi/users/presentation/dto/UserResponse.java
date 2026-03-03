@@ -1,6 +1,5 @@
 package dev.spiffocode.sigesapi.users.presentation.dto;
 
-import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;

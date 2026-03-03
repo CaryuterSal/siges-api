@@ -66,7 +66,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-mail-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
-    implementation 'com.google.firebase:firebase-admin:9.4.3'
+    implementation "com.google.firebase:firebase-admin:9.4.3"
     testImplementation 'org.testcontainers:testcontainers-junit-jupiter'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:postgresql'

@@ -57,6 +57,6 @@ public class SecurityContextHelper {
 
     private boolean hasRole(String role) {
         return getAuthentication().getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals(role));
+                .anyMatch(a -> Objects.equals(a.getAuthority(), role));
     }
 }

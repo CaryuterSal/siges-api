@@ -15,6 +15,7 @@ import dev.spiffocode.sigesapi.users.domain.model.User;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -62,7 +63,8 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
                     new UsernamePasswordAuthenticationToken(req.identifier(), req.password())
             );
             loginAttemptRecorder.recordSuccess(req.identifier(), requestIp);
-            User user = userRepository.findByIdentifier(((UserDetails) Objects.requireNonNull(auth.getPrincipal())).getUsername()).get();
+            User user = userRepository.findByIdentifier(((UserDetails) Objects.requireNonNull(auth.getPrincipal())).getUsername())
+                    .orElseThrow(() -> new BadCredentialsException("User not found"));
             user.recordLogin(clock);
             userRepository.save(user);
 

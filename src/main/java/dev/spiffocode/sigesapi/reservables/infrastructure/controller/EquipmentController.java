@@ -126,7 +126,7 @@ public class EquipmentController {
             @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ValidationProblem.class))),
             @ApiResponse(responseCode = "404", description = "Equipment not found")
     })
-    public EquipmentDto updateEquipment(@PathVariable("id") long id, @RequestBody @Valid EquipmentUpdateDto request) {
+    public EquipmentDto updateEquipment(@PathVariable long id, @RequestBody @Valid EquipmentUpdateDto request) {
         return equipmentService.updateEquipment(id, request);
     }
 
