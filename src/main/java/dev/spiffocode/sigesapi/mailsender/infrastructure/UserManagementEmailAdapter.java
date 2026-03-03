@@ -1,13 +1,12 @@
 package dev.spiffocode.sigesapi.mailsender.infrastructure;
 
+import com.resend.Resend;
+import com.resend.core.exception.ResendException;
+import com.resend.services.emails.model.CreateEmailOptions;
 import dev.spiffocode.sigesapi.mailsender.application.service.UserManagementEmailPort;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.resilience.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -19,11 +18,13 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @RequiredArgsConstructor
 public class UserManagementEmailAdapter implements UserManagementEmailPort {
 
-    private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String from;
+
+    @Value("${spring.mail.password}")
+    private String apiKey;
 
     @Async("asyncExecutor")
     @Override
@@ -67,6 +68,7 @@ public class UserManagementEmailAdapter implements UserManagementEmailPort {
     @Async("asyncExecutor")
     @Override
     public void sendPasswordChangedEmail(String email, String name) {
+        log.debug("Sending password changed email");
         Context ctx = new Context();
         ctx.setVariable("name", name);
         sendHtml(email, "Tu contraseña ha sido actualizada - SIGES", "email/password-changed", ctx);
@@ -121,16 +123,18 @@ public class UserManagementEmailAdapter implements UserManagementEmailPort {
 
     @Retryable
     private void sendHtml(String to, String subject, String template, Context ctx) {
+        log.debug("Sending email to {}", to);
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(from);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(templateEngine.process(template, ctx), true);
-            mailSender.send(message);
+            Resend resend = new Resend(apiKey);
+            CreateEmailOptions params = CreateEmailOptions.builder()
+                    .from(from)
+                    .to(to)
+                    .subject(subject)
+                    .html(templateEngine.process(template, ctx))
+                    .build();
+            resend.emails().send(params);
             log.info("Correo '{}' enviado a {}", subject, to);
-        } catch (MessagingException e) {
+        } catch (ResendException e) {
             log.error("Error al enviar correo '{}' a {}: {}", subject, to, e.getMessage());
             throw new RuntimeException(e);
         }
