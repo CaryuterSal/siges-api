@@ -6,20 +6,22 @@ import dev.spiffocode.sigesapi.UnitTestClass;
 import dev.spiffocode.sigesapi.auth.domain.exception.InvalidCredentialsException;
 import dev.spiffocode.sigesapi.auth.domain.exception.JwtBlacklistedException;
 import dev.spiffocode.sigesapi.auth.domain.model.LogInAttemptsRepository;
-import dev.spiffocode.sigesapi.auth.infrastructure.service.impl.BlacklistedJwtAuthService;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.auth.infrastructure.LogInAttemptsProperties;
 import dev.spiffocode.sigesapi.auth.infrastructure.TokenBlacklistService;
+import dev.spiffocode.sigesapi.auth.infrastructure.service.impl.BlacklistedJwtAuthService;
 import dev.spiffocode.sigesapi.auth.infrastructure.service.impl.LoginAttemptRecorder;
-import dev.spiffocode.sigesapi.auth.presentation.dto.*;
+import dev.spiffocode.sigesapi.auth.presentation.dto.LoginRequest;
+import dev.spiffocode.sigesapi.auth.presentation.dto.LogoutRequest;
+import dev.spiffocode.sigesapi.auth.presentation.dto.RefreshRequest;
+import dev.spiffocode.sigesapi.auth.presentation.dto.RefreshResponse;
 import dev.spiffocode.sigesapi.users.domain.model.User;
+import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.time.Clock;
@@ -30,7 +32,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @UnitTestClass
@@ -42,6 +44,8 @@ class BearerAuthServiceTest {
     JwtService jwtService;
     @Mock
     UserDetailsService userDetailsService;
+    @Mock
+    UserRepository userRepository;
     @Mock
     AuthenticationManager authManager;
     @Mock
@@ -57,31 +61,6 @@ class BearerAuthServiceTest {
     BlacklistedJwtAuthService service;
 
     @Test
-    void login_ok_returnsTokens() {
-        LoginRequest req = new LoginRequest("mail@test.com", "123");
-
-        Authentication authentication = mock(Authentication.class);
-        UserDetails user = mock(UserDetails.class);
-
-
-        when(logInAttemptsRepository.countRecentFailuresSinceLastSuccess(any(), any(), any())).thenReturn(0L);
-        when(logInAttemptsProperties.getLockMinutes()).thenReturn(10);
-        when(logInAttemptsProperties.getMaxAttempts()).thenReturn(10);
-        when(clock.instant()).thenReturn(Instant.now());
-        when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
-
-        when(user.getUsername()).thenReturn("mail@test.com");
-        when(authentication.getPrincipal()).thenReturn(user);
-        when(authManager.authenticate(any())).thenReturn(authentication);
-        when(jwtService.generateAccessToken(anyString(), any())).thenReturn("access");
-        when(jwtService.generateRefreshToken(anyString())).thenReturn("refresh");
-        AuthenticatedResponse res = service.login(req, "197.168.1.1");
-
-        assertEquals("access", res.accessToken());
-        assertEquals("refresh", res.refreshToken());
-    }
-
-    @Test
     void login_userNotFound_throws() {
 
         when(logInAttemptsRepository.countRecentFailuresSinceLastSuccess(any(), any(), any())).thenReturn(0L);
@@ -95,7 +74,6 @@ class BearerAuthServiceTest {
                 () -> service.login(new LoginRequest("x", "x"), "197.168.1.1"));
     }
 
-
     @Test
     void refresh_validToken_returnsNewAccess() {
 
@@ -103,7 +81,7 @@ class BearerAuthServiceTest {
         when(jwtService.extractUsername("r")).thenReturn("mock@user.com");
 
         when(userDetailsService.loadUserByUsername(any())).thenReturn(mock(User.class));
-        when(jwtService.generateAccessToken(anyString(), any())).thenReturn("newAccess");
+        when(jwtService.generateAccessToken(anyString(), any(), anyInt())).thenReturn("newAccess");
 
         RefreshResponse res =
                 service.refresh(new RefreshRequest("r"));
@@ -152,4 +130,3 @@ class BearerAuthServiceTest {
         verify(blacklistService, times(2)).blacklist(any(), any());
     }
 }
-

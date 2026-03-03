@@ -32,20 +32,18 @@ class JwtServiceTest {
 
         fixedClock = Clock.fixed(
                 Instant.parse("2026-01-01T00:00:00Z"),
-                ZoneOffset.UTC
-        );
+                ZoneOffset.UTC);
 
         jwt = new JwtService(props, fixedClock);
     }
-
 
     @Test
     void generateAccessToken_containsCorrectClaims() {
 
         String token = jwt.generateAccessToken(
                 "user@mail.com",
-                List.of("ROLE_USER")
-        );
+                List.of("ROLE_USER"),
+                0);
 
         DecodedJWT decoded = jwt.validate(token);
 
@@ -60,7 +58,7 @@ class JwtServiceTest {
     @Test
     void generateRefreshToken_containsCorrectClaims() {
 
-        String token = jwt.generateRefreshToken("user@mail.com");
+        String token = jwt.generateRefreshToken("user@mail.com", 0);
 
         DecodedJWT decoded = jwt.validate(token);
 
@@ -73,21 +71,20 @@ class JwtServiceTest {
 
     @Test
     void extractUsername_returnsCorrectValue() {
-        String token = jwt.generateAccessToken("mail@test.com", List.of());
+        String token = jwt.generateAccessToken("mail@test.com", List.of(), 0);
         assertEquals("mail@test.com", jwt.extractUsername(token));
     }
 
     @Test
     void extractRoles_returnsCorrectValue() {
-        String token = jwt.generateAccessToken("mail@test.com", List.of("A", "B"));
+        String token = jwt.generateAccessToken("mail@test.com", List.of("A", "B"), 0);
         assertEquals(List.of("A", "B"), jwt.extractRoles(token));
     }
-
 
     @Test
     void validate_tamperedToken_throws() {
 
-        String token = jwt.generateAccessToken("user", List.of());
+        String token = jwt.generateAccessToken("user", List.of(), 0);
 
         String tampered = token + "abc";
 
@@ -98,7 +95,7 @@ class JwtServiceTest {
     @Test
     void validate_wrongSecret_throws() {
 
-        String token = jwt.generateAccessToken("user", List.of());
+        String token = jwt.generateAccessToken("user", List.of(), 0);
 
         JwtProperties otherProps = new JwtProperties();
         otherProps.setSecret("different-secret");
@@ -111,7 +108,6 @@ class JwtServiceTest {
                 () -> other.validate(token));
     }
 
-
     @Test
     void expiredToken_throws_withoutSleeping() {
 
@@ -122,7 +118,7 @@ class JwtServiceTest {
 
         JwtService shortJwt = new JwtService(shortProps, fixedClock);
 
-        String token = shortJwt.generateAccessToken("user", List.of());
+        String token = shortJwt.generateAccessToken("user", List.of(), 0);
         Clock advancedClock = Clock.offset(fixedClock, Duration.ofSeconds(2));
 
         JwtService expiredJwt = new JwtService(shortProps, advancedClock);

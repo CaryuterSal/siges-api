@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.reservables;
 
 import dev.spiffocode.sigesapi.DataTestClass;
+import dev.spiffocode.sigesapi.WithMockCustomUser;
 import dev.spiffocode.sigesapi.reservables.domain.model.*;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.ReservableRepository;
@@ -22,6 +23,7 @@ class ReservableRepositoryTest {
     @Autowired BuildingRepository buildingRepository;
     @Autowired SpaceTypeRepository spaceTypeRepository;
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void shouldFindSpaceByBuilding() {
         Building building = Building.builder()
@@ -52,6 +54,7 @@ class ReservableRepositoryTest {
         assertThat(spaces.getFirst().getDescription()).isEqualTo("Aula grande para presentaciones");
     }
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void polymorphism_shouldFindSpaceUsingReservableRepo() {
         Building building = Building.builder()

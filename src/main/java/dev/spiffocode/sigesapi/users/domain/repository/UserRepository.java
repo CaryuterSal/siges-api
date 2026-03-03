@@ -17,17 +17,14 @@ public interface UserRepository extends
         JpaSpecificationExecutor<@NonNull User> {
 
     @Query("""
-    select u
-    from User u
-    left join Applicant a on a.id = u.id
-    left join Student s on s.id = a.id
-    left join InstitutionalStaff st on st.id = a.id
-    where
-        u.email = :identifier
-        or u.phoneNumber = :identifier
-        or s.registrationNumber = :identifier
-        or st.employeeNumber = :identifier
-    """)
+            select u
+            from User u
+            where
+                u.email = :identifier
+                or u.phoneNumber = :identifier
+                or treat(u as Student).registrationNumber = :identifier
+                or treat(u as InstitutionalStaff).employeeNumber = :identifier
+            """)
     Optional<User> findByIdentifier(String identifier);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
@@ -39,7 +36,10 @@ public interface UserRepository extends
     int restoreById(@Param("id") Long id);
 
     boolean existsByEmail(String email);
+
     boolean existsByPhoneNumber(String phoneNumber);
+
     boolean existsByEmailAndIdNot(String email, Long id);
+
     boolean existsByPhoneNumberAndIdNot(String phoneNumber, Long id);
 }

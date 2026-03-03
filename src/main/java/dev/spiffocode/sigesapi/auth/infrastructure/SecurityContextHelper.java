@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.auth.infrastructure;
 
 import dev.spiffocode.sigesapi.auth.application.service.CustomUserDetails;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,9 @@ public class SecurityContextHelper {
     }
 
     public String getCurrentUserEmail(){
+        if (getAuthentication() == null || getAuthentication() instanceof AnonymousAuthenticationToken) {
+            return "anonymousUser";
+        }
         return ((CustomUserDetails) Objects.requireNonNull(getAuthentication().getPrincipal())).getEmail();
     }
 

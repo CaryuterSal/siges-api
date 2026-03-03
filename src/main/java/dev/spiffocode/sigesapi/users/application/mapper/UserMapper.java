@@ -44,7 +44,10 @@ public interface UserMapper {
 
 
 
+    @Mapping(target = "role", constant = "STUDENT")
     StudentResponse toStudentResponse(Student entity);
+    @Mapping(target = "role", constant = "ADMIN")
     AdminResponse toAdminResponse(Admin entity);
+    @Mapping(target = "role", constant = "INSTITUTIONAL_STAFF")
     InstitutionalStaffResponse toInstitutionalStaffResponse(InstitutionalStaff entity);
 }

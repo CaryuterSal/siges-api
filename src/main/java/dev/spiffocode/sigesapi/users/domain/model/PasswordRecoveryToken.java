@@ -8,12 +8,14 @@ import lombok.NoArgsConstructor;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "password_recovery_tokens")
+@EntityListeners(AuditingEntityListener.class)
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Builder
 @AllArgsConstructor

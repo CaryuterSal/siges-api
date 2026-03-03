@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.data;
 
 import dev.spiffocode.sigesapi.DataTestClass;
+import dev.spiffocode.sigesapi.WithMockCustomUser;
 import dev.spiffocode.sigesapi.reservables.domain.model.Availability;
 import dev.spiffocode.sigesapi.reservables.domain.model.AvailabilitySlot;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
@@ -37,6 +38,7 @@ public class DeleteSpecificationTest {
     private AvailabilityRepository availabilityRepository;
 
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void should_soft_delete_equipment(){
 

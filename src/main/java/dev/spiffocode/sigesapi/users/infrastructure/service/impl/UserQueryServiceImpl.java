@@ -8,8 +8,10 @@ import dev.spiffocode.sigesapi.users.domain.exception.UserNotFoundException;
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import dev.spiffocode.sigesapi.users.presentation.dto.UserResponse;
+import jakarta.persistence.EntityManager;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Session;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,9 +27,12 @@ public class UserQueryServiceImpl implements UserQueryService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    private final EntityManager em;
+
     @WithDeletedRecords
     @Override
     public Page<@NonNull UserResponse> findAllUsers(Pageable pageable, UserFilter filter) {
+        Session session = em.unwrap(Session.class);
         return userRepository.findAll(resolveSpecification(filter), pageable)
                 .map(userMapper::toResponse);
     }

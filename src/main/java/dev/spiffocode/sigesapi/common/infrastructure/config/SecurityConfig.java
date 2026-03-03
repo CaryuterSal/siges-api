@@ -37,7 +37,8 @@ import java.util.Map;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter)
+            throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -47,23 +48,24 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
-                        .requestMatchers(HttpMethod.POST,"/buildings/**", "/spaces/**", "/spacetypes/**", "/equipments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,"/buildings/**", "/spaces/**", "/spacetypes/**", "/equipments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH,"/buildings/**", "/spaces/**", "/spacetypes/**", "/equipments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE,"/buildings/**", "/spaces/**", "/spacetypes/**", "/equipments/**").hasRole("ADMIN")
+                                "/swagger-ui.html").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/buildings/**", "/spaces/**", "/spacetypes/**",
+                                "/equipments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/buildings/**", "/spaces/**", "/spacetypes/**",
+                                "/equipments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/buildings/**", "/spaces/**", "/spacetypes/**",
+                                "/equipments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/buildings/**", "/spaces/**", "/spacetypes/**",
+                                "/equipments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/*").hasRole("APPLICANT")
                         .requestMatchers(HttpMethod.PATCH, "/users/*").hasRole("APPLICANT")
                         .requestMatchers("/admins/**", "/institutional-staff/**", "/students/**", "/users/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/password-recovery/redirect").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/password-recovery/**").permitAll()
+                        .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .build();
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -80,7 +82,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource(){
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = getCorsConfiguration();
         configuration.setExposedHeaders(List.of("Location", "Content-Type"));
 

@@ -1,5 +1,7 @@
 package dev.spiffocode.sigesapi.users.infrastructure.service.impl;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.mailsender.application.service.UserManagementEmailPort;
 import dev.spiffocode.sigesapi.users.application.service.PasswordRecoveryService;
@@ -89,7 +91,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                     .build()
                     .toUri();
 
-        } catch (InvalidRecoveryTokenException e) {
+        } catch (InvalidRecoveryTokenException | JWTVerificationException e) {
             return buildErrorRedirect(RecoveryPlatform.WEB, "invalid_token");
         }
     }
@@ -108,22 +110,26 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     @Transactional
     @Override
     public void updatePassword(PasswordUpdateRequest request) {
-        String jti = jwtService.extractJti(request.token());
+        try {
+            String jti = jwtService.extractJti(request.token());
 
-        PasswordRecoveryToken recoveryToken = recoveryTokenRepository.findByJti(jti)
-                .orElseThrow(() -> new InvalidRecoveryTokenException("Invalid recovery token"));
+            PasswordRecoveryToken recoveryToken = recoveryTokenRepository.findByJti(jti)
+                    .orElseThrow(() -> new InvalidRecoveryTokenException("Invalid recovery token"));
 
-        if (recoveryToken.isExpired(clock) || recoveryToken.isUsed()) {
-            throw new RecoveryTokenExpiredException("Recovery token has already been used or has expired");
+            if (recoveryToken.isExpired(clock) || recoveryToken.isUsed()) {
+                throw new RecoveryTokenExpiredException("Recovery token has already been used or has expired");
+            }
+
+            User user = recoveryToken.getUser();
+            user.changePassword(passwordEncoder.encode(request.newPassword()));
+            userRepository.save(user);
+
+            recoveryToken.markAsUsed();
+            recoveryTokenRepository.save(recoveryToken);
+
+            emailPort.sendPasswordChangedEmail(user.getEmail(), user.fullName());
+        } catch (TokenExpiredException e) {
+            throw new RecoveryTokenExpiredException("Recovery token is expired");
         }
-
-        User user = recoveryToken.getUser();
-        user.changePassword(passwordEncoder.encode(request.newPassword()));
-        userRepository.save(user);
-
-        recoveryToken.markAsUsed();
-        recoveryTokenRepository.save(recoveryToken);
-
-        emailPort.sendPasswordChangedEmail(user.getEmail(), user.fullName());
     }
 }
