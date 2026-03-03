@@ -1,129 +1,220 @@
 package dev.spiffocode.sigesapi.auth;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import dev.spiffocode.sigesapi.UnitTestClass;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.common.infrastructure.web.JwtProperties;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Import;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 @UnitTestClass
 @Import(JwtService.class)
 class JwtServiceTest {
 
-    private JwtProperties props;
+    private static final Instant NOW = Instant.parse("2024-06-01T12:00:00Z");
+    private static final ZoneId ZONE = ZoneId.of("UTC");
+    private static final String SECRET = "test-secret-key-that-is-long-enough-32ch";
+    private static final long ACCESS_EXPIRATION_MS  = 604_800_000L; // 7 días
+    private static final long REFRESH_EXPIRATION_MS =  86_400_000L; // 1 día
+
     private Clock fixedClock;
-    private JwtService jwt;
+    private JwtService jwtService;
 
     @BeforeEach
-    void setup() {
-
-        props = new JwtProperties();
-        props.setSecret("super-secret-test-key-123");
-        props.setAccessExpiration(Duration.ofMinutes(5).toMillis());
-        props.setRefreshExpiration(Duration.ofHours(1).toMillis());
-
-        fixedClock = Clock.fixed(
-                Instant.parse("2026-01-01T00:00:00Z"),
-                ZoneOffset.UTC);
-
-        jwt = new JwtService(props, fixedClock);
+    void setUp() {
+        fixedClock = Clock.fixed(NOW, ZONE);
+        JwtProperties props = new JwtProperties();
+        props.setSecret(SECRET);
+        props.setAccessExpiration(ACCESS_EXPIRATION_MS);
+        props.setRefreshExpiration(REFRESH_EXPIRATION_MS);
+        jwtService = new JwtService(props, fixedClock);
     }
 
-    @Test
-    void generateAccessToken_containsCorrectClaims() {
+    @Nested @DisplayName("generateAccessToken")
+    class GenerateAccessToken {
 
-        String token = jwt.generateAccessToken(
-                "user@mail.com",
-                List.of("ROLE_USER"),
-                0);
+        @Test @DisplayName("Válido justo después de crearse — regresión del bug reportado")
+        void tokenIsValidRightAfterCreation() {
+            String token = jwtService.generateAccessToken("user@example.com", List.of("ROLE_USER"), 1);
+            assertThatCode(() -> jwtService.validate(token)).doesNotThrowAnyException();
+        }
 
-        DecodedJWT decoded = jwt.validate(token);
+        @Test @DisplayName("issuedAt coincide con el clock")
+        void issuedAtMatchesClock() {
+            String token = jwtService.generateAccessToken("user@example.com", List.of("ROLE_USER"), 1);
+            assertThat(jwtService.validate(token).getIssuedAtAsInstant()).isEqualTo(NOW);
+        }
 
-        assertEquals("user@mail.com", decoded.getSubject());
-        assertEquals("access", decoded.getClaim("type").asString());
-        assertEquals(List.of("ROLE_USER"), decoded.getClaim("roles").asList(String.class));
+        @Test @DisplayName("expiresAt = now + accessExpiration ms")
+        void expiresAtIsCorrect() {
+            String token = jwtService.generateAccessToken("user@example.com", List.of("ROLE_USER"), 1);
+            assertThat(jwtService.validate(token).getExpiresAtAsInstant())
+                    .isEqualTo(NOW.plusMillis(ACCESS_EXPIRATION_MS));
+        }
 
-        assertTrue(jwt.isAccessToken(token));
-        assertFalse(jwt.isRefreshToken(token));
+        @Test @DisplayName("Claims embebidos correctamente")
+        void claimsAreCorrect() {
+            String token = jwtService.generateAccessToken("user@example.com", List.of("ROLE_USER", "ROLE_ADMIN"), 3);
+            DecodedJWT decoded = jwtService.validate(token);
+            assertThat(decoded.getSubject()).isEqualTo("user@example.com");
+            assertThat(decoded.getClaim("roles").asList(String.class)).containsExactly("ROLE_USER", "ROLE_ADMIN");
+            assertThat(decoded.getClaim("token_version").asInt()).isEqualTo(3);
+            assertThat(decoded.getClaim("type").asString()).isEqualTo("access");
+        }
+
+        @Test @DisplayName("isAccessToken=true, isRefreshToken=false")
+        void typeClaimIsAccess() {
+            String token = jwtService.generateAccessToken("user@example.com", List.of("ROLE_USER"), 1);
+            assertThat(jwtService.isAccessToken(token)).isTrue();
+            assertThat(jwtService.isRefreshToken(token)).isFalse();
+        }
+
+        @Test @DisplayName("Expirado 1 ms después del vencimiento → TokenExpiredException")
+        void tokenIsExpiredAfterExpiryTime() {
+            String token = jwtService.generateAccessToken("user@example.com", List.of("ROLE_USER"), 1);
+            Clock future = Clock.fixed(NOW.plusMillis(ACCESS_EXPIRATION_MS + 1), ZONE);
+            JwtProperties props = new JwtProperties();
+            props.setSecret(SECRET);
+            props.setAccessExpiration(ACCESS_EXPIRATION_MS);
+            props.setRefreshExpiration(REFRESH_EXPIRATION_MS);
+            JwtService futureService = new JwtService(props, future);
+            assertThatThrownBy(() -> futureService.validate(token)).isInstanceOf(TokenExpiredException.class);
+        }
+
+        @Test @DisplayName("Cada token tiene JTI único")
+        void jtiIsUnique() {
+            String t1 = jwtService.generateAccessToken("user@example.com", List.of("ROLE_USER"), 1);
+            String t2 = jwtService.generateAccessToken("user@example.com", List.of("ROLE_USER"), 1);
+            assertThat(jwtService.extractJti(t1)).isNotEqualTo(jwtService.extractJti(t2));
+        }
     }
 
-    @Test
-    void generateRefreshToken_containsCorrectClaims() {
+    @Nested @DisplayName("generateRefreshToken")
+    class GenerateRefreshToken {
 
-        String token = jwt.generateRefreshToken("user@mail.com", 0);
+        @Test @DisplayName("Válido justo después de crearse")
+        void tokenIsValidRightAfterCreation() {
+            String token = jwtService.generateRefreshToken("user@example.com", 1);
+            assertThatCode(() -> jwtService.validate(token)).doesNotThrowAnyException();
+        }
 
-        DecodedJWT decoded = jwt.validate(token);
+        @Test @DisplayName("expiresAt = now + refreshExpiration ms")
+        void expiresAtIsCorrect() {
+            String token = jwtService.generateRefreshToken("user@example.com", 1);
+            assertThat(jwtService.validate(token).getExpiresAtAsInstant())
+                    .isEqualTo(NOW.plusMillis(REFRESH_EXPIRATION_MS));
+        }
 
-        assertEquals("user@mail.com", decoded.getSubject());
-        assertEquals("refresh", decoded.getClaim("type").asString());
+        @Test @DisplayName("isRefreshToken=true, isAccessToken=false")
+        void typeClaimIsRefresh() {
+            String token = jwtService.generateRefreshToken("user@example.com", 1);
+            assertThat(jwtService.isRefreshToken(token)).isTrue();
+            assertThat(jwtService.isAccessToken(token)).isFalse();
+        }
 
-        assertTrue(jwt.isRefreshToken(token));
-        assertFalse(jwt.isAccessToken(token));
+        @Test @DisplayName("token_version claim correcto")
+        void tokenVersionClaim() {
+            assertThat(jwtService.extractTokenVersion(
+                    jwtService.generateRefreshToken("user@example.com", 7))).isEqualTo(7);
+        }
     }
 
-    @Test
-    void extractUsername_returnsCorrectValue() {
-        String token = jwt.generateAccessToken("mail@test.com", List.of(), 0);
-        assertEquals("mail@test.com", jwt.extractUsername(token));
+    @Nested @DisplayName("generateRecoveryToken")
+    class GenerateRecoveryToken {
+
+        @Test @DisplayName("Válido justo después de crearse")
+        void tokenIsValidRightAfterCreation() {
+            String token = jwtService.generateRecoveryToken("jti-123", "user@example.com", Duration.ofMinutes(15));
+            assertThatCode(() -> jwtService.validate(token)).doesNotThrowAnyException();
+        }
+
+        @Test @DisplayName("expiresAt = now + duration")
+        void expiresAtMatchesDuration() {
+            Duration exp = Duration.ofMinutes(15);
+            String token = jwtService.generateRecoveryToken("jti-abc", "user@example.com", exp);
+            assertThat(jwtService.validate(token).getExpiresAtAsInstant()).isEqualTo(NOW.plus(exp));
+        }
+
+        @Test @DisplayName("Expirado 1s después de la duración → TokenExpiredException")
+        void tokenIsExpiredAfterDuration() {
+            Duration exp = Duration.ofMinutes(15);
+            String token = jwtService.generateRecoveryToken("jti-xyz", "user@example.com", exp);
+            Clock future = Clock.fixed(NOW.plus(exp).plusSeconds(1), ZONE);
+            JwtProperties props = new JwtProperties();
+            props.setSecret(SECRET);
+            props.setAccessExpiration(ACCESS_EXPIRATION_MS);
+            props.setRefreshExpiration(REFRESH_EXPIRATION_MS);
+            assertThatThrownBy(() -> new JwtService(props, future).validate(token))
+                    .isInstanceOf(TokenExpiredException.class);
+        }
     }
 
-    @Test
-    void extractRoles_returnsCorrectValue() {
-        String token = jwt.generateAccessToken("mail@test.com", List.of("A", "B"), 0);
-        assertEquals(List.of("A", "B"), jwt.extractRoles(token));
+    @Nested @DisplayName("Extractores de claims")
+    class ClaimExtractors {
+
+        @Test void extractUsername() {
+            assertThat(jwtService.extractUsername(
+                    jwtService.generateAccessToken("alice@example.com", List.of("ROLE_USER"), 1)))
+                    .isEqualTo("alice@example.com");
+        }
+
+        @Test void extractJtiNotBlank() {
+            assertThat(jwtService.extractJti(
+                    jwtService.generateAccessToken("alice@example.com", List.of("ROLE_USER"), 1)))
+                    .isNotBlank();
+        }
+
+        @Test void extractRoles() {
+            List<String> roles = List.of("ROLE_USER", "ROLE_ADMIN");
+            assertThat(jwtService.extractRoles(
+                    jwtService.generateAccessToken("alice@example.com", roles, 1)))
+                    .containsExactlyElementsOf(roles);
+        }
+
+        @Test void extractTokenVersion() {
+            assertThat(jwtService.extractTokenVersion(
+                    jwtService.generateAccessToken("alice@example.com", List.of("ROLE_USER"), 42)))
+                    .isEqualTo(42);
+        }
     }
 
-    @Test
-    void validate_tamperedToken_throws() {
+    @Nested @DisplayName("validate — tokens inválidos")
+    class ValidateInvalidTokens {
 
-        String token = jwt.generateAccessToken("user", List.of(), 0);
+        @Test @DisplayName("Token manipulado → JWTVerificationException")
+        void tamperedToken() {
+            String token = jwtService.generateAccessToken("user@example.com", List.of("ROLE_USER"), 1);
+            String tampered = token.substring(0, token.length() - 4) + "XXXX";
+            assertThatThrownBy(() -> jwtService.validate(tampered)).isInstanceOf(JWTVerificationException.class);
+        }
 
-        String tampered = token + "abc";
+        @Test @DisplayName("String aleatorio → JWTVerificationException")
+        void randomStringThrows() {
+            assertThatThrownBy(() -> jwtService.validate("not.a.jwt")).isInstanceOf(JWTVerificationException.class);
+        }
 
-        assertThrows(JWTVerificationException.class,
-                () -> jwt.validate(tampered));
-    }
-
-    @Test
-    void validate_wrongSecret_throws() {
-
-        String token = jwt.generateAccessToken("user", List.of(), 0);
-
-        JwtProperties otherProps = new JwtProperties();
-        otherProps.setSecret("different-secret");
-        otherProps.setAccessExpiration(1000L);
-        otherProps.setRefreshExpiration(1000L);
-
-        JwtService other = new JwtService(otherProps, fixedClock);
-
-        assertThrows(JWTVerificationException.class,
-                () -> other.validate(token));
-    }
-
-    @Test
-    void expiredToken_throws_withoutSleeping() {
-
-        JwtProperties shortProps = new JwtProperties();
-        shortProps.setSecret("secret");
-        shortProps.setAccessExpiration(1000L);
-        shortProps.setRefreshExpiration(1000L);
-
-        JwtService shortJwt = new JwtService(shortProps, fixedClock);
-
-        String token = shortJwt.generateAccessToken("user", List.of(), 0);
-        Clock advancedClock = Clock.offset(fixedClock, Duration.ofSeconds(2));
-
-        JwtService expiredJwt = new JwtService(shortProps, advancedClock);
-
-        assertThrows(JWTVerificationException.class,
-                () -> expiredJwt.validate(token));
+        @Test @DisplayName("Firmado con otro secret → JWTVerificationException")
+        void wrongSecretThrows() {
+            JwtProperties other = new JwtProperties();
+            other.setSecret("completely-different-secret-key-xyz");
+            other.setAccessExpiration(ACCESS_EXPIRATION_MS);
+            other.setRefreshExpiration(REFRESH_EXPIRATION_MS);
+            String foreign = new JwtService(other, fixedClock)
+                    .generateAccessToken("user@example.com", List.of("ROLE_USER"), 1);
+            assertThatThrownBy(() -> jwtService.validate(foreign)).isInstanceOf(JWTVerificationException.class);
+        }
     }
 }
