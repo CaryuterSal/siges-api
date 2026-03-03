@@ -1,11 +1,15 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
-import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
+import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
+import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceService;
-import dev.spiffocode.sigesapi.reservables.domain.exception.*;
+import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
+import dev.spiffocode.sigesapi.reservables.domain.exception.ReservableNotFoundException;
+import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceNotFoundException;
+import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceTypeNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
@@ -21,9 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +42,8 @@ public class SpaceServiceImpl implements SpaceService {
     private final SpaceTypeRepository spaceTypeRepository;
     private final BuildingRepository buildingRepository;
     private final SpaceUniqueValidatorService uniqueValidator;
+
+    private final SecurityContextHelper securityContextHelper;
 
 
     @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
@@ -60,14 +63,9 @@ public class SpaceServiceImpl implements SpaceService {
     }
 
     private Specification<@NonNull Space> resolveSpecification(SpaceFilter filter) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         Specification<@NonNull Space> spec = spaceSpecification(filter);
-        if(auth == null) return spec;
 
-        boolean isStudent = auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STUDENT"));
-
-        if(isStudent) return spec.and(cast(availableForStudents(true)));
+        if(securityContextHelper.isStudent()) return spec.and(cast(availableForStudents(true)));
         return spec;
     }
 

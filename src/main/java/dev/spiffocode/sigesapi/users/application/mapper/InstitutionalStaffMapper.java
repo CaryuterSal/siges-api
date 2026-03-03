@@ -11,7 +11,8 @@ public interface InstitutionalStaffMapper {
 
     InstitutionalStaffResponse toResponse(InstitutionalStaff admin);
 
-    @Mapping(target = "password", source = "password")
+    @Mapping(target = "phoneNumber", ignore = true)
+    @Mapping(target = "password", source = "rawPassword")
     @Mapping(target = "lastLogin", ignore = true)
     @Mapping(target = "notifications", ignore = true)
     @Mapping(target = "tokens", ignore = true)
@@ -20,5 +21,5 @@ public interface InstitutionalStaffMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
-    InstitutionalStaff toEntity(InstitutionalStaffRegistrationRequest adminRegistrationRequest, String password);
+    InstitutionalStaff toEntity(InstitutionalStaffRegistrationRequest adminRegistrationRequest, String rawPassword);
 }

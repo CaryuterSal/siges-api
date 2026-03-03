@@ -57,6 +57,8 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         Admin entity = adminMapper.toEntity(request, encodedPassword);
+
+        entity.changePhoneNumber(normalizedPhoneNumber);
         entity = adminRepository.save(entity);
 
         emailSender.sendAdminWelcomeEmail(request.getEmail(), entity.fullName(), rawPassword);
@@ -76,6 +78,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         Student entity = studentMapper.toEntity(request, encodedPassword);
+        entity.changePhoneNumber(normalizedPhoneNumber);
         entity = studentRepository.save(entity);
 
         emailSender.sendStudentWelcomeEmail(request.getEmail(), entity.fullName(), rawPassword);
@@ -96,6 +99,8 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         InstitutionalStaff entity = institutionalStaffMapper.toEntity(request, encodedPassword);
+
+        entity.changePhoneNumber(normalizedPhoneNumber);
         entity = institutionalStaffRepository.save(entity);
 
         emailSender.sendInstitutionalStaffWelcomeEmail(request.getEmail(), entity.fullName(), rawPassword);

@@ -5,6 +5,6 @@ import dev.spiffocode.sigesapi.common.infrastructure.exceptions.NotFoundExceptio
 public class SpaceTypeNotFoundException extends NotFoundException {
 
     public SpaceTypeNotFoundException(String message, long id) {
-        super(message, id);
+        super(message, String.valueOf(id));
     }
 }

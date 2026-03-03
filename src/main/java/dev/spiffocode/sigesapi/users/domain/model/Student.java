@@ -7,8 +7,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Filter;
-import org.hibernate.annotations.SQLDelete;
+
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -25,4 +25,15 @@ public class Student extends Applicant {
     @NotNull
     @Column(nullable = false, unique = true)
     private String registrationNumber;
+    
+    public boolean changeRegistrationNumber(String registrationNumber,  boolean changeVersion){
+
+        String old = this.registrationNumber;
+        this.registrationNumber = registrationNumber;
+        if(!Objects.equals(old, registrationNumber) && changeVersion){
+            this.setTokenVersion(getTokenVersion() + 1);
+            return true;
+        }
+        return false;
+    }
 }

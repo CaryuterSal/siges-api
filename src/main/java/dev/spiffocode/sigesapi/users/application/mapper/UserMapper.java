@@ -28,6 +28,7 @@ public interface UserMapper {
                 .toList();
     }
 
+    @Mapping(target = "phoneNumber", ignore = true)
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "email", ignore = true)
     @Mapping(target = "lastLogin", ignore = true)

@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
+import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
 import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.application.mapper.EquipmentMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentFilter;
@@ -22,15 +23,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static dev.spiffocode.sigesapi.common.domain.specification.SpecificationHelper.cast;
-import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.*;
-import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.*;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentSpecifications.equipmentSpecification;
+import static dev.spiffocode.sigesapi.reservables.domain.specification.ReservableSpecifications.availableForStudents;
 
 @Service
 @RequiredArgsConstructor
@@ -42,6 +40,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     private final SpaceRepository spaceRepository;
     private final BuildingRepository buildingRepository;
     private final EquipmentUniqueValidatorService uniqueValidator;
+    private final SecurityContextHelper securityContextHelper;
 
 
     @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
@@ -62,14 +61,9 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     private Specification<@NonNull Equipment> resolveSpecification(EquipmentFilter filter) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
         Specification<@NonNull Equipment> spec = equipmentSpecification(filter);
-        if(auth == null) return spec;
 
-        boolean isStudent = auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_STUDENT"));
-
-        if(isStudent) return spec.and(cast(availableForStudents(true)));
+        if(securityContextHelper.isStudent()) return spec.and(cast(availableForStudents(true)));
         return spec;
     }
 

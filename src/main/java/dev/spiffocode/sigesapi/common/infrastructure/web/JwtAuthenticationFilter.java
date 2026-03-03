@@ -1,8 +1,10 @@
 package dev.spiffocode.sigesapi.common.infrastructure.web;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import dev.spiffocode.sigesapi.auth.application.service.CustomUserDetails;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.auth.infrastructure.TokenBlacklistService;
+import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,6 +28,7 @@ import java.util.stream.Collectors;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
+    private final UserRepository userRepository;
     private final UserDetailsService userDetailsService;
     private final TokenBlacklistService  tokenBlacklistService;
 
@@ -64,10 +68,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
 
-            var userDetails = userDetailsService.loadUserByUsername(username);
+            var userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
+
+            if(!Objects.equals(userDetails.getTokenVersion(), jwt.getClaim("token_version").asInt())) {
+                filterChain.doFilter(request, response);
+                return;
+            }
 
             var authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails.getUsername(),
+                    userDetails,
                     null,
                     authorities
             );

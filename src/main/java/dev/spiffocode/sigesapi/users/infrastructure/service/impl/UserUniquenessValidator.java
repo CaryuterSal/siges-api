@@ -26,12 +26,16 @@ public class UserUniquenessValidator {
     }
 
     @WithDeletedRecords
-    public void assertUpdateUnique(Long entityId, String email, String phoneNumber){
-        if(userRepository.existsByEmailAndIdNot(email, entityId)){
-            throw new EmailExistsException(email);
-        }
+    public void assertCommonInfoUpdateUnique(Long entityId, String phoneNumber){
         if(userRepository.existsByPhoneNumberAndIdNot(phoneNumber, entityId)){
             throw new PhoneNumberExistsException(phoneNumber);
+        }
+    }
+
+    @WithDeletedRecords
+    public void assertEmailChangeUnique(Long entityId, String email){
+        if(userRepository.existsByEmailAndIdNot(email, entityId)){
+            throw new EmailExistsException(email);
         }
     }
 }

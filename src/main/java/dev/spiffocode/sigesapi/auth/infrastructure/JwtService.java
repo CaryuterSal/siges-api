@@ -35,7 +35,7 @@ public class JwtService {
         this.jwtProperties = jwtProperties;
     }
 
-    public String generateAccessToken(String email, List<String> roles) {
+    public String generateAccessToken(String email, List<String> roles, Integer tokenVersion) {
 
         String jti = UUID.randomUUID().toString();
 
@@ -43,13 +43,14 @@ public class JwtService {
                 .withJWTId(jti)
                 .withSubject(email)
                 .withClaim("roles", roles)
+                .withClaim("token_version", tokenVersion)
                 .withClaim("type", "access")
                 .withIssuedAt(clock.instant())
                 .withExpiresAt(new Date(clock.millis() + jwtProperties.getAccessExpiration()))
                 .sign(algorithm);
     }
 
-    public String generateRefreshToken(String email) {
+    public String generateRefreshToken(String email, Integer tokenVersion) {
 
         String jti = UUID.randomUUID().toString();
 
@@ -57,6 +58,7 @@ public class JwtService {
                 .withJWTId(jti)
                 .withSubject(email)
                 .withClaim("type", "refresh")
+                .withClaim("token_version", tokenVersion)
                 .withIssuedAt(clock.instant())
                 .withExpiresAt(new Date(clock.millis() + jwtProperties.getRefreshExpiration()))
                 .sign(algorithm);
@@ -83,6 +85,8 @@ public class JwtService {
     public List<String> extractRoles(String token) {
         return validate(token).getClaim("roles").asList(String.class);
     }
+
+    public Integer extractTokenVersion(String token) { return validate(token).getClaim("token_version").asInt(); }
 
     public boolean isAccessToken(String token) {
         return "access".equals(validate(token).getClaim("type").asString());

@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.common.infrastructure.config;
 
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
+import dev.spiffocode.sigesapi.common.infrastructure.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.core.PropertyReferenceException;
@@ -30,6 +31,16 @@ public class SpecificControllerAdvice {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         pd.setTitle("Invalid sort field");
         pd.setDetail(e.getMessage());
+        return pd;
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ProblemDetail notFound(NotFoundException e) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle("Not found");
+        pd.setDetail(e.getMessage());
+        pd.setProperty("id", e.getId());
         return pd;
     }
 
