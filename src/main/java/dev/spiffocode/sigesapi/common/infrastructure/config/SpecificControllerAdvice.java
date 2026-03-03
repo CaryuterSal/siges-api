@@ -2,6 +2,8 @@ package dev.spiffocode.sigesapi.common.infrastructure.config;
 
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.NotFoundException;
+import dev.spiffocode.sigesapi.users.domain.exception.InvalidRecoveryTokenException;
+import dev.spiffocode.sigesapi.users.domain.exception.RecoveryTokenExpiredException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.core.PropertyReferenceException;
@@ -42,6 +44,22 @@ public class SpecificControllerAdvice {
         pd.setDetail(e.getMessage());
         pd.setProperty("id", e.getId());
         return pd;
+    }
+
+    @ExceptionHandler(InvalidRecoveryTokenException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleInvalidRecoveryToken(InvalidRecoveryTokenException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problem.setTitle("Invalid recovery token");
+        return problem;
+    }
+
+    @ExceptionHandler(RecoveryTokenExpiredException.class)
+    @ResponseStatus(HttpStatus.GONE)
+    public ProblemDetail handleRecoveryTokenExpired(RecoveryTokenExpiredException ex) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.GONE, ex.getMessage());
+        problem.setTitle("Recovery token expired or already used");
+        return problem;
     }
 
 }

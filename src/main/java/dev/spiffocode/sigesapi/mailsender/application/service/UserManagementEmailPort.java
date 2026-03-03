@@ -10,5 +10,5 @@ public interface UserManagementEmailPort {
     void sendGoodbyeEmail(String email, String name);
     void sendAccountRestoredEmail(String email, String name);
     void sendPasswordChangedEmail(String email, String name);
-    void sendRecoveryEmail(String email, String token);
+    void sendRecoveryEmail(String email, String fullname, String token);
 }

@@ -52,11 +52,7 @@ public class PasswordRecoveryController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Malformed or missing token",
-                    content = @Content(schema = @Schema(implementation = ValidationProblem.class))),
-            @ApiResponse(
-                    responseCode = "410",
-                    description = "Token expired or already used",
-                    content = @Content(schema = @Schema(implementation = ProblemDetail.class)))
+                    content = @Content(schema = @Schema(implementation = ValidationProblem.class)))
     })
     @GetMapping("/password-recovery/redirect")
     public ResponseEntity<@NonNull Void> redirect(

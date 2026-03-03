@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -61,6 +63,15 @@ public class JwtService {
                 .withClaim("token_version", tokenVersion)
                 .withIssuedAt(clock.instant())
                 .withExpiresAt(new Date(clock.millis() + jwtProperties.getRefreshExpiration()))
+                .sign(algorithm);
+    }
+
+    public String generateRecoveryToken(String jti, String email, Duration expiration) {
+        return JWT.create()
+                .withJWTId(jti)
+                .withSubject(email)
+                .withClaim("type", "recovery")
+                .withExpiresAt(Instant.now(clock).plus(expiration))
                 .sign(algorithm);
     }
 

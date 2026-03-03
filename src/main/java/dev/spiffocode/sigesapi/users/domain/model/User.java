@@ -168,4 +168,11 @@ public abstract class User implements CustomUserDetails {
         return false;
     }
 
+    public boolean changePassword(String password){
+        String old = this.password;
+        this.password = password;
+        setTokenVersion(getTokenVersion() + 1);
+        return Objects.equals(old, password);
+    }
+
 }
