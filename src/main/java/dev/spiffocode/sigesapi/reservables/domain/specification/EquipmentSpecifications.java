@@ -14,6 +14,7 @@ public class EquipmentSpecifications {
         return Specification
                 .where(inSpace(filter.spaceIdFilter()))
                 .and(cast(isAvailableBySchedule(filter.requestStartFilter(), filter.requestEndFilter())))
+                .and(cast(hasNoExceptionFor(filter.requestStartFilter(), filter.requestEndFilter())))
                 .and(cast(statusIs(filter.statusFilter())))
                 .and(
                         inventoryNumContains(filter.searchQuery())

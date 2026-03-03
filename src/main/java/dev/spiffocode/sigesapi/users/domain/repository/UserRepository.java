@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.users.domain.repository;
 
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import lombok.NonNull;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.history.RevisionRepository;
@@ -10,7 +11,10 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends CommonUserRepository<User>, RevisionRepository<@NonNull User, @NonNull Long, @NonNull Long> {
+public interface UserRepository extends
+        CommonUserRepository<User>,
+        RevisionRepository<@NonNull User, @NonNull Long, @NonNull Long>,
+        JpaSpecificationExecutor<@NonNull User> {
 
     @Query("""
     select u
