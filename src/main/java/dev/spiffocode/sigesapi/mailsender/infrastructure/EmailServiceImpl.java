@@ -1,6 +1,6 @@
 package dev.spiffocode.sigesapi.mailsender.infrastructure;
 
-import dev.spiffocode.sigesapi.mailsender.domain.EmailService;
+import dev.spiffocode.sigesapi.mailsender.application.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;

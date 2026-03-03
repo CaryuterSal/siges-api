@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{email/base :: layout('Tu correo ha sido actualizado – SIGES', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <div class="greeting">Correo electrónico actualizado</div>
+    <p class="text">
+        Hola, <strong th:text="${name}">Usuario</strong>. Te informamos que el correo
+        electrónico asociado a tu cuenta ha sido actualizado.
+    </p>
+    <div class="credential-box">
+        <div class="credential-row">
+            <span class="credential-label">Anterior</span>
+            <span class="credential-value" th:text="${oldEmail}">anterior@utez.edu.mx</span>
+        </div>
+        <div class="credential-row">
+            <span class="credential-label">Nuevo</span>
+            <span class="credential-value" th:text="${newEmail}">nuevo@utez.edu.mx</span>
+        </div>
+    </div>
+    <div class="alert-box">
+        <strong>⚠ ¿No reconoces este cambio?</strong> Si no autorizaste a algún administrador el cambio de tu correo
+        , contacta de inmediato a algún administrador del sistema.
+    </div>
+</th:block>
+</body>
+</html>

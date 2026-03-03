@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{email/base :: layout('Recuperación de contraseña – SIGES', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <div class="greeting">Recuperación de contraseña</div>
+    <p class="text">
+        Hola, <strong th:text="${name}">Usuario</strong>. Recibimos una solicitud para
+        restablecer la contraseña de tu cuenta. Haz clic en el botón de abajo para continuar.
+        El enlace es válido por <strong>15 minutos</strong>.
+    </p>
+    <div class="btn-wrap">
+        <a th:href="@{${recoveryUrl}}" class="btn">Restablecer contraseña</a>
+    </div>
+    <div class="alert-box">
+        <strong>⚠ ¿No solicitaste este cambio?</strong> Si no solicitaste restablecer tu
+        contraseña, ignora este correo. Tu cuenta permanece segura.
+    </div>
+    <hr class="divider"/>
+    <p class="text" style="font-size:12px; color:#9B8EC4;">
+        Si el botón no funciona, copia y pega el siguiente enlace en tu navegador:
+    </p>
+    <p style="font-size:12px; color:#E8836A; word-break:break-all;
+              font-family:'Courier New',monospace; margin-top:6px;"
+       th:text="${recoveryUrl}">https://...</p>
+</th:block>
+</body>
+</html>

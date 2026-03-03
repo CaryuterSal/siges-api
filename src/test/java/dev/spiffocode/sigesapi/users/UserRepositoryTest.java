@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.users;
 
 import dev.spiffocode.sigesapi.DataTestClass;
+import dev.spiffocode.sigesapi.WithMockCustomUser;
 import dev.spiffocode.sigesapi.users.domain.model.InstitutionalStaff;
 import dev.spiffocode.sigesapi.users.domain.model.Student;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
@@ -49,6 +50,7 @@ class UserRepositoryTest {
     }
 
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void findByEmail() {
         createStudent();
@@ -56,6 +58,7 @@ class UserRepositoryTest {
         assertTrue(repo.findByIdentifier("s@mail.com").isPresent());
     }
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void findByPhone() {
         createStudent();
@@ -63,6 +66,7 @@ class UserRepositoryTest {
         assertTrue(repo.findByIdentifier("2222229899").isPresent());
     }
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void findByRegistrationNumber() {
         createStudent();
@@ -70,6 +74,7 @@ class UserRepositoryTest {
         assertTrue(repo.findByIdentifier("REG1").isPresent());
     }
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void findByEmployeeNumber() {
         createStaff();
@@ -82,6 +87,7 @@ class UserRepositoryTest {
         assertTrue(repo.findByIdentifier("xxx").isEmpty());
     }
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void email_mustBeUnique() {
 
@@ -100,6 +106,7 @@ class UserRepositoryTest {
         assertThrows(DataIntegrityViolationException.class, () -> repo.save(st));
     }
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void phoneNumber_mustBeUnique() {
 
@@ -118,6 +125,7 @@ class UserRepositoryTest {
         assertThrows(DataIntegrityViolationException.class, () -> repo.save(st));
     }
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void registrationNumber_mustBeUnique() {
 
@@ -134,6 +142,7 @@ class UserRepositoryTest {
         assertThrows(ConstraintViolationException.class, () -> repo.save(s));
     }
 
+    @WithMockCustomUser(id = 42L, email = "juan@test.com", role = "ROLE_STUDENT")
     @Test
     void employeeNumber_mustBeUnique() {
 

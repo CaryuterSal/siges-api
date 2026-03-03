@@ -34,6 +34,7 @@ public interface SpaceMapper {
     @Mapping(target = "availabilityExceptions", source = "dto.exceptions")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     Space toEntity(SpaceRegisterDto dto, SpaceType spaceType, Building building);
 
@@ -48,6 +49,7 @@ public interface SpaceMapper {
     @Mapping(target = "availabilityExceptions", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     void updateEntityFromDto(SpaceUpdateDto dto, SpaceType type, Building building, @MappingTarget Space entity);
 

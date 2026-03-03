@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{email/base :: layout('Bienvenido a SIGES', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <div class="badge" th:text="${role}">Estudiante</div>
+    <div class="greeting">¡Bienvenido, <span th:text="${name}">Usuario</span>!</div>
+    <p class="text">
+        Tu cuenta ha sido creada exitosamente en SIGES. A continuación encontrarás tus
+        credenciales de acceso. Te recomendamos iniciar sesión y cambiar tu contraseña
+        a la brevedad posible.
+    </p>
+    <div class="credential-box">
+        <div class="credential-row">
+            <span class="credential-label">Usuario</span>
+            <span class="credential-value" th:text="${email}">usuario@utez.edu.mx</span>
+        </div>
+        <div class="credential-row">
+            <span class="credential-label">Contraseña</span>
+            <span class="credential-value mono" th:text="${password}">Temp1234!</span>
+        </div>
+    </div>
+    <div class="alert-box">
+        <strong>⚠ Importante:</strong> Esta es una contraseña temporal generada automáticamente.
+        Por seguridad, te recomendamos cambiarla después de tu primer inicio de sesión.
+    </div>
+    <div class="btn-wrap">
+        <a href="#" class="btn">Iniciar sesión en SIGES</a>
+    </div>
+    <hr class="divider"/>
+    <p class="text" style="font-size:13px; color:#9B8EC4; text-align:center;">
+        Si no esperabas este correo, puedes ignorarlo de forma segura.
+    </p>
+</th:block>
+</body>
+</html>

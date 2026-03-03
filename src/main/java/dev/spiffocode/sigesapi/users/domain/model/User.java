@@ -1,33 +1,33 @@
 package dev.spiffocode.sigesapi.users.domain.model;
 
+import dev.spiffocode.sigesapi.auth.application.service.CustomUserDetails;
 import dev.spiffocode.sigesapi.notifications.domain.model.Notification;
 import dev.spiffocode.sigesapi.notifications.domain.model.PushToken;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
@@ -44,30 +44,35 @@ import java.util.List;
 @FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
 @Filter(name = "softDeleteFilter")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class User implements UserDetails {
+public abstract class User implements CustomUserDetails {
 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer tokenVersion = 0;
 
-    @NotNull
+    @NotBlank
     @Email
     @Column(nullable = false, unique = true)
+    @Setter(AccessLevel.NONE)
     private String email;
 
-    @NotNull
+    @NotBlank
     @Pattern(regexp = "^(\\+\\d{1,2}\\s?)?\\(?\\d{3}\\)?[\\s.-]?\\d{3}[\\s.-]?\\d{4}$")
     @Column(nullable = false, unique = true)
+    @Setter(AccessLevel.NONE)
     private String phoneNumber;
 
-    @NotNull
+    @NotBlank
     @Column(nullable = false)
     private String firstName;
 
 
-    @NotNull
+    @NotBlank
     @Column(nullable = false)
     private String lastName;
 
@@ -93,6 +98,10 @@ public abstract class User implements UserDetails {
     @Column(nullable = false, updatable = false)
     private String createdBy;
 
+    @LastModifiedDate
+    @Column(nullable = false)
+    private LocalDateTime updatedAt;
+
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
 
@@ -102,7 +111,6 @@ public abstract class User implements UserDetails {
             fetch = FetchType.LAZY
     )
     private List<Notification> notifications = new ArrayList<>();
-
 
     @Builder.Default
     @OneToMany(
@@ -123,4 +131,48 @@ public abstract class User implements UserDetails {
     public @NonNull String getUsername() {
         return email;
     }
+
+    @Override
+    public boolean isEnabled() {
+        return deletedAt == null;
+    }
+
+    @Transient
+    public String fullName(){
+        return firstName + " " + lastName;
+    }
+
+    public void recordLogin(Clock clock){
+        this.lastLogin = LocalDateTime.now(clock);
+    }
+
+    public boolean changeEmail(String newEmail,  boolean changeVersion){
+
+        String old = this.email;
+        this.email = newEmail;
+        if(!Objects.equals(old, newEmail) && changeVersion){
+            setTokenVersion(getTokenVersion() + 1);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean changePhoneNumber(String phoneNumber, boolean changeVersion){
+
+        String old = this.phoneNumber;
+        this.phoneNumber = phoneNumber;
+        if(!Objects.equals(old, phoneNumber) && changeVersion){
+            setTokenVersion(getTokenVersion() + 1);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean changePassword(String password){
+        String old = this.password;
+        this.password = password;
+        setTokenVersion(getTokenVersion() + 1);
+        return Objects.equals(old, password);
+    }
+
 }

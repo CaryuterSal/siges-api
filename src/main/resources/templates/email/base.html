@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="layout(title, content)">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${title}">SIGES</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: #EDE9F8;
+            color: #2D2450;
+            padding: 40px 20px;
+        }
+        .wrapper {
+            max-width: 580px;
+            margin: 0 auto;
+        }
+        /* Header */
+        .header {
+            background: #4A3F7A;
+            border-radius: 16px 16px 0 0;
+            padding: 28px 36px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .header-logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+        .header-sub {
+            font-size: 10px;
+            color: #C8BFF0;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        .header-pin {
+            width: 36px;
+            height: 36px;
+            background: #E8836A;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            flex-shrink: 0;
+            margin-right: 6px;
+        }
+        /* Body */
+        .body {
+            background: #fff;
+            padding: 40px 36px;
+        }
+        .greeting {
+            font-size: 22px;
+            font-weight: 700;
+            color: #4A3F7A;
+            margin-bottom: 12px;
+        }
+        .text {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #4A4A6A;
+            margin-bottom: 16px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        /* Credential box */
+        .credential-box {
+            background: #F5F2FD;
+            border-left: 4px solid #E8836A;
+            border-radius: 0 10px 10px 0;
+            padding: 20px 24px;
+            margin: 24px 0;
+        }
+        .credential-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        .credential-row:last-child { margin-bottom: 0; }
+        .credential-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9B8EC4;
+            width: 110px;
+            flex-shrink: 0;
+        }
+        .credential-value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #4A3F7A;
+        }
+        .credential-value.mono {
+            font-family: 'Courier New', monospace;
+            background: #EDE9F8;
+            padding: 4px 10px;
+            border-radius: 6px;
+            letter-spacing: 1px;
+        }
+        /* CTA Button */
+        .btn-wrap { text-align: center; margin: 28px 0; }
+        .btn {
+            display: inline-block;
+            background: #4A3F7A;
+            color: #fff !important;
+            text-decoration: none;
+            padding: 14px 36px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        /* Alert box */
+        .alert-box {
+            background: #FFF3EF;
+            border: 1px solid #F5C4B5;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #C05A3A;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .alert-box strong { color: #A0432A; }
+        /* Divider */
+        .divider {
+            border: none;
+            border-top: 1px solid #EDE9F8;
+            margin: 28px 0;
+        }
+        /* Footer */
+        .footer {
+            background: #4A3F7A;
+            border-radius: 0 0 16px 16px;
+            padding: 20px 36px;
+            text-align: center;
+        }
+        .footer-text {
+            font-size: 11px;
+            color: #9B8EC4;
+            letter-spacing: 0.5px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+        }
+        .footer-brand {
+            font-size: 13px;
+            color: #C8BFF0;
+            font-weight: 600;
+            margin-bottom: 6px;
+            letter-spacing: 2px;
+        }
+        /* Badge */
+        .badge {
+            display: inline-block;
+            background: #EDE9F8;
+            color: #4A3F7A;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 50px;
+            margin-bottom: 16px;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <!-- Header -->
+    <div class="header">
+        <div class="header-pin"></div>
+        <div>
+            <div class="header-logo">SIGES</div>
+            <div class="header-sub">Sistema de Gestión de Espacios y Equipos</div>
+        </div>
+    </div>
+    <!-- Body -->
+    <div class="body">
+        <div th:replace="${content}">Contenido del correo</div>
+    </div>
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-brand">SIGES</div>
+        <div class="footer-text">
+            Este mensaje fue generado automáticamente. Por favor no respondas a este correo.<br/>
+            © 2025 SIGES – Sistema de Gestión de Espacios y Equipos
+        </div>
+    </div>
+</div>
+</body>
+</html>

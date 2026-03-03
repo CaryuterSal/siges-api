@@ -4,6 +4,6 @@ import dev.spiffocode.sigesapi.common.infrastructure.exceptions.NotFoundExceptio
 
 public class ReservableNotFoundException extends NotFoundException {
     public ReservableNotFoundException(String message, long id) {
-        super(message, id);
+        super(message, String.valueOf(id));
     }
 }

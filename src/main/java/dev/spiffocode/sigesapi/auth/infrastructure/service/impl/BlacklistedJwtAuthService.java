@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.auth.infrastructure.service.impl;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
+import dev.spiffocode.sigesapi.auth.application.service.CustomUserDetails;
 import dev.spiffocode.sigesapi.auth.domain.exception.AccountTemporarilyLockedException;
 import dev.spiffocode.sigesapi.auth.domain.exception.InvalidCredentialsException;
 import dev.spiffocode.sigesapi.auth.domain.exception.JwtBlacklistedException;
@@ -10,6 +11,8 @@ import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.auth.infrastructure.LogInAttemptsProperties;
 import dev.spiffocode.sigesapi.auth.infrastructure.TokenBlacklistService;
 import dev.spiffocode.sigesapi.auth.presentation.dto.*;
+import dev.spiffocode.sigesapi.users.domain.model.User;
+import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,6 +35,7 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
 
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final UserRepository userRepository;
     private final LogInAttemptsRepository logInAttemptsRepository;
     private final LogInAttemptsProperties loginProperties;
     private final TokenBlacklistService blacklistService;
@@ -58,6 +62,9 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
                     new UsernamePasswordAuthenticationToken(req.identifier(), req.password())
             );
             loginAttemptRecorder.recordSuccess(req.identifier(), requestIp);
+            User user = userRepository.findByIdentifier(((UserDetails) Objects.requireNonNull(auth.getPrincipal())).getUsername()).get();
+            user.recordLogin(clock);
+            userRepository.save(user);
 
             return buildResponse(auth);
         } catch (AuthenticationException e) {
@@ -67,7 +74,8 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
     }
 
     private AuthenticatedResponse buildResponse(Authentication auth) {
-        String username = ((UserDetails) Objects.requireNonNull(auth.getPrincipal())).getUsername();
+        CustomUserDetails userDetails = (CustomUserDetails) Objects.requireNonNull(auth.getPrincipal());
+        String username = userDetails.getUsername();
         List<String> roles = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority).toList();
 
@@ -76,9 +84,11 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
                 .map(r -> r.substring(5))
                 .findFirst().orElse("USER");
 
+        Integer tokenVersion = userDetails.getTokenVersion();
+
         return new AuthenticatedResponse(
-                jwtService.generateAccessToken(username, roles),
-                jwtService.generateRefreshToken(username),
+                jwtService.generateAccessToken(username, roles, tokenVersion),
+                jwtService.generateRefreshToken(username, tokenVersion),
                 role,
                 auth.getAuthorities()
         );
@@ -97,14 +107,18 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
 
         String username = jwtService.extractUsername(req.refreshToken());
 
-        var user = userDetailsService.loadUserByUsername(username);
+        var user = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
+
+        if(!Objects.equals(user.getTokenVersion(), jwtService.extractTokenVersion(req.refreshToken()))) {
+            throw new JwtBlacklistedException("Token version is not valid anymore. User updated sensitive data");
+        }
 
         var roles = user.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
-        return new RefreshResponse(jwtService.generateAccessToken(username, roles));
+        return new RefreshResponse(jwtService.generateAccessToken(username, roles, user.getTokenVersion()));
     }
 
     @Override

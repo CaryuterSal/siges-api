@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{email/base :: layout('Tu cuenta ha sido desactivada – SIGES', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <div class="greeting">Cuenta desactivada</div>
+    <p class="text">
+        Hola, <strong th:text="${name}">Usuario</strong>. Tu cuenta en SIGES ha sido
+        desactivada por un administrador. A partir de este momento no podrás iniciar
+        sesión en el sistema.
+    </p>
+    <div class="alert-box">
+        <strong>¿Crees que esto es un error?</strong> Si consideras que tu cuenta fue
+        desactivada por error, comunícate con algún administrador del sistema para solicitar
+        la reactivación.
+    </div>
+    <hr class="divider"/>
+    <p class="text" style="font-size:13px; color:#9B8EC4; text-align:center;">
+        Gracias por haber sido parte de SIGES.
+    </p>
+</th:block>
+</body>
+</html>

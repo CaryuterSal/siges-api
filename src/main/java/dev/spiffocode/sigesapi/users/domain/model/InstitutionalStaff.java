@@ -7,7 +7,8 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.SQLDelete;
+
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -21,8 +22,18 @@ import org.hibernate.annotations.SQLDelete;
 })
 public class InstitutionalStaff extends Applicant{
 
-
     @NotNull
     @Column(nullable = false, unique = true)
     private String employeeNumber;
+
+    public boolean changeEmployeeNumber(String employeeNumber,  boolean changeVersion){
+
+        String old = this.employeeNumber;
+        this.employeeNumber = employeeNumber;
+        if(!Objects.equals(old, employeeNumber) && changeVersion){
+            setTokenVersion(getTokenVersion() + 1);
+            return true;
+        }
+        return false;
+    }
 }

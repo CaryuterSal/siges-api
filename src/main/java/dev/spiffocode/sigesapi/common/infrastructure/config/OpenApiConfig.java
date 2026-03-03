@@ -41,7 +41,7 @@ import java.util.Map;
                 ),
                 @Server(
                         description = "Localhost test server",
-                        url = "localhost:8080/api"
+                        url = "http://localhost:8080/api"
                 )
         }
 )

@@ -1,6 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
-import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
+import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceTypeMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{email/base :: layout('Tu identificador ha sido actualizado – SIGES', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <div class="greeting">Identificador actualizado</div>
+    <p class="text">
+        Hola, <strong th:text="${name}">Usuario</strong>. Te informamos que tu
+        <strong th:text="${label}">identificador</strong> en SIGES ha sido actualizado por un administrador.
+    </p>
+    <div class="credential-box">
+        <div class="credential-row">
+            <span class="credential-label">Anterior</span>
+            <span class="credential-value mono" th:text="${oldNumber}">20241ds001</span>
+        </div>
+        <div class="credential-row">
+            <span class="credential-label">Nuevo</span>
+            <span class="credential-value mono" th:text="${newNumber}">20251ds002</span>
+        </div>
+    </div>
+    <div class="alert-box">
+        <strong>⚠ ¿No esperabas este cambio?</strong> Si no fuiste notificado de esta
+        actualización, contacta de inmediato al administrador del sistema.
+    </div>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{email/base :: layout('Tu cuenta ha sido restaurada – SIGES', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+    <div class="greeting">¡Cuenta restaurada!</div>
+    <p class="text">
+        Hola, <strong th:text="${name}">Usuario</strong>. Nos complace informarte que
+        tu cuenta en SIGES ha sido restaurada exitosamente. Ya puedes volver a iniciar
+        sesión con tus credenciales habituales.
+    </p>
+    <div class="btn-wrap">
+        <a href="#" class="btn">Iniciar sesión en SIGES</a>
+    </div>
+    <hr class="divider"/>
+    <p class="text" style="font-size:13px; color:#9B8EC4; text-align:center;">
+        Si tienes algún problema para acceder, contacta a algún administrador del sistema.
+    </p>
+</th:block>
+</body>
+</html>

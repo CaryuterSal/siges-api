@@ -83,7 +83,7 @@ public class ReservableSpecifications {
             LocalDateTime requestEnd
     ) {
         return (root, query, cb) -> {
-            if(requestStart == null && requestEnd == null) return null;
+            if(requestStart == null || requestEnd == null) return null;
             query.distinct(true);
             Join<Reservable, AvailabilitySlot> slot = root.join("availability");
             Join<AvailabilitySlot, Availability> av = slot.join("members");
@@ -116,7 +116,7 @@ public class ReservableSpecifications {
             LocalDateTime requestEnd
     ) {
         return (root, query, cb) -> {
-            if(requestStart == null && requestEnd == null) return null;
+            if(requestStart == null || requestEnd == null) return null;
             LocalDate reqDate = requestStart.toLocalDate();
             LocalTime reqStart = requestStart.toLocalTime();
             LocalTime reqEnd = requestEnd.toLocalTime();

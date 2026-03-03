@@ -16,7 +16,9 @@ public class SpaceSpecifications {
     public static Specification<@NonNull Space> spaceSpecification(SpaceFilter filter){
        return Specification
                 .where(isOfType(filter.spaceTypeIdFilter()))
+                .and(hasCapacityAtLeast(filter.capacityAtLeastFilter()))
                 .and(cast(isAvailableBySchedule(filter.requestStartFilter(), filter.requestEndFilter())))
+                .and(cast(hasNoExceptionFor(filter.requestStartFilter(), filter.requestEndFilter())))
                 .and(cast(statusIs(filter.statusFilter())))
                 .and(
                         cast(descriptionContains(filter.searchQuery())

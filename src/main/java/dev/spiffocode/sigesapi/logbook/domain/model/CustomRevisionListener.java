@@ -1,26 +1,28 @@
 package dev.spiffocode.sigesapi.logbook.domain.model;
 
+import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
 import jakarta.persistence.PrePersist;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Component
 @RequiredArgsConstructor
 public class CustomRevisionListener {
 
-    private HttpServletRequest requestInfoSupplier;
+    private final SecurityContextHelper securityContextHelper;
 
     @PrePersist
     private void onPersist(CustomRevisionEntity entity) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if ( authentication == null || authentication.getPrincipal() == null) {
-            return;
-        }
+        if(!securityContextHelper.isAuthenticated()) return;
 
-        entity.setRemoteHost(requestInfoSupplier.getRemoteHost());
-        entity.setRemoteUser(authentication.getPrincipal().toString());
+        HttpServletRequest curRequest =
+                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                        .getRequest();
+
+        entity.setRemoteHost(curRequest.getRemoteHost());
+        entity.setRemoteUser(securityContextHelper.getCurrentUserEmail());
     }
 }

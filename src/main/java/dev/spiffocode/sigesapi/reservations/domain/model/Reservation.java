@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -95,12 +96,12 @@ public class Reservation {
     @Column(nullable = false, updatable = false)
     private String createdBy;
 
-    public void approve() {
+    public void approve(Clock clock) {
         if (this.status == Status.APPROVED) {
             throw new IllegalStateException("La reserva ya está aprobada.");
         }
 
         this.status = Status.APPROVED;
-        this.approvedAt = LocalDateTime.now();
+        this.approvedAt = LocalDateTime.now(clock);
     }
 }

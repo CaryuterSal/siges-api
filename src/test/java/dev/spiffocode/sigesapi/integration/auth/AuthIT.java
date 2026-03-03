@@ -240,7 +240,7 @@ class AuthIT extends FlushedIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(badLogin))
                 .andExpect(status().isTooManyRequests())
-                .andExpect(header().string(HttpHeaders.RETRY_AFTER, "600"))
+                .andExpect(header().string(HttpHeaders.RETRY_AFTER, "900"))
                 .andExpect(jsonPath("$.title").value("Too many login attempts"))
                 .andReturn();
         System.out.println(s);
@@ -313,7 +313,7 @@ class AuthIT extends FlushedIntegrationTest {
 
 
     @Test
-    void login_blockedAccount_unblocksAfter10Minutes() throws Exception {
+    void login_blockedAccount_unblocksAfter15Minutes() throws Exception {
         String badLogin = """
                 {"identifier":"user@mail.com","password":"bad"}
                 """;
@@ -337,7 +337,7 @@ class AuthIT extends FlushedIntegrationTest {
 
         FixedClockConfig.delegate = Clock.offset(
                 FixedClockConfig.delegate,
-                Duration.ofMinutes(10).plusSeconds(1));
+                Duration.ofMinutes(15).plusSeconds(1));
 
         mvc.perform(post(API + "/login")
                         .header("X-API-Version", VERSION)

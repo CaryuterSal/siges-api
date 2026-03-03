@@ -1,6 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
-import dev.spiffocode.sigesapi.common.infrastructure.WithDeletedRecords;
+import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.domain.exception.EquipmentExistsException;
 import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
 import lombok.RequiredArgsConstructor;
