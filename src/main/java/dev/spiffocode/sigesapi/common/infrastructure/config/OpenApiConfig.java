@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
+import io.swagger.v3.oas.annotations.servers.ServerVariable;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.responses.ApiResponse;
@@ -35,6 +36,11 @@ import java.util.Map;
                 @SecurityRequirement(name = "jwt")
         },
         servers = {
+                @Server(
+                        variables = @ServerVariable(name = "prVersion", defaultValue = "0"),
+                        description = "Render staging environment",
+                        url = "https://siges-api-pr-{prVersion}.onrender.com/api"
+                ),
                 @Server(
                         description = "Render default and only production server",
                         url = "https://siges-api-8o8u.onrender.com/api"
