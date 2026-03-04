@@ -52,7 +52,7 @@ import java.util.Map;
         scheme = "bearer",
         bearerFormat = "JWT",
         in = SecuritySchemeIn.HEADER,
-        paramName = "Authentication"
+        paramName = "Authorization"
 )
 @Configuration
 public class OpenApiConfig {
