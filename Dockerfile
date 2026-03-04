@@ -1,17 +1,19 @@
 # ---------- BUILD STAGE ----------
-FROM gradle:8.7-jdk21-alpine AS builder
+FROM eclipse-temurin:21-jdk-alpine AS builder
 
 WORKDIR /app
 
-COPY build.gradle settings.gradle gradlew ./
+COPY gradlew ./
 COPY gradle gradle
+COPY build.gradle settings.gradle ./
 
-RUN ./gradlew dependencies --no-daemon || true
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew dependencies --no-daemon
 
 COPY src src
 
-RUN ./gradlew bootJar --no-daemon
-
+RUN --mount=type=cache,target=/root/.gradle \
+    ./gradlew bootJar --no-daemon -x test
 
 # ---------- RUNTIME STAGE ----------
 FROM eclipse-temurin:21-jre-alpine
