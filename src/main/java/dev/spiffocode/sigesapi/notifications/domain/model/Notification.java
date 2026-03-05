@@ -37,10 +37,18 @@ public class Notification {
     @Column(nullable = false, updatable = false)
     private LocalDateTime sent_at;
 
-
     @ManyToOne
     private Reservation relatedReservation;
 
+    @Enumerated(EnumType.STRING)
+    private Type type;
+
+    @Enumerated(EnumType.STRING)
+    private Platform platform;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    private ReadStatus readStatus = ReadStatus.UNREAD;
 
     @ManyToOne(
             optional = false,
