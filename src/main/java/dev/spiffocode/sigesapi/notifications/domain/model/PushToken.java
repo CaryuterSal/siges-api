@@ -3,10 +3,10 @@ package dev.spiffocode.sigesapi.notifications.domain.model;
 
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import jakarta.persistence.*;
-import jakarta.persistence.CascadeType;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import org.hibernate.annotations.*;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.Generated;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
@@ -14,6 +14,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,6 +35,7 @@ public class PushToken {
     private String deviceId;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private Platform platform;
 
     @CreatedDate
@@ -51,4 +53,11 @@ public class PushToken {
     @Generated
     @Column(nullable = false, insertable = false, updatable = false)
     private Boolean isActive;
+
+    @ManyToMany(
+            mappedBy = "sentToTokens"
+    )
+    private List<PushToken> sentToPushTokens;
+
+
 }

@@ -4,6 +4,7 @@ import dev.spiffocode.sigesapi.reservations.domain.model.Reservation;
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.RelationTargetAuditMode;
@@ -11,6 +12,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,12 +42,11 @@ public class Notification {
     @ManyToOne
     private Reservation relatedReservation;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private Type type;
 
-    @Enumerated(EnumType.STRING)
-    private Platform platform;
-
+    @NotNull
     @Builder.Default
     @Enumerated(EnumType.STRING)
     private ReadStatus readStatus = ReadStatus.UNREAD;
@@ -55,5 +56,8 @@ public class Notification {
             cascade = {CascadeType.PERSIST, CascadeType.MERGE}
     )
     private User user;
+
+    @ManyToMany
+    private List<PushToken> sentToTokens;
 
 }
