@@ -14,6 +14,8 @@ import java.time.LocalTime;
 @Jacksonized
 public record AvailabilityExceptionDto(
 
+        Long id,
+
         @Schema(description = "Date from which this availability exception begins")
         @NotNull
         @FutureOrPresent

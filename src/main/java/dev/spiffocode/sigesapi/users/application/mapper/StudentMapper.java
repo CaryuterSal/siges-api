@@ -12,7 +12,6 @@ public interface StudentMapper {
     @Mapping(target = "role", constant = "STUDENT")
     StudentResponse toResponse(Student admin);
 
-
     @Mapping(target = "tokenVersion", constant = "0")
     @Mapping(target = "phoneNumber", ignore = true)
     @Mapping(target = "password", source = "rawPassword")
