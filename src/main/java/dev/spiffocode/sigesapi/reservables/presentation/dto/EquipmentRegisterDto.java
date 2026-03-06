@@ -3,6 +3,7 @@ package dev.spiffocode.sigesapi.reservables.presentation.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.Value;
@@ -26,5 +27,9 @@ public class EquipmentRegisterDto extends ReservableRegisterDto {
     @Schema(description = "ID of the optional space to which the equipment is related. For example, a projector can be related to a classroom.")
     @Positive
     Long spaceId;
+
+    @Builder.Default
+    @Schema(description = "Whether this equipment shouldn't be visible for regular reservations (this means it's only meant as a Space includes)")
+    boolean visible = true;
 
 }

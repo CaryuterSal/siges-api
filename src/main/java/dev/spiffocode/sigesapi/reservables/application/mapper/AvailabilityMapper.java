@@ -1,10 +1,9 @@
 package dev.spiffocode.sigesapi.reservables.application.mapper;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.Availability;
+import dev.spiffocode.sigesapi.reservables.domain.model.AvailabilityException;
 import dev.spiffocode.sigesapi.reservables.domain.model.AvailabilitySlot;
-import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotDto;
-import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotRegisterDto;
-import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotUpdateDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.*;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -16,12 +15,16 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface AvailabilityMapper {
 
     default AvailabilitySlotDto toDto(AvailabilitySlot entity) {
         Availability avSample = entity.getMembers().getFirst();
+        Set<DayOfWeek> dayOfWeeks = entity.getMembers().stream()
+                .map(Availability::getDayOfWeek)
+                .collect(Collectors.toSet());
         return AvailabilitySlotDto.builder()
                 .id(entity.getId())
                 .reservableId(entity.getReservable().getId())
@@ -29,6 +32,7 @@ public interface AvailabilityMapper {
                 .endTime(avSample.getEndTime())
                 .dateFrom(avSample.getDateFrom())
                 .dateTo(avSample.getDateTo())
+                .daysOfWeek(dayOfWeeks)
                 .build();
     }
 
@@ -69,6 +73,19 @@ public interface AvailabilityMapper {
         linkRelation(entity);
         return entity;
     }
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "reservable", ignore = true)
+    AvailabilityException toEntity(AvailabilityExceptionRegisterDto dto);
+
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "reservable", ignore = true)
+    AvailabilityException updateEntity(@MappingTarget AvailabilityException entity,  AvailabilityExceptionRegisterDto dto);
+
+    AvailabilityExceptionDto toDto(AvailabilityException entity);
 
 
     @AfterMapping

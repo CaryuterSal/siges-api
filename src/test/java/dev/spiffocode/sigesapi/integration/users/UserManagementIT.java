@@ -23,7 +23,8 @@ import java.time.LocalDate;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @IntegrationTestClass
 class UserManagementIT extends FlushedIntegrationTest {
@@ -120,12 +121,27 @@ class UserManagementIT extends FlushedIntegrationTest {
 
         @Test
         void getUsers_asAdmin_returns200Page() throws Exception {
+
                 mvc.perform(get("/users")
                                 .header("X-API-Version", VERSION)
                                 .header("Authorization", "Bearer " + adminToken))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.content", notNullValue()))
                                 .andExpect(jsonPath("$.content.length()").value(4));
+        }
+
+        @Test
+        void getUsers_return_deleted_users() throws Exception {
+
+            userRepository.softDeleteById(student2Id);
+
+            mvc.perform(get("/users")
+                            .header("X-API-Version", VERSION)
+                            .header("Authorization", "Bearer " + adminToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content", notNullValue()))
+                    .andExpect(jsonPath("$.content.length()").value(4))
+                    .andReturn();
         }
 
         @Test

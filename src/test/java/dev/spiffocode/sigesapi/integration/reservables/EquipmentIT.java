@@ -10,6 +10,7 @@ import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilityExceptionRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentUpdateDto;
@@ -133,6 +134,14 @@ public class EquipmentIT extends FlushedIntegrationTest {
                                                 DayOfWeek.FRIDAY))
                                 .build();
 
+            AvailabilityExceptionRegisterDto exception = AvailabilityExceptionRegisterDto.builder()
+                    .startTime(LocalTime.of(8,0))
+                    .endTime(LocalTime.of(20,0))
+                    .dateFrom(LocalDate.of(2026,12,1))
+                    .dateTo(LocalDate.of(2026,12,7))
+                    .reason("Navidad")
+                    .build();
+
                 return EquipmentRegisterDto.builder()
                                 .inventoryNum("INV-1002")
                                 .name("Proyector Epson")
@@ -140,6 +149,7 @@ public class EquipmentIT extends FlushedIntegrationTest {
                                 .studentsAvailable(true)
                                 .buildingId(testBuilding.getId())
                                 .availability(List.of(slot))
+                                .exceptions(List.of(exception))
                                 .build();
         }
 
@@ -194,14 +204,22 @@ public class EquipmentIT extends FlushedIntegrationTest {
         void registerEquipment_asAdmin_returns201() throws Exception {
                 EquipmentRegisterDto dto = createValidDto();
 
-                mvc.perform(post(API)
+                var a = mvc.perform(post(API)
                                 .header("X-API-Version", VERSION)
                                 .header("Authorization", "Bearer " + adminToken)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(mapper.writeValueAsString(dto)))
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.inventoryIdNum").value("INV-1002"))
-                                .andExpect(header().exists("Location"));
+                                .andExpect(jsonPath("$.availabilityExceptions.length()").value(1))
+                                .andExpect(jsonPath("$.availabilityExceptions[0].reason").value(dto.getExceptions().getFirst().reason()))
+                                .andExpect(jsonPath("$.availabilitySlots.length()").value(1))
+                                // .andExpect(jsonPath("$.availabilitySlots[0].daysOfWeek", containsInAnyOrder(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+                                 //       DayOfWeek.THURSDAY,
+                                   //     DayOfWeek.FRIDAY)))
+                                .andExpect(header().exists("Location"))
+                        .andReturn();
+            System.out.println(a);
         }
 
         @Test
