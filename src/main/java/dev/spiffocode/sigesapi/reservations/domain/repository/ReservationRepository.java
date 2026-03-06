@@ -3,40 +3,38 @@ package dev.spiffocode.sigesapi.reservations.domain.repository;
 import dev.spiffocode.sigesapi.reservations.domain.model.RecurringReservation;
 import dev.spiffocode.sigesapi.reservations.domain.model.Reservation;
 import dev.spiffocode.sigesapi.reservations.domain.model.SingleReservation;
-import lombok.NonNull;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 
-@Repository
-public interface ReservationRepository extends JpaRepository<@NonNull Reservation,@NonNull Long> {
+// domain/repository/ReservationRepository.java
+public interface ReservationRepository {
 
-    @Query("""
-        SELECT r FROM RecurringReservation r
-        WHERE r.reservable.id = :reservableId
-        AND r.status IN ('APPROVED', 'PENDING')
-        AND r.seriesDateFrom <= :to
-        AND r.seriesDateTo >= :from
-    """)
+    Optional<Reservation> findById(Long id);
+    Reservation save(Reservation reservation);
+
+    // Calendario (ya lo usas en GetReservableCalendarUseCase)
     List<RecurringReservation> findActiveRecurringByReservableAndDateRange(
-        @Param("reservableId") Long reservableId,
-        @Param("from") LocalDate from,
-        @Param("to") LocalDate to
+        Long reservableId, LocalDate from, LocalDate to
+    );
+    List<SingleReservation> findActiveSingleByReservableAndDateRange(
+        Long reservableId, LocalDate from, LocalDate to
     );
 
-    @Query("""
-        SELECT r FROM SingleReservation r
-        WHERE r.reservable.id = :reservableId
-        AND r.status IN ('APPROVED', 'PENDING')
-        AND r.date BETWEEN :from AND :to
-    """)
-    List<SingleReservation> findActiveSingleByReservableAndDateRange(
-        @Param("reservableId") Long reservableId,
-        @Param("from") LocalDate from,
-        @Param("to") LocalDate to
+    // Overlap check — single
+    boolean existsSingleOverlap(
+        Long reservableId, LocalDate date, LocalTime startTime, LocalTime endTime, List<Status> activeStatuses
     );
+
+    // Overlap check — series recurrentes activas que aplican en un día de semana
+    List<RecurringReservation> findActiveRecurringByReservableAndDate(
+        Long reservableId, LocalDate date, DayOfWeek dayOfWeek
+    );
+
+    // Historial
+    Page<Reservation> findByApplicantAndStatusIn(
+        Long applicantId, List<Status> statuses, Pageable pageable
+    );
+
+    // Para admins: todas las reservaciones pendientes
+    Page<Reservation> findByStatusIn(List<Status> statuses, Pageable pageable);
 }

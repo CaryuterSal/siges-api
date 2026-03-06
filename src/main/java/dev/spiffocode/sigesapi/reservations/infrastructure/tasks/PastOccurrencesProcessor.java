@@ -1,50 +1,28 @@
 package dev.spiffocode.sigesapi.reservations.infrastructure.tasks;
 
-import dev.spiffocode.sigesapi.reservations.domain.model.OccurrenceStatus;
-import dev.spiffocode.sigesapi.reservations.domain.model.RecurringReservation;
-import dev.spiffocode.sigesapi.reservations.domain.model.ReservationOccurrence;
-import dev.spiffocode.sigesapi.reservations.domain.repository.ReservationRepository;
+import dev.spiffocode.sigesapi.reservations.infrastructure.service.impl.FinishReservationUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.Clock;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class PastOccurrencesProcessor {
 
-    private final ReservationRepository reservationRepository;
-    private final Clock clock;
+    private final FinishReservationUseCase finishReservationUseCase;
 
-
-    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
-    public void processPastOccurrences() {
-        LocalDate yesterday = LocalDate.now(clock).minusDays(1);
-
-        List<RecurringReservation> activeSeries = reservationRepository
-                .findApprovedRecurringWithOccurrencesOn(yesterday);
-
-        activeSeries.forEach(series -> {
-            boolean wasExcluded = series.getExceptions().stream()
-                    .anyMatch(e -> e.getExcludedDate().equals(yesterday));
-
-            if (!wasExcluded) {
-                ReservationOccurrence occurrence = ReservationOccurrence.builder()
-                        .reservation(series)
-                        .occurrenceDate(yesterday)
-                        .startTime(series.getStartTime())
-                        .endTime(series.getEndTime())
-                        .status(OccurrenceStatus.COMPLETED)
-                        .materializedAt(LocalDateTime.now(clock))
-                        .build();
-
-                occurrenceRepository.save(occurrence);
-            }
-        });
+    @Scheduled(cron = "0 0 1 * * *") // cada día a la 1am
+    public void processYesterdayOccurrences() {
+        log.info("Scheduler: materializando ocurrencias de ayer");
+        try {
+            finishReservationUseCase.processYesterdayOccurrences();
+            log.info("Scheduler: ocurrencias materializadas correctamente");
+        } catch (Exception e) {
+            log.error("Scheduler: error al materializar ocurrencias", e);
+            // No relanzar — el scheduler no debe romperse por errores individuales
+        }
     }
 }
