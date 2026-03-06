@@ -5,6 +5,6 @@ public enum Status {
     APPROVED,
     REJECTED,
     CANCELLED,
-    IN_PROGRESS,
-    FINISHED
+    ON_LOAN,
+    RETURNED
 }

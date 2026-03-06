@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RequiredArgsConstructor
 public class SpecificControllerAdvice {
 
-    @ExceptionHandler({ConflictingStateException.class, IllegalStateException.class})
+    @ExceptionHandler(ConflictingStateException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ProblemDetail conflictingState(Exception e) {
+    public ProblemDetail conflictingState(ConflictingStateException e) {
         ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
         pd.setTitle(e.getMessage());
         pd.setDetail(e.getMessage());
@@ -61,14 +61,6 @@ public class SpecificControllerAdvice {
     public ProblemDetail handleRecoveryTokenExpired(RecoveryTokenExpiredException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.GONE, ex.getMessage());
         problem.setTitle("Recovery token expired or already used");
-        return problem;
-    }
-
-    @ExceptionHandler({IllegalArgumentException.class})
-    @ResponseStatus(HttpStatus.UNPROCESSABLE_CONTENT)
-    public ProblemDetail handleUnprocessableEntity(Exception ex) {
-        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, ex.getMessage());
-        problem.setTitle("This request cannot be processed due to business rules");
         return problem;
     }
 
