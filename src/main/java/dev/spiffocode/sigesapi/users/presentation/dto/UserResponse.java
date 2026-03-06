@@ -23,5 +23,4 @@ public sealed class UserResponse permits AdminResponse, ApplicantResponse {
     String createdBy;
     LocalDateTime deletedAt;
     String role;
-
 }

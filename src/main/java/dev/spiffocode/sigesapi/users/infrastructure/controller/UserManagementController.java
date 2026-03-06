@@ -129,7 +129,7 @@ public class UserManagementController {
             @RequestParam(required = false)
             @Schema(description = "Filter by the email of the registerer of the account")
             String createdBy,
-            @RequestParam(defaultValue = "ACTIVE")
+            @RequestParam(defaultValue = "ALL")
             @Schema(description = "Whether to fetch only ACTIVE records, only DELETED records, or ALL")
             ShowModeFilter showMode,
             @RequestParam(required = false)
