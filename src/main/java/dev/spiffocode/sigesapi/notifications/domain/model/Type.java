@@ -4,6 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum Type {
+
+    RESERVATION_REMINDER(
+            "Recordatorio de reservación",
+            "No olvides tu próxima cita"
+    ),
     RESERVATION_CREATED(
             "Nueva solicitud de reservación",
             "Un usuario ha solicitado una reservación que requiere tu aprobación."

@@ -1,42 +1,38 @@
 package dev.spiffocode.sigesapi.reservations.domain.repository;
 
-import dev.spiffocode.sigesapi.reservations.domain.model.RecurringReservation;
+import dev.spiffocode.sigesapi.reservables.domain.model.Reservable;
 import dev.spiffocode.sigesapi.reservations.domain.model.Reservation;
-import dev.spiffocode.sigesapi.reservations.domain.model.SingleReservation;
+import dev.spiffocode.sigesapi.reservations.domain.model.Status;
 import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Repository
-public interface ReservationRepository extends JpaRepository<@NonNull Reservation,@NonNull Long> {
+public interface ReservationRepository extends JpaRepository<@NonNull Reservation, @NonNull Long>, JpaSpecificationExecutor<@NonNull Reservation> {
 
     @Query("""
-        SELECT r FROM RecurringReservation r
-        WHERE r.reservable.id = :reservableId
-        AND r.status IN ('APPROVED', 'PENDING')
-        AND r.seriesDateFrom <= :to
-        AND r.seriesDateTo >= :from
+        SELECT COUNT(r) > 0 FROM Reservation r
+        WHERE r.reservable = :reservableId
+        AND r.status IN :statuses
+        AND r.date = :date
+        AND r.startTime < :endTime
+        AND r.endTime > :startTime
     """)
-    List<RecurringReservation> findActiveRecurringByReservableAndDateRange(
-        @Param("reservableId") Long reservableId,
-        @Param("from") LocalDate from,
-        @Param("to") LocalDate to
+    boolean existsOverlap(
+            Long reservableId,
+            LocalDate date,
+            LocalTime startTime,
+            LocalTime endTime,
+            List<Status> statuses
     );
 
-    @Query("""
-        SELECT r FROM SingleReservation r
-        WHERE r.reservable.id = :reservableId
-        AND r.status IN ('APPROVED', 'PENDING')
-        AND r.date BETWEEN :from AND :to
-    """)
-    List<SingleReservation> findActiveSingleByReservableAndDateRange(
-        @Param("reservableId") Long reservableId,
-        @Param("from") LocalDate from,
-        @Param("to") LocalDate to
+    List<Reservation> findByReservableAndDateRangeAndStatusIn(
+            Reservable reservable, LocalDate from, LocalDate to, List<Status> statuses
     );
 }

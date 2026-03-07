@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.notifications.application.service;
 
 public interface NotificationsPort {
-    void sendNotification(SendNotificationCommand command);
+    void sendNotification(long userId, SendNotificationCommand command);
+    void sendNotificationToAdmins(SendNotificationCommand command);
 }
