@@ -25,25 +25,30 @@ jobs:
 
   deploy:
     needs: build
-    if: github.event_name == 'push'
+    if: github.ref_name == 'main' && github.event_name == 'push'
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
 
-      - name: setup jdk
-        uses: actions/setup-java@v5
-        with:
-          distribution: corretto
-          java-version: 21
-
-      - name: build image
-        run: |
-          TAG=${{ github.ref_name }}
-          ./gradlew bootBuildImage --imageName=${{ vars.DOCKER_HUB_USERNAME }}/siges-api:$TAG
-
       - name: login docker
         run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u ${{ vars.DOCKER_HUB_USERNAME }} --password-stdin
 
-      - name: push image
-        run: docker push ${{ vars.DOCKER_HUB_USERNAME }}/siges-api:${{ github.ref_name }}
+      - name: build and push image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ vars.DOCKER_HUB_USERNAME }}/siges-api:main
+
+      - name: deploy on EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/siges
+            docker compose -f compose.yaml -f compose.prod.yaml pull
+            docker compose -f compose.yaml -f compose.prod.yaml up -d
+            docker image prune -f
