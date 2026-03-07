@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.reservations.presentation;
 
 import dev.spiffocode.sigesapi.reservables.presentation.dto.ReservableDto;
+import dev.spiffocode.sigesapi.reservations.domain.model.GroupingType;
 import dev.spiffocode.sigesapi.reservations.domain.model.Status;
 import dev.spiffocode.sigesapi.users.presentation.dto.UserResponse;
 import lombok.Builder;
@@ -22,6 +23,8 @@ public record ReservationResponse(
         LocalDate date,
         LocalTime startTime,
         LocalTime endTime,
+        GroupingType type,
+        Integer companions,
         LocalDateTime approvedAt,
         LocalDateTime rejectedAt,
         LocalDateTime cancelledAt,

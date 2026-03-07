@@ -5,6 +5,14 @@ import lombok.Getter;
 @Getter
 public enum Type {
 
+    COMMENT_ON_RESERVATION(
+            "Nuevo comentario en reservación",
+            "Un usuario dejó un comentario sobre la reservación"
+    ),
+    RESERVATION_RESCHEDULE(
+        "Cambio de horario en reservación",
+            "La reservación vió un cambio en el horario y requiere tu aprobación"
+    ),
     RESERVATION_REMINDER(
             "Recordatorio de reservación",
             "No olvides tu próxima cita"

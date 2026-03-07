@@ -5,10 +5,8 @@ import dev.spiffocode.sigesapi.reservations.domain.exception.InvalidReservationS
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Positive;
+import lombok.*;
 import org.hibernate.envers.Audited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -25,6 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 @Entity
 @Table(name = "reservations",
         indexes = {
@@ -62,7 +61,10 @@ public class Reservation {
     private LocalTime endTime;
 
     @NotNull
-    GroupingType type;
+    private GroupingType type;
+
+    @Positive
+    private Integer companions;
 
     private LocalDateTime approvedAt;
     private LocalDateTime rejectedAt;
@@ -111,6 +113,16 @@ public class Reservation {
             throw new InvalidReservationStatusException(this.status, Status.APPROVED);
         this.status = Status.FINISHED;
         this.finishedAt = LocalDateTime.now(clock);
+    }
+
+    public boolean reschedule(LocalDate date, LocalTime startTime, LocalTime endTime, Clock clock) {
+        if (this.getStatus() != Status.PENDING && this.getStatus() != Status.APPROVED)
+            throw new InvalidReservationStatusException(this.getStatus(), Status.PENDING);
+        if(this.date != date || this.startTime != startTime || this.endTime != endTime){
+            this.status = Status.PENDING;
+            return true;
+        }
+        return false;
     }
 
     public void addNote(String comment) {

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 @Getter
+@Setter
 @ToString
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @Table(name = "notes")
@@ -45,5 +46,5 @@ public class Note {
 
     @CreatedBy
     @Column(nullable = false, updatable = false)
-    private Long createdBy;
+    private String createdBy;
 }

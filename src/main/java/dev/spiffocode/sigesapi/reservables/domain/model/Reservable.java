@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
+import dev.spiffocode.sigesapi.reservations.domain.model.Reservation;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -90,6 +91,13 @@ public abstract class Reservable {
         availabilityExceptions.add(availabilityException);
         availabilityException.setReservable(this);
     }
+
+    @Builder.Default
+    @OneToMany(
+            mappedBy = "reservable",
+            cascade = {CascadeType.ALL}
+    )
+    List<Reservation> reservations = new ArrayList<>();
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
