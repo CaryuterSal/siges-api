@@ -63,8 +63,8 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "from": "SIGES Deploy <siges.no.reply@siges.lat",
-              "to": ["tu@correo.com"],
+              "from": "{{ secrets.DEPLOY_NOTIFICATION_FROM }}",
+              "to": ["{{ secrets.DEPLOY_NOTIFICATION_TO }}"],
               "subject": "'"$EMOJI SIGES Deploy $STATUS"'",
               "html": "<p>El deploy del branch <strong>${{ github.ref_name }}</strong> terminó con estado <strong>'"$STATUS"'</strong>.</p><p>Commit: ${{ github.sha }}</p><p>Por: ${{ github.actor }}</p>"
             }'
