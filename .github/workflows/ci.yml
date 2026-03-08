@@ -52,3 +52,19 @@ jobs:
             docker compose -f compose.yaml -f compose.prod.yaml pull
             docker compose -f compose.yaml -f compose.prod.yaml up -d
             docker image prune -f
+      - name: notify deploy
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          COLOR=$([ "$STATUS" = "success" ] && echo "#22c55e" || echo "#ef4444")
+          EMOJI=$([ "$STATUS" = "success" ] && echo "✅" || echo "❌")
+          
+          curl -s -X POST https://api.resend.com/emails \
+            -H "Authorization: Bearer ${{ secrets.RESEND_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "from": "SIGES Deploy <siges.no.reply@siges.lat",
+              "to": ["tu@correo.com"],
+              "subject": "'"$EMOJI SIGES Deploy $STATUS"'",
+              "html": "<p>El deploy del branch <strong>${{ github.ref_name }}</strong> terminó con estado <strong>'"$STATUS"'</strong>.</p><p>Commit: ${{ github.sha }}</p><p>Por: ${{ github.actor }}</p>"
+            }'
