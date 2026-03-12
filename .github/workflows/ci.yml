@@ -40,8 +40,7 @@ jobs:
           aws-region: us-east-1
 
       - name: login docker
-        run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login \
-          -u ${{ vars.DOCKER_HUB_USERNAME }} --password-stdin
+        run: echo "${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}" | docker login -u ${{ vars.DOCKER_HUB_USERNAME }} --password-stdin
 
       - name: build and push image
         uses: docker/build-push-action@v7
