@@ -44,3 +44,5 @@ out/
 ## Misc documents
 
 Jira(4).csv
+siges app key pair.pem
+connect_ec2.sh
