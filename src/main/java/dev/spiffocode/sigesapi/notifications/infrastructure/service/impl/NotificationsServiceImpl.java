@@ -36,17 +36,17 @@ public class NotificationsServiceImpl implements NotificationsService {
     public NotificationResponse changeNotificationStatus(Long id, ReadStatus readStatus) {
         Long currentUserId = securityContextHelper.getCurrentUserId();
         Notification notification = notificationRepository.findById(id)
-                .filter(n -> n.getRecipient().getId().equals(currentUserId))
+                .filter(n -> n.getUser().getId().equals(currentUserId))
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
 
-        notification.setStatus(readStatus);
+        notification.setReadStatus(readStatus);
         notificationRepository.save(notification);
 
         return new NotificationResponse(
                 notification.getId(),
                 notification.getType(),
-                notification.getStatus(),
-                notification.getCreatedAt());
+                notification.getReadStatus(),
+                notification.getSentAt());
     }
 
     @Override

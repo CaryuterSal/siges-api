@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{email/base :: layout('Reserva Reprogramada - SIGES', ~{::div})}">
+
+<body>
+    <div>
+        <div class="badge">Reprogramación</div>
+        <div class="greeting">¡Hola!</div>
+        <p class="text">
+            Se ha confirmado la nueva fecha de tu reserva.
+        </p>
+
+        <div class="credential-box">
+            <div class="credential-row">
+                <div class="credential-label">FOLIO</div>
+                <div class="credential-value" th:text="'#' + ${reservationId}">#12345</div>
+            </div>
+            <div class="credential-row">
+                <div class="credential-label">ESTADO</div>
+                <div class="credential-value">Pendiente de revisión</div>
+            </div>
+        </div>
+
+        <p class="text">
+            Recuerda que debido al cambio de horario, un administrador necesita aprobar la modificación.
+        </p>
+    </div>
+</body>
+
+</html>

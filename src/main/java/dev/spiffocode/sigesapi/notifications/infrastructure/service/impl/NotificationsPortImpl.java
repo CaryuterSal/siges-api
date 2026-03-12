@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.notifications.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.mailsender.application.service.ReservationsEmailPort;
 import dev.spiffocode.sigesapi.notifications.application.service.NotificationsPort;
+import dev.spiffocode.sigesapi.notifications.application.service.PushNotificationPort;
 import dev.spiffocode.sigesapi.notifications.application.service.SendNotificationCommand;
 import dev.spiffocode.sigesapi.notifications.domain.model.Notification;
 import dev.spiffocode.sigesapi.notifications.domain.model.ReadStatus;
@@ -27,6 +28,7 @@ public class NotificationsPortImpl implements NotificationsPort {
     private final NotificationRepository notificationRepository;
     private final UserManagementService userManagementService;
     private final ReservationsEmailPort reservationsEmailPort;
+    private final PushNotificationPort pushNotificationPort;
 
     @Override
     public void sendNotification(long userId, SendNotificationCommand command) {
@@ -57,14 +59,20 @@ public class NotificationsPortImpl implements NotificationsPort {
         }
 
         if (sendInApp) {
+            String notificationTitle = command.title() != null ? command.title() : type.getDefaultTitle();
+            String notificationMessage = command.message() != null ? command.message() : type.getDefaultMessage();
+
             Notification notification = Notification.builder()
                     .recipient(user)
                     .type(type)
-                    .title(command.title() != null ? command.title() : type.getDefaultTitle())
-                    .message(command.message() != null ? command.message() : type.getDefaultMessage())
+                    .title(notificationTitle)
+                    .message(notificationMessage)
                     .status(ReadStatus.UNREAD)
                     .build();
             notificationRepository.save(notification);
+
+            // Trigger FCM push notification
+            pushNotificationPort.sendPushNotification(userId, notificationTitle, notificationMessage);
         }
 
         if (sendEmail) {

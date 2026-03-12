@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+    th:replace="~{email/base :: layout('Resolución de Reserva - SIGES', ~{::div})}">
+
+<body>
+    <div>
+        <div class="badge" th:text="${status == 'APPROVED' ? 'Reserva Aprobada' : 'Reserva Rechazada'}">Resolución</div>
+        <div class="greeting">¡Hola!</div>
+        <p class="text">
+            El estado de tu solicitud de reserva ha sido actualizado.
+        </p>
+
+        <div class="credential-box">
+            <div class="credential-row">
+                <div class="credential-label">FOLIO</div>
+                <div class="credential-value" th:text="'#' + ${reservationId}">#12345</div>
+            </div>
+            <div class="credential-row">
+                <div class="credential-label">ESTADO</div>
+                <div class="credential-value" th:text="${status == 'APPROVED' ? 'Aprobada' : 'Rechazada'}"
+                    th:style="${status == 'APPROVED' ? 'color: #2e7d32;' : 'color: #d32f2f;'}">Aprobada</div>
+            </div>
+        </div>
+
+        <p class="text" th:if="${status == 'APPROVED'}">
+            Tu espacio está confirmado. Por favor llega puntual en la fecha y hora seleccionada.
+        </p>
+
+        <p class="text" th:if="${status == 'REJECTED'}">
+            Lamentablemente no pudimos aprobar tu solicitud en esta ocasión. Puedes consultar los detalles en la
+            plataforma.
+        </p>
+    </div>
+</body>
+
+</html>

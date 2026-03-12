@@ -17,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 @Builder
 @ToString
 @Table(name = "notifications")
@@ -37,7 +38,7 @@ public class Notification {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDateTime sent_at;
+    private LocalDateTime sentAt;
 
     @ManyToOne
     private Reservation relatedReservation;

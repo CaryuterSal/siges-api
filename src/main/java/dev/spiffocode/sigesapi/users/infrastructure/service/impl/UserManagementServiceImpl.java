@@ -148,7 +148,6 @@ public class UserManagementServiceImpl implements UserManagementService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
-        // Create default preferences if they don't exist yet for each type
         Map<Type, NotificationPreference> existingPrefs = user.getNotificationPreferences().stream()
                 .collect(Collectors.toMap(NotificationPreference::getType, Function.identity()));
 

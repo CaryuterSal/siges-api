@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email/base :: layout('Reserva Creada - SIGES', ~{::div})}">
+<body>
+<div>
+    <div class="badge">Nueva Reserva</div>
+    <div class="greeting">¡Hola!</div>
+    <p class="text">
+        Tu solicitud de reserva ha sido registrada exitosamente en el sistema.
+    </p>
+
+    <div class="credential-box">
+        <div class="credential-row">
+            <div class="credential-label">FOLIO</div>
+            <div class="credential-value" th:text="'#' + ${reservationId}">#12345</div>
+        </div>
+        <div class="credential-row">
+            <div class="credential-label">ESTADO</div>
+            <div class="credential-value">Pendiente de revisión</div>
+        </div>
+    </div>
+
+    <p class="text">
+        Te notificaremos en cuanto un administrador revise y apruebe tu solicitud.
+    </p>
+</div>
+</body>
+</html>
