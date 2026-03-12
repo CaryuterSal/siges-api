@@ -1,0 +1,15 @@
+version: 0.0
+os: linux
+hooks:
+  BeforeInstall:
+    - location: scripts/pull.sh
+      timeout: 120
+      runas: ubuntu
+  AfterInstall:
+    - location: scripts/start.sh
+      timeout: 120
+      runas: ubuntu
+  ValidateService:
+    - location: scripts/health_check.sh
+      timeout: 120
+      runas: ubuntu
