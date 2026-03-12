@@ -5,8 +5,8 @@ import lombok.Builder;
 
 @Builder
 public record SendNotificationCommand(
-        Type type,
-        String title,
-        String message
-){
+                Type type,
+                String title,
+                String message,
+                Long entityId) {
 }

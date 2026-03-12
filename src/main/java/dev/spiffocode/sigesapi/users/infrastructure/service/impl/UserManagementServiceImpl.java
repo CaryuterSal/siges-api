@@ -3,6 +3,8 @@ package dev.spiffocode.sigesapi.users.infrastructure.service.impl;
 import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
 import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
 import dev.spiffocode.sigesapi.mailsender.application.service.UserManagementEmailPort;
+import dev.spiffocode.sigesapi.notifications.domain.model.Type;
+import dev.spiffocode.sigesapi.notifications.domain.model.NotificationPreference;
 import dev.spiffocode.sigesapi.users.application.mapper.InstitutionalStaffMapper;
 import dev.spiffocode.sigesapi.users.application.mapper.StudentMapper;
 import dev.spiffocode.sigesapi.users.application.mapper.UserMapper;
@@ -23,10 +25,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class UserManagementServiceImpl  implements UserManagementService {
+public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserRepository userRepository;
     private final AdminRepository adminRepository;
@@ -43,7 +50,7 @@ public class UserManagementServiceImpl  implements UserManagementService {
 
     private final UserUniquenessValidator userUniquenessValidator;
     private final StudentUniquenessValidator studentUniquenessValidator;
-    private final InstitutionalStaffUniquenessValidator  institutionalStaffUniquenessValidator;
+    private final InstitutionalStaffUniquenessValidator institutionalStaffUniquenessValidator;
 
     private final SecurityContextHelper securityContextHelper;
 
@@ -61,7 +68,7 @@ public class UserManagementServiceImpl  implements UserManagementService {
         user = userMapper.updateEntity(user, request);
 
         boolean updateTokenVersion = !securityContextHelper.isCurrentUser(user.getId());
-        user.changePhoneNumber(normalizedPhoneNumber,updateTokenVersion);
+        user.changePhoneNumber(normalizedPhoneNumber, updateTokenVersion);
         userRepository.save(user);
         return userMapper.toResponse(user);
     }
@@ -92,7 +99,8 @@ public class UserManagementServiceImpl  implements UserManagementService {
         user.changeRegistrationNumber(request.registrationNumber(), updateTokenVersion);
         userRepository.save(user);
 
-        emailPort.sendStudentRegistrationNumberChangeEmail(user.getEmail(), user.fullName(),  oldRegNumber, request.registrationNumber());
+        emailPort.sendStudentRegistrationNumberChangeEmail(user.getEmail(), user.fullName(), oldRegNumber,
+                request.registrationNumber());
         return studentMapper.toResponse(user);
     }
 
@@ -107,7 +115,7 @@ public class UserManagementServiceImpl  implements UserManagementService {
         user.changeEmployeeNumber(request.employeeNumber(), updateTokenVersion);
         userRepository.save(user);
 
-        emailPort.sendEmployeeNumberChangeEmail(user.getEmail(), user.fullName(),  oldEmpNum, request.employeeNumber());
+        emailPort.sendEmployeeNumberChangeEmail(user.getEmail(), user.fullName(), oldEmpNum, request.employeeNumber());
         return institutionalStaffMapper.toResponse(user);
     }
 
@@ -118,7 +126,7 @@ public class UserManagementServiceImpl  implements UserManagementService {
         userRepository.softDeleteById(id);
 
         emailPort.sendGoodbyeEmail(user.getEmail(), user.fullName());
-        //TODO: Cancel all reservations
+        // TODO: Cancel all reservations
     }
 
     @WithDeletedRecords
@@ -128,5 +136,65 @@ public class UserManagementServiceImpl  implements UserManagementService {
                 .orElseThrow(() -> new UserNotFoundException(id));
         userRepository.restoreById(id);
         emailPort.sendAccountRestoredEmail(user.getEmail(), user.fullName());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<NotificationPreferenceResponse> getNotificationPreferences(Long userId) {
+        if (!securityContextHelper.isAdminOrCurrentUser(userId)) {
+            throw new AccessDeniedException("You can only view your own notification preferences");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        // Create default preferences if they don't exist yet for each type
+        Map<Type, NotificationPreference> existingPrefs = user.getNotificationPreferences().stream()
+                .collect(Collectors.toMap(NotificationPreference::getType, Function.identity()));
+
+        return java.util.Arrays.stream(Type.values())
+                .map(type -> {
+                    NotificationPreference pref = existingPrefs.get(type);
+                    if (pref == null) {
+                        return new NotificationPreferenceResponse(type, true, true);
+                    }
+                    return new NotificationPreferenceResponse(type, pref.isEmailEnabled(), pref.isInAppEnabled());
+                })
+                .toList();
+    }
+
+    @Override
+    public List<NotificationPreferenceResponse> updateNotificationPreferences(Long userId,
+            List<NotificationPreferenceUpdateRequest> updates) {
+        if (!securityContextHelper.isAdminOrCurrentUser(userId)) {
+            throw new AccessDeniedException("You can only update your own notification preferences");
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+
+        Map<Type, NotificationPreference> existingPrefs = user.getNotificationPreferences().stream()
+                .collect(Collectors.toMap(NotificationPreference::getType, Function.identity()));
+
+        for (NotificationPreferenceUpdateRequest update : updates) {
+            NotificationPreference pref = existingPrefs.get(update.type());
+            if (pref == null) {
+                pref = NotificationPreference.builder()
+                        .user(user)
+                        .type(update.type())
+                        .emailEnabled(update.emailEnabled())
+                        .inAppEnabled(update.inAppEnabled())
+                        .build();
+                user.getNotificationPreferences().add(pref);
+                existingPrefs.put(update.type(), pref);
+            } else {
+                pref.setEmailEnabled(update.emailEnabled());
+                pref.setInAppEnabled(update.inAppEnabled());
+            }
+        }
+
+        userRepository.save(user);
+
+        return getNotificationPreferences(userId);
     }
 }

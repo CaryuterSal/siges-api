@@ -1,7 +1,6 @@
 package dev.spiffocode.sigesapi.reservations.infrastructure.service.impl;
 
 import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
-import dev.spiffocode.sigesapi.mailsender.application.service.ReservationsEmailPort;
 import dev.spiffocode.sigesapi.notifications.application.service.NotificationsPort;
 import dev.spiffocode.sigesapi.notifications.application.service.SendNotificationCommand;
 import dev.spiffocode.sigesapi.notifications.domain.model.Type;
@@ -48,7 +47,6 @@ public class ReservationServiceImpl implements ReservationService {
 
     private final SecurityContextHelper securityContextHelper;
     private final NotificationsPort notificationsPort;
-    private final ReservationsEmailPort emailPort;
 
     private final ReservationMapper reservationMapper;
     private final Clock clock;
@@ -75,9 +73,12 @@ public class ReservationServiceImpl implements ReservationService {
                 .build();
 
         Reservation saved = reservationRepository.save(reservation);
+        notificationsPort.sendNotification(petitioner.getId(), SendNotificationCommand.builder()
+                .type(Type.RESERVATION_CREATED)
+                .entityId(saved.getId())
+                .build());
         notificationsPort.sendNotificationToAdmins(SendNotificationCommand.builder()
                 .type(Type.RESERVATION_CREATED).build());
-        emailPort.sendReservationCreatedEmail(petitioner.getEmail(), reservation.getId());
         return reservationMapper.toDto(saved, List.of());
     }
 
@@ -96,6 +97,11 @@ public class ReservationServiceImpl implements ReservationService {
 
         reservation.reschedule(request.date(), request.startTime(), request.endTime(), clock);
 
+        notificationsPort.sendNotification(reservation.getPetitioner().getId(), SendNotificationCommand.builder()
+                .type(Type.RESERVATION_RESCHEDULE)
+                .entityId(reservation.getId())
+                .build());
+
         notificationsPort.sendNotificationToAdmins(SendNotificationCommand.builder()
                 .type(Type.RESERVATION_RESCHEDULE).build());
 
@@ -112,9 +118,11 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = findReservationOrThrow(id);
         reservation.approve(clock);
 
-        emailPort.sendReservationResolutionEmail(reservation.getPetitioner().getEmail(), Status.APPROVED, id);
         notificationsPort.sendNotification(reservation.getPetitioner().getId(),
-                SendNotificationCommand.builder().type(Type.RESERVATION_APPROVED).build());
+                SendNotificationCommand.builder()
+                        .type(Type.RESERVATION_APPROVED)
+                        .entityId(id)
+                        .build());
 
         return toResponse(reservationRepository.save(reservation));
     }
@@ -125,9 +133,11 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = findReservationOrThrow(id);
         reservation.reject(request.reason(), clock);
 
-        emailPort.sendReservationResolutionEmail(reservation.getPetitioner().getEmail(), Status.REJECTED,id);
         notificationsPort.sendNotification(reservation.getPetitioner().getId(),
-                SendNotificationCommand.builder().type(Type.RESERVATION_REJECTED).build());
+                SendNotificationCommand.builder()
+                        .type(Type.RESERVATION_REJECTED)
+                        .entityId(id)
+                        .build());
 
         return toResponse(reservationRepository.save(reservation));
     }
@@ -140,15 +150,24 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = findReservationOrThrow(id);
 
         boolean isPetitioner = reservation.getPetitioner().getId().equals(userId);
-        if (!isAdmin && !isPetitioner){
+        if (!isAdmin && !isPetitioner) {
             throw new AccessDeniedException("Only the petitioner or an admin can cancel a reservation");
-            }
+        }
 
         reservation.cancel(request.reason(), clock);
 
-        emailPort.sendReservationCancelledEmail(reservation.getPetitioner().getEmail(), id);
         notificationsPort.sendNotification(reservation.getPetitioner().getId(),
-                SendNotificationCommand.builder().type(Type.RESERVATION_CANCELLED).build());
+                SendNotificationCommand.builder()
+                        .type(Type.RESERVATION_CANCELLED)
+                        .entityId(id)
+                        .build());
+
+        if (isAdmin) {
+            notificationsPort.sendNotificationToAdmins(SendNotificationCommand.builder()
+                    .type(Type.RESERVATION_CANCELLED)
+                    .entityId(id)
+                    .build());
+        }
 
         return toResponse(reservationRepository.save(reservation));
     }
@@ -203,7 +222,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private Reservation findReservationOrThrow(Long id) {
-        return  reservationRepository.findById(id)
+        return reservationRepository.findById(id)
                 .orElseThrow(() -> new ReservationNotFoundException(id));
     }
 
@@ -213,12 +232,12 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private User findUserOrThrow(Long id) {
-        return  userRepository.findById(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
     }
 
     private User findUserOrThrow(String email) {
-        return  userRepository.findByEmail(email)
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException(email));
     }
 
@@ -230,16 +249,16 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationMapper.toDto(reservation, notes);
     }
 
-
     private void validateNoOverlap(Long reservableId, LocalDate date,
-                                   LocalTime start, LocalTime end, Long excludeId) {
+            LocalTime start, LocalTime end, Long excludeId) {
         boolean overlap = excludeId != null
                 ? reservationRepository.existsOverlapExcluding(reservableId, date, start, end,
-                List.of(Status.PENDING, Status.APPROVED), excludeId)
+                        List.of(Status.PENDING, Status.APPROVED), excludeId)
                 : reservationRepository.existsOverlap(reservableId, date, start, end,
-                List.of(Status.PENDING, Status.APPROVED));
+                        List.of(Status.PENDING, Status.APPROVED));
 
-        if (overlap) throw new ReservationOverlapException(date, start, end);
+        if (overlap)
+            throw new ReservationOverlapException(date, start, end);
     }
 
     private void validateStudentRestrictions(User petitioner, Reservable reservable, Integer companions) {
@@ -268,21 +287,17 @@ public class ReservationServiceImpl implements ReservationService {
                 .filter(av -> av.getDayOfWeek() == requestedDay)
                 .filter(av -> !date.isBefore(av.getDateFrom()))
                 .filter(av -> av.getDateTo() == null || !date.isAfter(av.getDateTo()))
-                .anyMatch(av ->
-                        !startTime.isBefore(av.getStartTime()) &&
-                                !endTime.isAfter(av.getEndTime())
-                );
+                .anyMatch(av -> !startTime.isBefore(av.getStartTime()) &&
+                        !endTime.isAfter(av.getEndTime()));
 
         if (!withinSchedule)
             throw new ReservableNotAvailableAtRequestedTimeException(reservable.getId(), date, startTime, endTime);
 
         boolean hasException = reservable.getAvailabilityExceptions().stream()
-                .anyMatch(ex ->
-                        !date.isBefore(ex.getDateFrom()) &&
-                                !date.isAfter(ex.getDateTo()) &&
-                                !startTime.isBefore(ex.getStartTime()) &&
-                                !endTime.isAfter(ex.getEndTime())
-                );
+                .anyMatch(ex -> !date.isBefore(ex.getDateFrom()) &&
+                        !date.isAfter(ex.getDateTo()) &&
+                        !startTime.isBefore(ex.getStartTime()) &&
+                        !endTime.isAfter(ex.getEndTime()));
 
         if (hasException)
             throw new ReservableHasAvailabilityExceptionException(reservable.getId(), date, startTime, endTime);

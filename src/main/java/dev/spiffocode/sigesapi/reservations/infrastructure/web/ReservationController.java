@@ -127,7 +127,7 @@ public class ReservationController {
         return ResponseEntity.created(location).body(response);
     }
 
-    @PatchMapping("/{id}/reschedule")
+    @PatchMapping("/{id}")
     @Operation(summary = "Reschedule a reservation",
             description = "Only the petitioner can reschedule. Moves the reservation back to PENDING status.")
     @ApiResponses({
