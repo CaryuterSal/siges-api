@@ -37,7 +37,7 @@ import java.util.Map;
         servers = {
                 @Server(
                         description = "AWS EC2 default and only production server",
-                        url = "https://siges-app.duckdns.org/api"
+                        url = "https://siges.lat/api"
                 ),
                 @Server(
                         description = "Localhost test server",
