@@ -21,7 +21,13 @@ DOCKER_HUB_USERNAME=$(get_param docker/username)
 SECURITY_JWT_SECRET=$(get_param SECURITY_JWT_SECRET)
 SPRING_MAIL_USERNAME=$(get_param SPRING_MAIL_USERNAME)
 SPRING_MAIL_PASSWORD=$(get_param SPRING_MAIL_PASSWORD)
+FIREBASE_CREDENTIALS_PATH=/home/ubuntu/siges/secrets/firebase-service-account.json
 EOF
+
+echo "Escribiendo credenciales de Firebase..."
+mkdir -p /home/ubuntu/siges/secrets
+get_param firebase/credentials > /home/ubuntu/siges/secrets/firebase-service-account.json
+chmod 600 /home/ubuntu/siges/secrets/firebase-service-account.json
 
 echo "Haciendo docker login..."
 DOCKER_TOKEN=$(get_param docker/token)

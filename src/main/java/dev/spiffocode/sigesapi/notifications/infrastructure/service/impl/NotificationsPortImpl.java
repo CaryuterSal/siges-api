@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import org.springframework.scheduling.annotation.Async;
 
 @Slf4j
 @Service
@@ -30,6 +31,7 @@ public class NotificationsPortImpl implements NotificationsPort {
     private final ReservationsEmailPort reservationsEmailPort;
     private final PushNotificationPort pushNotificationPort;
 
+    @Async
     @Override
     public void sendNotification(long userId, SendNotificationCommand command) {
         User user = userRepository.findById(userId).orElse(null);
@@ -63,15 +65,14 @@ public class NotificationsPortImpl implements NotificationsPort {
             String notificationMessage = command.message() != null ? command.message() : type.getDefaultMessage();
 
             Notification notification = Notification.builder()
-                    .recipient(user)
+                    .user(user)
                     .type(type)
                     .title(notificationTitle)
-                    .message(notificationMessage)
-                    .status(ReadStatus.UNREAD)
+                    .body(notificationMessage)
+                    .readStatus(ReadStatus.UNREAD)
                     .build();
             notificationRepository.save(notification);
 
-            // Trigger FCM push notification
             pushNotificationPort.sendPushNotification(userId, notificationTitle, notificationMessage);
         }
 
@@ -108,6 +109,7 @@ public class NotificationsPortImpl implements NotificationsPort {
         }
     }
 
+    @Async
     @Override
     public void sendNotificationToAdmins(SendNotificationCommand command) {
         List<User> admins = userRepository.findAdmins();

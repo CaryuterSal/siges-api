@@ -1,6 +1,5 @@
 package dev.spiffocode.sigesapi.notifications.domain.model;
 
-
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -19,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 @Builder
 @ToString
 @Table(name = "push_tokens")
@@ -29,35 +29,29 @@ import java.util.List;
 @Entity
 public class PushToken {
 
-    @Id
-    private String token;
+        @Id
+        private String token;
 
-    private String deviceId;
+        private String deviceId;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private Platform platform;
+        @NotNull
+        @Enumerated(EnumType.STRING)
+        private Platform platform;
 
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+        @CreatedDate
+        @Column(nullable = false, updatable = false)
+        private LocalDateTime createdAt;
 
-    private LocalDateTime lastUsedAt;
+        private LocalDateTime lastUsedAt;
 
-    @ManyToOne(
-            optional = false,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
-    )
-    private User user;
+        @ManyToOne(optional = false, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+        private User user;
 
-    @Generated
-    @Column(nullable = false, insertable = false, updatable = false)
-    private Boolean isActive;
+        @Generated
+        @Column(nullable = false, insertable = false, updatable = false)
+        private Boolean isActive;
 
-    @ManyToMany(
-            mappedBy = "sentToTokens"
-    )
-    private List<PushToken> sentToPushTokens;
-
+        @ManyToMany(mappedBy = "sentToTokens")
+        private List<Notification> notificationsSent;
 
 }

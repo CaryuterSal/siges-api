@@ -3,6 +3,7 @@ package dev.spiffocode.sigesapi.users.infrastructure.controller;
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
 import dev.spiffocode.sigesapi.users.application.service.*;
 import dev.spiffocode.sigesapi.users.presentation.dto.*;
+import dev.spiffocode.sigesapi.notifications.application.service.PushTokenService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,6 +31,7 @@ public class UserManagementController {
 
         private final UserManagementService managementService;
         private final UserQueryService queryService;
+        private final PushTokenService pushTokenService;
 
         @PatchMapping("/users/{id}")
         @ApiResponses({
@@ -169,5 +171,23 @@ public class UserManagementController {
                         @PathVariable Long id,
                         @RequestBody @Valid List<NotificationPreferenceUpdateRequest> updates) {
                 return managementService.updateNotificationPreferences(id, updates);
+        }
+
+        @PostMapping("/users/{id}/push-tokens")
+        @Operation(summary = "Register a new Push Token for the user.")
+        public ResponseEntity<Void> registerPushToken(
+                        @PathVariable Long id,
+                        @RequestBody @Valid PushTokenRequest request) {
+                pushTokenService.registerToken(id, request);
+                return ResponseEntity.noContent().build();
+        }
+
+        @DeleteMapping("/users/{id}/push-tokens/{token}")
+        @Operation(summary = "Unregister an existing Push Token for the user.")
+        public ResponseEntity<Void> unregisterPushToken(
+                        @PathVariable Long id,
+                        @PathVariable String token) {
+                pushTokenService.unregisterToken(id, token);
+                return ResponseEntity.noContent().build();
         }
 }
