@@ -26,6 +26,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -120,13 +121,13 @@ public class AgendaIT extends FlushedIntegrationTest {
                 .createdBy("system")
                 .build();
 
-        // Availability: Monday-Friday 08:00 - 18:00
         AvailabilitySlot slot = AvailabilitySlot.builder().build();
         for (DayOfWeek day : List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY,
                 DayOfWeek.FRIDAY)) {
             slot.addMember(Availability.builder()
                     .group(slot)
                     .dayOfWeek(day)
+                    .dateFrom(LocalDate.now())
                     .startTime(LocalTime.of(8, 0))
                     .endTime(LocalTime.of(18, 0))
                     .build());
@@ -144,6 +145,7 @@ public class AgendaIT extends FlushedIntegrationTest {
                 .dateTo(nextWednesday)
                 .startTime(LocalTime.of(12, 0))
                 .endTime(LocalTime.of(14, 0))
+                .reason("test")
                 .build();
         testSpace.addAvailabilityException(ex);
 
@@ -160,6 +162,7 @@ public class AgendaIT extends FlushedIntegrationTest {
                 .endTime(LocalTime.of(12, 0))
                 .type(GroupingType.GROUP)
                 .companions(20)
+                .createdBy("system")
                 .build();
 
         // 2. Monday 14:00 - 15:00 (PENDING)
@@ -172,6 +175,7 @@ public class AgendaIT extends FlushedIntegrationTest {
                 .endTime(LocalTime.of(15, 0))
                 .type(GroupingType.GROUP)
                 .companions(20)
+                .createdBy("system")
                 .build();
 
         // 3. Tuesday 10:00 - 12:00 (REJECTED) -> shouldn't block availability
@@ -184,21 +188,14 @@ public class AgendaIT extends FlushedIntegrationTest {
                 .endTime(LocalTime.of(12, 0))
                 .type(GroupingType.GROUP)
                 .companions(10)
+                .createdBy("system")
                 .build();
 
         reservationRepository.saveAll(List.of(r1, r2, r3));
     }
 
     private LocalDate advanceTo(DayOfWeek targetDay) {
-        LocalDate current = LocalDate.now();
-        while (current.getDayOfWeek() != targetDay) {
-            current = current.plusDays(1);
-        }
-        // ensure it's in the future
-        if (!current.isAfter(LocalDate.now())) {
-            current = current.plusWeeks(1);
-        }
-        return current;
+       return LocalDate.now().with(TemporalAdjusters.next(targetDay));
     }
 
     @Test
