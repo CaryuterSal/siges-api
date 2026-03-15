@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.users.domain.model;
 
 import dev.spiffocode.sigesapi.auth.application.service.CustomUserDetails;
 import dev.spiffocode.sigesapi.notifications.domain.model.Notification;
+import dev.spiffocode.sigesapi.notifications.domain.model.NotificationPreference;
 import dev.spiffocode.sigesapi.notifications.domain.model.PushToken;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -10,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -46,7 +48,6 @@ import java.util.Objects;
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class User implements CustomUserDetails {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -71,24 +72,20 @@ public abstract class User implements CustomUserDetails {
     @Column(nullable = false)
     private String firstName;
 
-
     @NotBlank
     @Column(nullable = false)
     private String lastName;
-
 
     @NotNull
     @Column(nullable = false)
     @Past
     private LocalDate birthDate;
 
-
     @NotNull
     @Column(nullable = false)
     private String password;
 
     private LocalDateTime lastLogin;
-
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -106,19 +103,18 @@ public abstract class User implements CustomUserDetails {
     private LocalDateTime deletedAt;
 
     @Builder.Default
-    @OneToMany(
-            mappedBy = "user",
-            fetch = FetchType.LAZY
-    )
+    @NotAudited
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Notification> notifications = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(
-            mappedBy = "user",
-            fetch = FetchType.LAZY
-    )
-    private List<PushToken> tokens = new ArrayList<>();
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<NotificationPreference> notificationPreferences = new ArrayList<>();
 
+    @Builder.Default
+    @NotAudited
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<PushToken> tokens = new ArrayList<>();
 
     @Override
     public @NonNull Collection<? extends GrantedAuthority> getAuthorities() {
@@ -138,37 +134,37 @@ public abstract class User implements CustomUserDetails {
     }
 
     @Transient
-    public String fullName(){
+    public String fullName() {
         return firstName + " " + lastName;
     }
 
-    public void recordLogin(Clock clock){
+    public void recordLogin(Clock clock) {
         this.lastLogin = LocalDateTime.now(clock);
     }
 
-    public boolean changeEmail(String newEmail,  boolean changeVersion){
+    public boolean changeEmail(String newEmail, boolean changeVersion) {
 
         String old = this.email;
         this.email = newEmail;
-        if(!Objects.equals(old, newEmail) && changeVersion){
+        if (!Objects.equals(old, newEmail) && changeVersion) {
             setTokenVersion(getTokenVersion() + 1);
             return true;
         }
         return false;
     }
 
-    public boolean changePhoneNumber(String phoneNumber, boolean changeVersion){
+    public boolean changePhoneNumber(String phoneNumber, boolean changeVersion) {
 
         String old = this.phoneNumber;
         this.phoneNumber = phoneNumber;
-        if(!Objects.equals(old, phoneNumber) && changeVersion){
+        if (!Objects.equals(old, phoneNumber) && changeVersion) {
             setTokenVersion(getTokenVersion() + 1);
             return true;
         }
         return false;
     }
 
-    public boolean changePassword(String password){
+    public boolean changePassword(String password) {
         String old = this.password;
         this.password = password;
         setTokenVersion(getTokenVersion() + 1);

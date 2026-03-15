@@ -2,6 +2,8 @@ package dev.spiffocode.sigesapi.common.infrastructure.config;
 
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.NotFoundException;
+import dev.spiffocode.sigesapi.reservations.domain.exception.ReservableNotAvailableForStudentsException;
+import dev.spiffocode.sigesapi.reservations.domain.exception.ReservationTooSoonException;
 import dev.spiffocode.sigesapi.users.domain.exception.InvalidRecoveryTokenException;
 import dev.spiffocode.sigesapi.users.domain.exception.RecoveryTokenExpiredException;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -64,4 +66,19 @@ public class SpecificControllerAdvice {
         return problem;
     }
 
+    @ExceptionHandler({ReservableNotAvailableForStudentsException.class, ReservationTooSoonException.class})
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+    public ProblemDetail handleUnprocessableContent(Exception e){
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, e.getMessage());
+        problem.setTitle("Business Rule violation");
+        return problem;
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleIllegalArgumentException(IllegalArgumentException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
+        problem.setTitle("Invalid request");
+        return problem;
+    }
 }

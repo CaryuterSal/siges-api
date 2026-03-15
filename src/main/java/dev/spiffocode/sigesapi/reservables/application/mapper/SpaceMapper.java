@@ -14,9 +14,6 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring", uses = { BuildingMapper.class, SpaceTypeMapper.class, AvailabilityMapper.class })
 public interface SpaceMapper {
 
-
-    //TODO: field delete
-    // @Mapping(target = "deletedAt", source = "deletedAt")
     @Mapping(target = "spaceType", source = "type")
     @Mapping(target = "bookInAdvanceDuration", source = "bookInAdvance")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")
@@ -25,6 +22,7 @@ public interface SpaceMapper {
 
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "equipments", ignore = true)
+    @Mapping(target = "reservations", ignore = true)
     @Mapping(target = "type", source = "spaceType")
     @Mapping(target = "name", source = "dto.name")
     @Mapping(target = "bookInAdvance", source = "dto.bookInAdvanceDuration")
@@ -40,6 +38,7 @@ public interface SpaceMapper {
 
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "equipments", ignore = true)
+    @Mapping(target = "reservations", ignore = true)
     @Mapping(target = "type", source = "type")
     @Mapping(target = "name", source = "dto.name")
     @Mapping(target = "bookInAdvance", source = "dto.bookInAdvanceDuration")

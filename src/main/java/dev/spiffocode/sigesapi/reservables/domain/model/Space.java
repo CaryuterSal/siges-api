@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
+import dev.spiffocode.sigesapi.reservations.domain.exception.ReservationTooSoonException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -8,7 +9,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 import org.hibernate.envers.Audited;
 
-import java.time.Duration;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,4 +46,14 @@ public class Space extends Reservable {
     )
     private List<Equipment> equipments = new ArrayList<>();
 
+    @Override
+    protected void assertSpecificCanDoReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime, Clock clock) {
+        LocalDateTime requestedDateTime = LocalDateTime.of(requestedDate, startTime);
+
+        Duration bookInAdvance = getBookInAdvance();
+        LocalDateTime minimumAllowedDateTime = LocalDateTime.now(clock).plus(bookInAdvance);
+
+        if (requestedDateTime.isBefore(minimumAllowedDateTime))
+            throw new ReservationTooSoonException(getId(), bookInAdvance);
+    }
 }

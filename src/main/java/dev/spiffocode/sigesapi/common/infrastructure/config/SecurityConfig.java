@@ -59,9 +59,12 @@ public class SecurityConfig {
                                 "/equipments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/buildings/**", "/spaces/**", "/spacetypes/**",
                                 "/equipments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/users/*").hasRole("APPLICANT")
-                        .requestMatchers(HttpMethod.PATCH, "/users/*").hasRole("APPLICANT")
+                        .requestMatchers(HttpMethod.GET, "/users/*").authenticated()
+                        .requestMatchers(HttpMethod.PATCH, "/users/*").authenticated()
+                        .requestMatchers("/users/{id}/push-tokens/**").authenticated()
                         .requestMatchers("/admins/**", "/institutional-staff/**", "/students/**", "/users/**").hasRole("ADMIN")
+                        .requestMatchers("/reservations/*/approve", "/reservations/*/reject", "/reservations/*/start", "/reservations/*/finish").hasRole("ADMIN")
+                        .requestMatchers("/reservations/*").hasRole("APPLICANT")
                         .requestMatchers("/password-recovery/**").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
@@ -97,7 +100,6 @@ public class SecurityConfig {
     public RoleHierarchy roleHierarchy() {
         return RoleHierarchyImpl
                 .withDefaultRolePrefix()
-                .role("ADMIN").implies("INSTITUTIONAL_STAFF", "STUDENT")
                 .role("INSTITUTIONAL_STAFF").implies("APPLICANT")
                 .role("STUDENT").implies("APPLICANT")
                 .build();

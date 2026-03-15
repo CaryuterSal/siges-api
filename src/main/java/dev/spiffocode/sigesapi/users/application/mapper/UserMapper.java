@@ -36,6 +36,8 @@ public interface UserMapper {
     @Mapping(target = "notifications", ignore = true)
     @Mapping(target = "tokens", ignore = true)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "notificationPreferences", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
