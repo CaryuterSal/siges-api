@@ -21,7 +21,10 @@ import java.util.List;
 @Setter
 @Builder
 @ToString
-@Table(name = "push_tokens")
+@Table(name = "push_tokens",
+    indexes = {
+            @Index(columnList = "device_id")
+    })
 @EntityListeners(AuditingEntityListener.class)
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @FilterDef(name = "softDeleteFilter", defaultCondition = "is_active = TRUE")

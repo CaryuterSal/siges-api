@@ -37,7 +37,7 @@ public class PushTokenServiceImpl implements PushTokenService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        PushToken token = pushTokenRepository.findById(request.token()).orElse(null);
+        PushToken token = pushTokenRepository.findByDeviceId(request.token()).orElse(null);
 
         boolean isNewDevice = token == null;
 
@@ -53,7 +53,7 @@ public class PushTokenServiceImpl implements PushTokenService {
                     .build());
         }
 
-        if (user instanceof Admin) {
+        if (user instanceof Admin && isNewDevice) {
             try {
                 PushToken finalToken = token;
                 Type.adminTopics()
@@ -77,10 +77,8 @@ public class PushTokenServiceImpl implements PushTokenService {
                     Type.adminTopics()
                             .forEach(type -> {
                                 fcm.unsubscribeFromTopicAsync(List.of(pushToken.getToken()), type.name());
-                                log.info("Token {} subscribed to admins topic", pushToken.getToken());
+                                log.info("Token {} unsubscribed to admins topic", pushToken.getToken());
                             });
-                    fcm.unsubscribeFromTopicAsync(List.of(tokenStr), "admins");
-                    log.info("Token {} unsubscribed from admins topic", tokenStr);
                 } catch (Exception e) {
                     log.warn("Failed to unsubscribe token from topic admins: {}", e.getMessage());
                 }

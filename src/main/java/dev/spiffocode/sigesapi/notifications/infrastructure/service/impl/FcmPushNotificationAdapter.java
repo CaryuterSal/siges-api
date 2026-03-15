@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,13 +43,39 @@ public class FcmPushNotificationAdapter implements PushNotificationPort {
                 .build();
 
         try {
-            fcm.sendEachForMulticast(message);
+            BatchResponse response = fcm.sendEachForMulticast(message);
+            log.info("Notification sent to user {}: {}/{} successful",
+                    userId, response.getSuccessCount(), tokens.size());
 
-            log.info("Notification sent to fcm tokens for user {} with tokens {}", userId, tokens);
-        } catch (FirebaseMessagingException ex){
+            if (response.getFailureCount() > 0) {
+                List<String> invalidTokens = extractInvalidTokens(response, tokens);
+
+                if (!invalidTokens.isEmpty()) {
+                    tokenRepository.deleteAllByTokenIn(invalidTokens);
+                    log.info("Deleted {} invalid tokens for user {}", invalidTokens.size(), userId);
+                }
+            }
+        } catch (FirebaseMessagingException ex) {
             log.warn("Failed User notification '{}' send", title);
             log.warn(ex.getMessage());
         }
+    }
+
+    private List<String> extractInvalidTokens(BatchResponse response, List<String> tokens) {
+        List<String> invalidTokens = new ArrayList<>();
+
+        List<SendResponse> responses = response.getResponses();
+        for (int i = 0; i < responses.size(); i++) {
+            SendResponse sendResponse = responses.get(i);
+            if (!sendResponse.isSuccessful()) {
+                MessagingErrorCode errorCode = sendResponse.getException().getMessagingErrorCode();
+                if (errorCode == MessagingErrorCode.UNREGISTERED
+                        || errorCode == MessagingErrorCode.INVALID_ARGUMENT) {
+                    invalidTokens.add(tokens.get(i));
+                }
+            }
+        }
+        return invalidTokens;
     }
 
     @Async
@@ -67,7 +94,7 @@ public class FcmPushNotificationAdapter implements PushNotificationPort {
         try {
             fcm.send(message);
             log.info("Notification '{}' sent to topic {}", title, topic);
-        } catch (FirebaseMessagingException ex){
+        } catch (FirebaseMessagingException ex) {
             log.warn("Failed Topic notification '{}' send", title);
             log.warn(ex.getMessage());
         }
