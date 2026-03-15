@@ -162,9 +162,9 @@ ALTER TABLE applicant_aud
     ADD CONSTRAINT FK_APPLICANT_AUD_ON_IDRE FOREIGN KEY (id, rev) REFERENCES app_users_aud (id, rev);
 
 ALTER TABLE equipments_aud
-    ADD CONSTRAINT FK_EQUIPMENTS_AUD_ON_IDRE FOREIGN KEY (id, rev, rev) REFERENCES reservables_aud (id, rev);
+    ADD CONSTRAINT FK_EQUIPMENTS_AUD_ON_IDRE FOREIGN KEY (id, rev) REFERENCES reservables_aud (id, rev);
 
-CREATE UNIQUE INDEX IX_pk_equipments_aud ON equipments_aud (id, rev, id, rev);
+CREATE UNIQUE INDEX IX_pk_equipments_aud ON equipments_aud (id, rev);
 
 ALTER TABLE notification_preferences_aud
     ADD CONSTRAINT FK_NOTIFICATION_PREFERENCES_AUD_ON_REV FOREIGN KEY (rev) REFERENCES custom_revision_entity (id);
@@ -176,9 +176,9 @@ ALTER TABLE reservations
     ADD CONSTRAINT FK_RESERVATIONS_ON_PETITIONER FOREIGN KEY (petitioner_id) REFERENCES app_users (id);
 
 ALTER TABLE spaces_aud
-    ADD CONSTRAINT FK_SPACES_AUD_ON_IDRE FOREIGN KEY (id, rev, rev) REFERENCES reservables_aud (id, rev);
+    ADD CONSTRAINT FK_SPACES_AUD_ON_IDRE FOREIGN KEY (id, rev) REFERENCES reservables_aud (id, rev);
 
-CREATE UNIQUE INDEX IX_pk_spaces_aud ON spaces_aud (id, rev, id, rev);
+CREATE UNIQUE INDEX IX_pk_spaces_aud ON spaces_aud (id, rev);
 
 ALTER TABLE notifications_sent_to_tokens_aud
     ADD CONSTRAINT fk_notifications_sent_to_tokens_aud_on_rev FOREIGN KEY (rev) REFERENCES custom_revision_entity (id);
@@ -209,13 +209,13 @@ ALTER TABLE spaces
     DROP COLUMN book_in_advance;
 
 ALTER TABLE spaces
-    ADD book_in_advance BIGINT NOT NULL;
+    ADD book_in_advance NUMERIC(21,0) NOT NULL default 86400000000000;
 
 ALTER TABLE spaces_aud
     DROP COLUMN book_in_advance;
 
 ALTER TABLE spaces_aud
-    ADD book_in_advance BIGINT;
+    ADD book_in_advance NUMERIC(21,0);
 
 ALTER TABLE availability_exceptions
     ALTER COLUMN date_to SET NOT NULL;
@@ -249,11 +249,3 @@ ALTER TABLE availability_exceptions
 
 ALTER TABLE reservables
     ALTER COLUMN updated_at SET NOT NULL;
-
-CREATE INDEX idx_0360ad0769f620bb404249512 ON app_users (phone_number);
-
-CREATE INDEX idx_27629ccf2080eea417f75bd2b ON app_users (email);
-
-CREATE INDEX idx_39c12c42cf2b13ee863d437cc ON student (registration_number);
-
-CREATE INDEX idx_baf3863df029d8f5b3e21d08a ON institutional_staff (employee_number);
