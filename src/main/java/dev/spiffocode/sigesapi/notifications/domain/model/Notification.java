@@ -12,7 +12,9 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -52,11 +54,13 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private ReadStatus readStatus = ReadStatus.UNREAD;
 
-    @ManyToOne(
-            optional = false,
-            cascade = {CascadeType.PERSIST, CascadeType.MERGE}
-    )
+    @ManyToOne(optional = false, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private User user;
+
+    @ElementCollection
+    @Builder.Default
+    @CollectionTable(name = "notifications_metadata")
+    private Map<String, String> metadata = new HashMap<>();
 
     @ManyToMany
     private List<PushToken> sentToTokens;

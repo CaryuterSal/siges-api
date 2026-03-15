@@ -8,19 +8,18 @@ import dev.spiffocode.sigesapi.notifications.domain.model.Notification;
 import dev.spiffocode.sigesapi.notifications.domain.model.ReadStatus;
 import dev.spiffocode.sigesapi.notifications.domain.model.Type;
 import dev.spiffocode.sigesapi.notifications.domain.repository.NotificationRepository;
-import dev.spiffocode.sigesapi.users.application.service.UserQueryService;
+import dev.spiffocode.sigesapi.reservations.domain.model.Status;
+import dev.spiffocode.sigesapi.users.application.service.UserManagementService;
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import dev.spiffocode.sigesapi.users.domain.repository.AdminRepository;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import dev.spiffocode.sigesapi.users.presentation.dto.NotificationPreferenceResponse;
-import dev.spiffocode.sigesapi.users.application.service.UserManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import org.springframework.scheduling.annotation.Async;
-import dev.spiffocode.sigesapi.reservations.domain.model.Status;
 
 @Slf4j
 @Service
@@ -77,6 +76,7 @@ public class NotificationsPortImpl implements NotificationsPort {
                     .title(notificationTitle)
                     .body(notificationMessage)
                     .readStatus(ReadStatus.UNREAD)
+                    .metadata(command.metadata() == null ? java.util.Collections.emptyMap() : command.metadata())
                     .build();
             notificationRepository.save(notification);
 

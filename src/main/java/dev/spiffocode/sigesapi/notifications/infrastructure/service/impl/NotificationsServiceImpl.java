@@ -31,7 +31,7 @@ public class NotificationsServiceImpl implements NotificationsService {
     @Transactional(readOnly = true)
     public Page<@NonNull NotificationResponse> listNotifications(Pageable pageable, NotificationFilter filter) {
         Long currentUserId = securityContextHelper.getCurrentUserId();
-        return notificationRepository.findAll(NotificationSpecifications.byFilter(filter), pageable)
+        return notificationRepository.findAll(NotificationSpecifications.byFilter(filter, currentUserId), pageable)
                 .map(notificationMapper::toDto);
     }
 

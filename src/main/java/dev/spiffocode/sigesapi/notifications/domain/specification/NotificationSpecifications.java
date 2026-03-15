@@ -9,10 +9,16 @@ import org.springframework.data.jpa.domain.Specification;
 
 public class NotificationSpecifications {
 
-    public static Specification<@NonNull Notification> byFilter(NotificationFilter filter) {
+    public static Specification<@NonNull Notification> byFilter(NotificationFilter filter, Long userId) {
         return Specification
                 .where(typeIn(filter.type()))
+                .and(forUser(userId))
                 .and(withStatus(filter.readStatus()));
+    }
+
+    public static Specification<@NonNull Notification> forUser(Long userId) {
+        return (root, query, cb) ->
+                cb.equal(root.get("user").get("id"), userId);
     }
 
     public static Specification<@NonNull Notification> typeIn(Type type) {
