@@ -33,4 +33,6 @@ public class Equipment extends Reservable {
     @NotBlank
     @Column(unique = true)
     private String inventoryNum;
+
+
 }

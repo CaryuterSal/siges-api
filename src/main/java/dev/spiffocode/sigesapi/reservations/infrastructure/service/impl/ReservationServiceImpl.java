@@ -7,12 +7,14 @@ import dev.spiffocode.sigesapi.notifications.domain.model.Type;
 import dev.spiffocode.sigesapi.reservables.domain.exception.ReservableNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.Reservable;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
-import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.domain.repository.ReservableRepository;
 import dev.spiffocode.sigesapi.reservations.application.mapper.NoteMapper;
 import dev.spiffocode.sigesapi.reservations.application.mapper.ReservationMapper;
 import dev.spiffocode.sigesapi.reservations.application.service.ReservationService;
-import dev.spiffocode.sigesapi.reservations.domain.exception.*;
+import dev.spiffocode.sigesapi.reservations.domain.exception.InvalidReservationStatusException;
+import dev.spiffocode.sigesapi.reservations.domain.exception.NoteNotFoundException;
+import dev.spiffocode.sigesapi.reservations.domain.exception.ReservationNotFoundException;
+import dev.spiffocode.sigesapi.reservations.domain.exception.ReservationOverlapException;
 import dev.spiffocode.sigesapi.reservations.domain.model.GroupingType;
 import dev.spiffocode.sigesapi.reservations.domain.model.Note;
 import dev.spiffocode.sigesapi.reservations.domain.model.Reservation;
@@ -22,6 +24,7 @@ import dev.spiffocode.sigesapi.reservations.domain.repository.ReservationReposit
 import dev.spiffocode.sigesapi.reservations.domain.specifications.ReservationSpecifications;
 import dev.spiffocode.sigesapi.reservations.presentation.*;
 import dev.spiffocode.sigesapi.users.domain.exception.UserNotFoundException;
+import dev.spiffocode.sigesapi.users.domain.model.Student;
 import dev.spiffocode.sigesapi.users.domain.model.User;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import lombok.NonNull;
@@ -32,7 +35,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.*;
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 
@@ -60,9 +65,10 @@ public class ReservationServiceImpl implements ReservationService {
                 Reservable reservable = findReservableOrThrow(request.reservableId());
                 User petitioner = findUserOrThrow(userId);
 
-                validateAdvanceTime(reservable, request.date(), request.startTime(), request.endTime());
-                validateStudentRestrictions(petitioner, reservable, request.companions());
-                validateNoOverlap(request.reservableId(), request.date(), request.startTime(), request.endTime(), null);
+                boolean petitionerIsStudent = petitioner.getClass().equals(Student.class);
+
+                reservable.assertCanDoReservation(request.date(), request.startTime(), request.endTime(), petitionerIsStudent, clock);
+                validateNoOverlap(request.reservableId(), request.date(), request.startTime(), request.endTime());
 
                 Reservation reservation = Reservation.builder()
                                 .petitioner(petitioner)
@@ -77,20 +83,21 @@ public class ReservationServiceImpl implements ReservationService {
                 notificationsPort.sendNotification(petitioner.getId(), SendNotificationCommand.builder()
                                 .type(Type.RESERVATION_CREATED)
                                 .entityId(saved.getId())
-                                .metadata(Map.of("reservationId", saved.getId().toString(), "reservableId",
-                                                reservable.getId().toString()))
+                                .metadata(Map.of(
+                                        "reservationId", saved.getId().toString(),
+                                        "reservableId", reservable.getId().toString()))
                                 .build());
                 notificationsPort.sendNotificationToAdmins(SendNotificationCommand.builder()
                                 .type(Type.RESERVATION_CREATED)
                                 .entityId(saved.getId())
-                                .metadata(Map.of("reservationId", saved.getId().toString(), "reservableId",
-                                                reservable.getId().toString()))
+                                .metadata(Map.of(
+                                        "reservationId", saved.getId().toString(),
+                                        "reservableId", reservable.getId().toString()))
                                 .build());
                 return reservationMapper.toDto(saved, List.of());
         }
 
         @Override
-        @Transactional
         public ReservationResponse rescheduleReservation(Long id, RescheduleReservationRequest request) {
                 Long userId = securityContextHelper.getCurrentUserId();
                 Reservation reservation = findReservationOrThrow(id);
@@ -98,8 +105,7 @@ public class ReservationServiceImpl implements ReservationService {
                 if (reservation.getStatus() != Status.PENDING && reservation.getStatus() != Status.APPROVED)
                         throw new InvalidReservationStatusException(reservation.getStatus(), Status.PENDING);
 
-                validateAdvanceTime(reservation.getReservable(), request.date(), request.startTime(),
-                                request.endTime());
+                reservation.getReservable().assertAvailabilityAllowsReservation(request.date(), request.startTime(), request.endTime());
                 validateNoOverlap(reservation.getReservable().getId(), request.date(),
                                 request.startTime(), request.endTime(), id);
 
@@ -127,7 +133,6 @@ public class ReservationServiceImpl implements ReservationService {
         // STATUS CHANGES
         // ─────────────────────────────────────────────
 
-        @Transactional
         @Override
         public ReservationResponse approveReservation(Long id) {
                 Reservation reservation = findReservationOrThrow(id);
@@ -144,7 +149,6 @@ public class ReservationServiceImpl implements ReservationService {
                 return toResponse(reservationRepository.save(reservation));
         }
 
-        @Transactional
         @Override
         public ReservationResponse rejectReservation(Long id, RejectReservationRequest request) {
                 Reservation reservation = findReservationOrThrow(id);
@@ -161,7 +165,6 @@ public class ReservationServiceImpl implements ReservationService {
                 return toResponse(reservationRepository.save(reservation));
         }
 
-        @Transactional
         @Override
         public ReservationResponse cancelReservation(Long id, CancelReservationRequest request) {
                 Long userId = securityContextHelper.getCurrentUserId();
@@ -195,19 +198,28 @@ public class ReservationServiceImpl implements ReservationService {
                 return toResponse(reservationRepository.save(reservation));
         }
 
-        @Transactional
+        @Override
+        public ReservationResponse startReservation(Long id) {
+            Reservation reservation = findReservationOrThrow(id);
+            reservation.start(clock);
+            reservation.getReservable().setStatus(ReservableStatus.LOANED);
+            reservableRepository.save(reservation.getReservable());
+            return toResponse(reservationRepository.save(reservation));
+        }
+
         @Override
         public ReservationResponse finishReservation(Long id) {
-                Reservation reservation = findReservationOrThrow(id);
-                reservation.finish(clock);
-                return toResponse(reservationRepository.save(reservation));
+            Reservation reservation = findReservationOrThrow(id);
+            reservation.finish(clock);
+            reservation.getReservable().setStatus(ReservableStatus.AVAILABLE);
+            reservableRepository.save(reservation.getReservable());
+            return toResponse(reservationRepository.save(reservation));
         }
 
         // ─────────────────────────────────────────────
         // NOTES
         // ─────────────────────────────────────────────
 
-        @Transactional
         @Override
         public ReservationResponse addNote(Long reservationId, PublishNoteRequest request) {
                 Reservation reservation = findReservationOrThrow(reservationId);
@@ -231,7 +243,6 @@ public class ReservationServiceImpl implements ReservationService {
                 return toResponse(reservationRepository.save(reservation));
         }
 
-        @Transactional
         @Override
         public NoteItem editNote(Long reservationId, Long noteId, EditNoteRequest request) {
                 Note note = noteRepository.findByIdAndReservationId(noteId, reservationId)
@@ -291,59 +302,18 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         private void validateNoOverlap(Long reservableId, LocalDate date,
-                        LocalTime start, LocalTime end, Long excludeId) {
-                boolean overlap = excludeId != null
-                                ? reservationRepository.existsOverlapExcluding(reservableId, date, start, end,
-                                                List.of(Status.PENDING, Status.APPROVED), excludeId)
-                                : reservationRepository.existsOverlap(reservableId, date, start, end,
+                        LocalTime start, LocalTime end) {
+                boolean overlap = reservationRepository.existsOverlap(reservableId, date, start, end,
                                                 List.of(Status.PENDING, Status.APPROVED));
 
-                if (overlap)
-                        throw new ReservationOverlapException(date, start, end);
+                if (overlap) throw new ReservationOverlapException(date, start, end);
         }
 
-        private void validateStudentRestrictions(User petitioner, Reservable reservable, Integer companions) {
-                boolean isStudent = securityContextHelper.isAdmin();
+        private void validateNoOverlap(Long reservableId, LocalDate date,
+                                       LocalTime start, LocalTime end, @NonNull Long excludeId) {
+            boolean overlap = reservationRepository.existsOverlapExcluding(reservableId, date, start, end,
+                    List.of(Status.PENDING, Status.APPROVED), excludeId);
 
-                if (isStudent && !reservable.isStudentsAvailable())
-                        throw new ReservableNotAvailableForStudentsException(reservable.getId());
-        }
-
-        private void validateAdvanceTime(Reservable reservable, LocalDate date, LocalTime startTime,
-                        LocalTime endTime) {
-                if (reservable.getStatus() != ReservableStatus.AVAILABLE)
-                        throw new ReservableNotAvailableException(reservable.getId());
-
-                if (reservable instanceof Space space) {
-                        Duration bookInAdvance = space.getBookInAdvance();
-                        LocalDateTime requestedDateTime = LocalDateTime.of(date, startTime);
-                        LocalDateTime minimumAllowedDateTime = LocalDateTime.now(clock).plus(bookInAdvance);
-
-                        if (requestedDateTime.isBefore(minimumAllowedDateTime))
-                                throw new ReservationTooSoonException(reservable.getId(), bookInAdvance);
-                }
-
-                DayOfWeek requestedDay = date.getDayOfWeek();
-                boolean withinSchedule = reservable.getAvailability().stream()
-                                .flatMap(slot -> slot.getMembers().stream())
-                                .filter(av -> av.getDayOfWeek() == requestedDay)
-                                .filter(av -> !date.isBefore(av.getDateFrom()))
-                                .filter(av -> av.getDateTo() == null || !date.isAfter(av.getDateTo()))
-                                .anyMatch(av -> !startTime.isBefore(av.getStartTime()) &&
-                                                !endTime.isAfter(av.getEndTime()));
-
-                if (!withinSchedule)
-                        throw new ReservableNotAvailableAtRequestedTimeException(reservable.getId(), date, startTime,
-                                        endTime);
-
-                boolean hasException = reservable.getAvailabilityExceptions().stream()
-                                .anyMatch(ex -> !date.isBefore(ex.getDateFrom()) &&
-                                                !date.isAfter(ex.getDateTo()) &&
-                                                !startTime.isBefore(ex.getStartTime()) &&
-                                                !endTime.isAfter(ex.getEndTime()));
-
-                if (hasException)
-                        throw new ReservableHasAvailabilityExceptionException(reservable.getId(), date, startTime,
-                                        endTime);
+            if (overlap) throw new ReservationOverlapException(date, start, end);
         }
 }

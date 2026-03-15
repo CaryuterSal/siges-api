@@ -12,6 +12,7 @@ public interface ReservationService {
     ReservationResponse approveReservation(Long id);
     ReservationResponse rejectReservation(Long id, RejectReservationRequest request);
     ReservationResponse cancelReservation(Long id, CancelReservationRequest request);
+    ReservationResponse startReservation(Long id);
     ReservationResponse finishReservation(Long id);
     ReservationResponse addNote(Long reservationId, PublishNoteRequest request);
     NoteItem editNote(Long reservationId, Long noteId, EditNoteRequest request);

@@ -1,6 +1,10 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
+import dev.spiffocode.sigesapi.reservations.domain.exception.ReservableHasAvailabilityExceptionException;
+import dev.spiffocode.sigesapi.reservations.domain.exception.ReservableNotAvailableException;
+import dev.spiffocode.sigesapi.reservations.domain.exception.ReservableNotAvailableForStudentsException;
 import dev.spiffocode.sigesapi.reservations.domain.model.Reservation;
+import dev.spiffocode.sigesapi.reservations.infrastructure.service.impl.ReservableNotAvailableAtRequestedTimeException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,7 +18,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,5 +117,47 @@ public abstract class Reservable {
 
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
+
+
+    public void assertCanDoReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime, boolean isStudent, Clock clock){
+        if (getStatus() != ReservableStatus.AVAILABLE)
+            throw new ReservableNotAvailableException(getId());
+        assertSpecificCanDoReservation(requestedDate, startTime, endTime, clock);
+        assertAvailabilityAllowsReservation(requestedDate, startTime, endTime);
+        assertUserHasPermission(isStudent);
+    }
+
+    public void assertAvailabilityAllowsReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime){
+        DayOfWeek requestedDay = requestedDate.getDayOfWeek();
+        boolean withinSchedule = getAvailability().stream()
+                .flatMap(slot -> slot.getMembers().stream())
+                .filter(av -> av.getDayOfWeek() == requestedDay)
+                .filter(av -> !requestedDate.isBefore(av.getDateFrom()))
+                .filter(av -> av.getDateTo() == null || !requestedDate.isAfter(av.getDateTo()))
+                .anyMatch(av -> !startTime.isBefore(av.getStartTime()) &&
+                        !endTime.isAfter(av.getEndTime()));
+
+        if (!withinSchedule)
+            throw new ReservableNotAvailableAtRequestedTimeException(getId(), requestedDate, startTime,
+                    endTime);
+
+        boolean hasException = getAvailabilityExceptions().stream()
+                .anyMatch(ex -> !requestedDate.isBefore(ex.getDateFrom()) &&
+                        !requestedDate.isAfter(ex.getDateTo()) &&
+                        !startTime.isBefore(ex.getStartTime()) &&
+                        !endTime.isAfter(ex.getEndTime()));
+
+        if (hasException)
+            throw new ReservableHasAvailabilityExceptionException(getId(), requestedDate, startTime,
+                    endTime);
+    }
+
+    private void assertUserHasPermission(boolean isStudent){
+        if (isStudent && !isStudentsAvailable())
+            throw new ReservableNotAvailableForStudentsException(getId());
+    }
+
+    protected  void assertSpecificCanDoReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime, Clock clock){
+    }
 
 }

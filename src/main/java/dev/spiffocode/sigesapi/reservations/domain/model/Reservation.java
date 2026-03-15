@@ -108,9 +108,17 @@ public class Reservation {
         addNote(reason);
     }
 
-    public void finish(Clock clock) {
+
+    public void start(Clock clock) {
         if (this.status != Status.APPROVED)
             throw new InvalidReservationStatusException(this.status, Status.APPROVED);
+        this.status = Status.IN_PROGRESS;
+        this.finishedAt = LocalDateTime.now(clock);
+    }
+
+    public void finish(Clock clock) {
+        if (this.status != Status.IN_PROGRESS)
+            throw new InvalidReservationStatusException(this.status, Status.IN_PROGRESS);
         this.status = Status.FINISHED;
         this.finishedAt = LocalDateTime.now(clock);
     }
