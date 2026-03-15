@@ -24,16 +24,9 @@ public class CalendarController {
     @GetMapping
     @Operation(summary = "Query availability of a reservable as available ranges given a date range")
     public List<DayAvailabilityItem> getCalendar(
-        @PathVariable
-        @Schema(description = "Equipment or space to which query the availability agenda")
-        Long reservableId,
-        @RequestParam
-        @Schema(description = "Date range lower limit")
-        LocalDate from,
-        @RequestParam
-        @Schema(description = "Date range upper limit")
-        LocalDate to
-    ) {
+            @PathVariable @Schema(description = "Equipment or space to which query the availability agenda") Long reservableId,
+            @RequestParam @Schema(description = "Date range lower limit") LocalDate from,
+            @RequestParam @Schema(description = "Date range upper limit") LocalDate to) {
         QueryAvailabilityFilter filter = QueryAvailabilityFilter.builder()
                 .dateFrom(from)
                 .dateTo(to)

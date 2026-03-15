@@ -5,9 +5,15 @@ import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.lang.ScopedValue;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface PushTokenRepository extends JpaRepository<@NonNull PushToken,@NonNull String> {
     List<PushToken> findByUserId(@NonNull Long userId);
+
+    Optional<PushToken> findByDeviceId(String deviceId);
+
+    void deleteAllByTokenIn(List<String> invalidTokens);
 }

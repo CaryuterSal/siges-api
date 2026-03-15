@@ -175,7 +175,7 @@ public class UserManagementController {
 
         @PostMapping("/users/{id}/push-tokens")
         @Operation(summary = "Register a new Push Token for the user.")
-        public ResponseEntity<Void> registerPushToken(
+        public ResponseEntity<@NonNull Void> registerPushToken(
                         @PathVariable Long id,
                         @RequestBody @Valid PushTokenRequest request) {
                 pushTokenService.registerToken(id, request);
@@ -184,7 +184,7 @@ public class UserManagementController {
 
         @DeleteMapping("/users/{id}/push-tokens/{token}")
         @Operation(summary = "Unregister an existing Push Token for the user.")
-        public ResponseEntity<Void> unregisterPushToken(
+        public ResponseEntity<@NonNull Void> unregisterPushToken(
                         @PathVariable Long id,
                         @PathVariable String token) {
                 pushTokenService.unregisterToken(id, token);

@@ -15,43 +15,41 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Repository
-public interface ReservationRepository extends JpaRepository<@NonNull Reservation, @NonNull Long>, JpaSpecificationExecutor<@NonNull Reservation> {
+public interface ReservationRepository
+        extends JpaRepository<@NonNull Reservation, @NonNull Long>, JpaSpecificationExecutor<@NonNull Reservation> {
 
     @Query("""
-        SELECT COUNT(r) > 0 FROM Reservation r
-        WHERE r.reservable = :reservableId
-        AND r.status IN :statuses
-        AND r.date = :date
-        AND r.startTime < :endTime
-        AND r.endTime > :startTime
-    """)
+                SELECT COUNT(r) > 0 FROM Reservation r
+                WHERE r.reservable = :reservableId
+                AND r.status IN :statuses
+                AND r.date = :date
+                AND r.startTime < :endTime
+                AND r.endTime > :startTime
+            """)
     boolean existsOverlap(
             @Param("reservableId") Long reservableId,
-            @Param("date")LocalDate date,
-            @Param("startTime")LocalTime startTime,
-            @Param("endTime")LocalTime endTime,
-            @Param("statuses") List<Status> statuses
-    );
+            @Param("date") LocalDate date,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime,
+            @Param("statuses") List<Status> statuses);
 
     @Query("""
-        SELECT COUNT(r) > 0 FROM Reservation r
-        WHERE r.reservable = :reservableId
-        AND r.status IN :statuses
-        AND r.date = :date
-        AND r.startTime < :endTime
-        AND r.endTime > :startTime
-        AND r.id <> :id
-    """)
+                SELECT COUNT(r) > 0 FROM Reservation r
+                WHERE r.reservable = :reservableId
+                AND r.status IN :statuses
+                AND r.date = :date
+                AND r.startTime < :endTime
+                AND r.endTime > :startTime
+                AND r.id <> :id
+            """)
     boolean existsOverlapExcluding(
             @Param("reservableId") Long reservableId,
-            @Param("date")LocalDate date,
-            @Param("startTime")LocalTime startTime,
-            @Param("endTime")LocalTime endTime,
+            @Param("date") LocalDate date,
+            @Param("startTime") LocalTime startTime,
+            @Param("endTime") LocalTime endTime,
             @Param("statuses") List<Status> statuses,
-            @Param("id") Long id
-    );
+            @Param("id") Long id);
 
-    List<Reservation> findByReservableAndDateRangeAndStatusIn(
-            Reservable reservable, LocalDate from, LocalDate to, List<Status> statuses
-    );
+    List<Reservation> findByReservableAndDateBetweenAndStatusIn(
+            Reservable reservable, LocalDate from, LocalDate to, List<Status> statuses);
 }
