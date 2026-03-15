@@ -4,6 +4,9 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.mailsender.application.service.UserManagementEmailPort;
+import dev.spiffocode.sigesapi.notifications.application.service.NotificationsPort;
+import dev.spiffocode.sigesapi.notifications.application.service.SendNotificationCommand;
+import dev.spiffocode.sigesapi.notifications.domain.model.Type;
 import dev.spiffocode.sigesapi.users.application.service.PasswordRecoveryService;
 import dev.spiffocode.sigesapi.users.domain.exception.InvalidRecoveryTokenException;
 import dev.spiffocode.sigesapi.users.domain.exception.RecoveryTokenExpiredException;
@@ -25,6 +28,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -38,6 +42,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     private final JwtService jwtService;
     private final RecoveryProperties recoveryProperties;
     private final UserManagementEmailPort emailPort;
+    private final NotificationsPort notificationsPort;
     private final Clock clock;
 
     @Async
@@ -48,7 +53,8 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
             recoveryTokenRepository.deleteByUserAndUsedFalse(user);
 
             String jti = UUID.randomUUID().toString();
-            String token = jwtService.generateRecoveryToken(jti, user.getEmail(), recoveryProperties.getTokenExpiration());
+            String token = jwtService.generateRecoveryToken(jti, user.getEmail(),
+                    recoveryProperties.getTokenExpiration());
 
             recoveryTokenRepository.save(PasswordRecoveryToken.builder()
                     .jti(jti)
@@ -66,8 +72,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                     user.getEmail(),
                     user.fullName(),
                     token,
-                    recoveryUrl
-            );
+                    recoveryUrl);
         });
     }
 

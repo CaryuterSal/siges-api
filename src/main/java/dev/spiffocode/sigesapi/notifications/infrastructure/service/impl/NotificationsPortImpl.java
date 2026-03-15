@@ -10,6 +10,7 @@ import dev.spiffocode.sigesapi.notifications.domain.model.Type;
 import dev.spiffocode.sigesapi.notifications.domain.repository.NotificationRepository;
 import dev.spiffocode.sigesapi.users.application.service.UserQueryService;
 import dev.spiffocode.sigesapi.users.domain.model.User;
+import dev.spiffocode.sigesapi.users.domain.repository.AdminRepository;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import dev.spiffocode.sigesapi.users.presentation.dto.NotificationPreferenceResponse;
 import dev.spiffocode.sigesapi.users.application.service.UserManagementService;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import org.springframework.scheduling.annotation.Async;
+import dev.spiffocode.sigesapi.reservations.domain.model.Status;
 
 @Slf4j
 @Service
@@ -26,6 +28,7 @@ import org.springframework.scheduling.annotation.Async;
 public class NotificationsPortImpl implements NotificationsPort {
 
     private final UserRepository userRepository;
+    private final AdminRepository adminRepository;
     private final NotificationRepository notificationRepository;
     private final UserManagementService userManagementService;
     private final ReservationsEmailPort reservationsEmailPort;
@@ -34,6 +37,10 @@ public class NotificationsPortImpl implements NotificationsPort {
     @Async
     @Override
     public void sendNotification(long userId, SendNotificationCommand command) {
+        sendNotificationInternal(userId, command, false);
+    }
+
+    private void sendNotificationInternal(long userId, SendNotificationCommand command, boolean skipPush) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             log.warn("Cannot send notification. User with id {} not found", userId);
@@ -73,7 +80,13 @@ public class NotificationsPortImpl implements NotificationsPort {
                     .build();
             notificationRepository.save(notification);
 
-            pushNotificationPort.sendPushNotification(userId, notificationTitle, notificationMessage);
+            if (!skipPush) {
+                pushNotificationPort.sendPushNotification(
+                        userId,
+                        notificationTitle,
+                        notificationMessage,
+                        command.metadata() == null ? java.util.Collections.emptyMap() : command.metadata());
+            }
         }
 
         if (sendEmail) {
@@ -87,11 +100,11 @@ public class NotificationsPortImpl implements NotificationsPort {
                         break;
                     case RESERVATION_APPROVED:
                         reservationsEmailPort.sendReservationResolutionEmail(email,
-                                dev.spiffocode.sigesapi.reservations.domain.model.Status.APPROVED, reservationId);
+                                Status.APPROVED, reservationId);
                         break;
                     case RESERVATION_REJECTED:
                         reservationsEmailPort.sendReservationResolutionEmail(email,
-                                dev.spiffocode.sigesapi.reservations.domain.model.Status.REJECTED, reservationId);
+                                Status.REJECTED, reservationId);
                         break;
                     case RESERVATION_CANCELLED:
                         reservationsEmailPort.sendReservationCancelledEmail(email, reservationId);
@@ -112,9 +125,22 @@ public class NotificationsPortImpl implements NotificationsPort {
     @Async
     @Override
     public void sendNotificationToAdmins(SendNotificationCommand command) {
-        List<User> admins = userRepository.findAdmins();
+        var admins = adminRepository.findAll();
         for (User admin : admins) {
-            sendNotification(admin.getId(), command);
+            sendNotificationInternal(admin.getId(), command, true);
         }
+
+        String topicName = Type.adminTopics().stream()
+                .filter(type -> type.name().equals(command.type().name()))
+                .findFirst().orElse(command.type()).name();
+
+        String title = command.title() != null ? command.title() : command.type().getDefaultTitle();
+        String message = command.message() != null ? command.message() : command.type().getDefaultMessage();
+
+        pushNotificationPort.sendPushNotificationToTopic(
+                topicName,
+                title,
+                message,
+                command.metadata() == null ? java.util.Collections.emptyMap() : command.metadata());
     }
 }

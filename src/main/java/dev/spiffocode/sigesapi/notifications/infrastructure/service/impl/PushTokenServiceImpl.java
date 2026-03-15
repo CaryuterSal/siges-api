@@ -2,7 +2,9 @@ package dev.spiffocode.sigesapi.notifications.infrastructure.service.impl;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import dev.spiffocode.sigesapi.notifications.application.mapper.PushTokenMapper;
+import dev.spiffocode.sigesapi.notifications.application.service.NotificationsPort;
 import dev.spiffocode.sigesapi.notifications.application.service.PushTokenService;
+import dev.spiffocode.sigesapi.notifications.application.service.SendNotificationCommand;
 import dev.spiffocode.sigesapi.notifications.domain.model.PushToken;
 import dev.spiffocode.sigesapi.notifications.domain.model.Type;
 import dev.spiffocode.sigesapi.notifications.domain.repository.PushTokenRepository;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -26,6 +29,7 @@ public class PushTokenServiceImpl implements PushTokenService {
     private final UserRepository userRepository;
     private final PushTokenMapper mapper;
     private final FirebaseMessaging fcm;
+    private final NotificationsPort notificationsPort;
 
     @Override
     @Transactional
@@ -35,18 +39,28 @@ public class PushTokenServiceImpl implements PushTokenService {
 
         PushToken token = pushTokenRepository.findById(request.token()).orElse(null);
 
-        token = token == null ? mapper.toEntity(request, user) :  mapper.updateEntity(request, user, token);
+        boolean isNewDevice = token == null;
+
+        token = token == null ? mapper.toEntity(request, user) : mapper.updateEntity(request, user, token);
 
         token = pushTokenRepository.save(token);
+
+        if (isNewDevice) {
+            notificationsPort.sendNotification(user.getId(), SendNotificationCommand.builder()
+                    .type(Type.LOGIN_NEW_DEVICE)
+                    .entityId(user.getId())
+                    .metadata(Map.of("platform", request.platform() != null ? request.platform().name() : "UNKNOWN"))
+                    .build());
+        }
 
         if (user instanceof Admin) {
             try {
                 PushToken finalToken = token;
                 Type.adminTopics()
-                    .forEach(type -> {
-                        fcm.subscribeToTopicAsync(List.of(finalToken.getToken()), type.name());
-                        log.info("Token {} subscribed to admins topic", finalToken.getToken());
-                    });
+                        .forEach(type -> {
+                            fcm.subscribeToTopicAsync(List.of(finalToken.getToken()), type.name());
+                            log.info("Token {} subscribed to admins topic", finalToken.getToken());
+                        });
             } catch (Exception e) {
                 log.warn("Failed to subscribe token to topic admins: {}", e.getMessage());
             }

@@ -75,12 +75,14 @@ public interface AvailabilityMapper {
     }
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "reservable", ignore = true)
     AvailabilityException toEntity(AvailabilityExceptionRegisterDto dto);
 
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "reservable", ignore = true)
     AvailabilityException updateEntity(@MappingTarget AvailabilityException entity,  AvailabilityExceptionRegisterDto dto);

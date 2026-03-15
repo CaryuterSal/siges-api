@@ -15,6 +15,7 @@ public interface InstitutionalStaffMapper {
 
     @Mapping(target = "tokenVersion", constant = "0")
     @Mapping(target = "phoneNumber", ignore = true)
+    @Mapping(target = "notificationPreferences", ignore = true)
     @Mapping(target = "password", source = "rawPassword")
     @Mapping(target = "lastLogin", ignore = true)
     @Mapping(target = "notifications", ignore = true)

@@ -6,19 +6,25 @@ import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.ReservableDto;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring", uses = { SpaceMapper.class, EquipmentMapper.class })
-public interface ReservableMapper {
+import org.springframework.beans.factory.annotation.Autowired;
 
-    default ReservableDto toDto(Reservable reservable) {
+@Mapper(componentModel = "spring", uses = { SpaceMapper.class, EquipmentMapper.class })
+public abstract class ReservableMapper {
+
+    @Autowired
+    protected SpaceMapper spaceMapper;
+
+    @Autowired
+    protected EquipmentMapper equipmentMapper;
+
+    public ReservableDto toDto(Reservable reservable) {
+        if (reservable == null)
+            return null;
         return switch (reservable) {
-            case Space space         -> spaceMapper().toDto(space);
-            case Equipment equipment -> equipmentMapper().toDto(equipment);
+            case Space space -> spaceMapper.toDto(space);
+            case Equipment equipment -> equipmentMapper.toDto(equipment);
             default -> throw new IllegalArgumentException(
-                "Unknown Reservable type: " + reservable.getClass().getSimpleName()
-            );
+                    "Unknown Reservable type: " + reservable.getClass().getSimpleName());
         };
     }
-
-    SpaceMapper spaceMapper();
-    EquipmentMapper equipmentMapper();
 }
