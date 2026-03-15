@@ -21,7 +21,10 @@ public class FirebaseConfig {
 
     @Bean
     public FirebaseApp firebaseApp(FirebaseOptions firebaseOptions) {
-        return FirebaseApp.initializeApp(firebaseOptions);
+        if(FirebaseApp.getApps().isEmpty()) {
+            return FirebaseApp.initializeApp(firebaseOptions);
+        }
+        return FirebaseApp.getInstance();
     }
 
     @Bean

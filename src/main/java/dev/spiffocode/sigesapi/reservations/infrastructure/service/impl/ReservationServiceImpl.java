@@ -15,7 +15,6 @@ import dev.spiffocode.sigesapi.reservations.domain.exception.InvalidReservationS
 import dev.spiffocode.sigesapi.reservations.domain.exception.NoteNotFoundException;
 import dev.spiffocode.sigesapi.reservations.domain.exception.ReservationNotFoundException;
 import dev.spiffocode.sigesapi.reservations.domain.exception.ReservationOverlapException;
-import dev.spiffocode.sigesapi.reservations.domain.model.GroupingType;
 import dev.spiffocode.sigesapi.reservations.domain.model.Note;
 import dev.spiffocode.sigesapi.reservations.domain.model.Reservation;
 import dev.spiffocode.sigesapi.reservations.domain.model.Status;
@@ -32,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,16 +68,9 @@ public class ReservationServiceImpl implements ReservationService {
                 boolean petitionerIsStudent = petitioner.getClass().equals(Student.class);
 
                 reservable.assertCanDoReservation(request.date(), request.startTime(), request.endTime(), petitionerIsStudent, clock);
-                validateNoOverlap(request.reservableId(), request.date(), request.startTime(), request.endTime());
+                validateNoOverlap(reservable, request.date(), request.startTime(), request.endTime());
 
-                Reservation reservation = Reservation.builder()
-                                .petitioner(petitioner)
-                                .reservable(reservable)
-                                .date(request.date())
-                                .startTime(request.startTime())
-                                .endTime(request.endTime())
-                                .companions(request.type() == GroupingType.GROUP ? request.companions() : null)
-                                .build();
+                Reservation reservation = reservationMapper.toEntity(request, petitioner, reservable);
 
                 Reservation saved = reservationRepository.save(reservation);
                 notificationsPort.sendNotification(petitioner.getId(), SendNotificationCommand.builder()
@@ -106,7 +99,7 @@ public class ReservationServiceImpl implements ReservationService {
                         throw new InvalidReservationStatusException(reservation.getStatus(), Status.PENDING);
 
                 reservation.getReservable().assertAvailabilityAllowsReservation(request.date(), request.startTime(), request.endTime());
-                validateNoOverlap(reservation.getReservable().getId(), request.date(),
+                validateNoOverlap(reservation.getReservable(), request.date(),
                                 request.startTime(), request.endTime(), id);
 
                 reservation.reschedule(request.date(), request.startTime(), request.endTime(), clock);
@@ -259,6 +252,7 @@ public class ReservationServiceImpl implements ReservationService {
                                 findUserOrThrow(securityContextHelper.getCurrentUserId()));
         }
 
+        @PostAuthorize("hasRole('ADMIN') or @securityContextHelper.isCurrentUser(returnObject.petitioner.id)")
         @Transactional(readOnly = true)
         @Override
         public ReservationResponse getReservation(Long id) {
@@ -269,7 +263,7 @@ public class ReservationServiceImpl implements ReservationService {
         @Override
         public Page<@NonNull ReservationResponse> getReservations(ReservationFilterRequest filter, Pageable pageable) {
                 return reservationRepository
-                                .findAll(ReservationSpecifications.specificationFromFilter(filter), pageable)
+                                .findAll(ReservationSpecifications.specificationFromFilter(filter, securityContextHelper.getCurrentUserId(), securityContextHelper.isApplicant()), pageable)
                                 .map(this::toResponse);
         }
 
@@ -301,17 +295,17 @@ public class ReservationServiceImpl implements ReservationService {
                 return reservationMapper.toDto(reservation, notes);
         }
 
-        private void validateNoOverlap(Long reservableId, LocalDate date,
+        private void validateNoOverlap(Reservable reservable, LocalDate date,
                         LocalTime start, LocalTime end) {
-                boolean overlap = reservationRepository.existsOverlap(reservableId, date, start, end,
+                boolean overlap = reservationRepository.existsOverlap(reservable, date, start, end,
                                                 List.of(Status.PENDING, Status.APPROVED));
 
                 if (overlap) throw new ReservationOverlapException(date, start, end);
         }
 
-        private void validateNoOverlap(Long reservableId, LocalDate date,
+        private void validateNoOverlap(Reservable reservable, LocalDate date,
                                        LocalTime start, LocalTime end, @NonNull Long excludeId) {
-            boolean overlap = reservationRepository.existsOverlapExcluding(reservableId, date, start, end,
+            boolean overlap = reservationRepository.existsOverlapExcluding(reservable, date, start, end,
                     List.of(Status.PENDING, Status.APPROVED), excludeId);
 
             if (overlap) throw new ReservationOverlapException(date, start, end);

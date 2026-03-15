@@ -1,0 +1,1 @@
+CREATE INDEX idx_0f0cfd21d3873c22b720ad8f0 ON push_tokens (device_id);

@@ -10,7 +10,7 @@ import org.springframework.data.jpa.domain.Specification;
 import java.time.LocalDate;
 
 public class ReservationSpecifications {
-    public static Specification<@NonNull Reservation> specificationFromFilter(ReservationFilterRequest filter) {
+    public static Specification<@NonNull Reservation> specificationFromFilter(ReservationFilterRequest filter, Long userId, boolean isApplicant) {
         return Specification
                 .where(byPetitionerId(filter.petitionerId()))
                 .and(byPetitionerName(filter.petitionerName()))
@@ -19,7 +19,13 @@ public class ReservationSpecifications {
                 .and(byDateTo(filter.dateTo()))
                 .and(byStatus(filter.status()))
                 .and(byReservableId(filter.reservableId()))
-                .and(byType(filter.type()));
+                .and(byType(filter.type()))
+                .and(filterOutIfApplicant(userId, isApplicant));
+    }
+
+    private static Specification<@NonNull Reservation> filterOutIfApplicant(Long userId, boolean isApplicant) {
+        return (root, query, cb) -> isApplicant ?
+                cb.equal(root.get("petitioner").get("id"), userId) : null;
     }
 
     private static Specification<@NonNull Reservation> byPetitionerId(Long id) {

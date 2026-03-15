@@ -11,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.FilterDef;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -102,6 +103,7 @@ public abstract class User implements CustomUserDetails {
     private LocalDateTime deletedAt;
 
     @Builder.Default
+    @NotAudited
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Notification> notifications = new ArrayList<>();
 
@@ -110,6 +112,7 @@ public abstract class User implements CustomUserDetails {
     private List<NotificationPreference> notificationPreferences = new ArrayList<>();
 
     @Builder.Default
+    @NotAudited
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<PushToken> tokens = new ArrayList<>();
 

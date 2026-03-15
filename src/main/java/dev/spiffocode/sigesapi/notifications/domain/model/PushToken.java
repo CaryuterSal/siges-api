@@ -27,8 +27,8 @@ import java.util.List;
     })
 @EntityListeners(AuditingEntityListener.class)
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-@FilterDef(name = "softDeleteFilter", defaultCondition = "is_active = TRUE")
-@Filter(name = "softDeleteFilter")
+@FilterDef(name = "softDeleteFilter")
+@Filter(name = "softDeleteFilter", condition = "is_active = TRUE")
 @Entity
 public class PushToken {
 
