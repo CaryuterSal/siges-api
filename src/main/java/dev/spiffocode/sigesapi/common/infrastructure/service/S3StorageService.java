@@ -46,7 +46,7 @@ public class S3StorageService implements StorageService {
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
             return buildUrl(key);
-        } catch (IOException e) {
+        } catch (S3Exception | IOException e) {
             log.error("Failed to upload file to S3", e);
             throw new StorageException("Failed to upload file", e);
         }
@@ -64,7 +64,12 @@ public class S3StorageService implements StorageService {
                 .contentType(contentType)
                 .build();
 
-        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file));
+        try {
+            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file));
+        } catch (S3Exception e) {
+            log.error("Failed to upload file to S3", e);
+            throw new StorageException("Failed to upload file", e);
+        }
 
         return buildUrl(key);
     }

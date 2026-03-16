@@ -47,6 +47,7 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.6.3'
     implementation 'com.googlecode.libphonenumber:libphonenumber:9.0.25'
     implementation 'org.apache.commons:commons-text:1.15.0'
+    implementation 'org.apache.commons:commons-text:1.15.0'
     implementation("org.apache.commons:commons-rng-simple:1.6")
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
@@ -73,6 +74,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'com.redis:testcontainers-redis'
+    testImplementation 'org.testcontainers:testcontainers-localstack:2.0.1'
     implementation 'org.postgresql:postgresql'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

@@ -61,7 +61,7 @@ public class SecurityConfig {
                                 "/equipments/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/*").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/users/*").authenticated()
-                        .requestMatchers("/users/{id}/push-tokens/**").authenticated()
+                        .requestMatchers("/users/me/**").authenticated()
                         .requestMatchers("/admins/**", "/institutional-staff/**", "/students/**", "/users/**").hasRole("ADMIN")
                         .requestMatchers("/reservations/*/approve", "/reservations/*/reject", "/reservations/*/start", "/reservations/*/finish").hasRole("ADMIN")
                         .requestMatchers("/reservations/*").hasRole("APPLICANT")

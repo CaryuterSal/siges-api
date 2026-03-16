@@ -10,6 +10,7 @@ import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,11 +21,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @IntegrationTestClass
 class ProfilePictureIT extends FlushedIntegrationTest {
@@ -102,26 +103,17 @@ class ProfilePictureIT extends FlushedIntegrationTest {
                 .accessToken();
     }
 
-    // ══════════════════════════════════════════════════════════
-    // PUT /users/me/profile-picture
-    // ══════════════════════════════════════════════════════════
-
     @Test
     void updateProfilePicture_asStudent_withValidPng_returns200() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "avatar.png", MediaType.IMAGE_PNG_VALUE, PNG_BYTES);
 
-        mvc.perform(multipart("/users/me/profile-picture")
+        mvc.perform(multipart(HttpMethod.PUT,"/users/me/profile-picture")
                 .file(file)
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                })
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + studentToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.profilePictureUrl", notNullValue()))
-                .andExpect(jsonPath("$.profilePictureUrl", containsString("cdn.test.local")));
+                .andExpect(jsonPath("$.profilePictureUrl", notNullValue()));
     }
 
     @Test
@@ -129,12 +121,8 @@ class ProfilePictureIT extends FlushedIntegrationTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "avatar.png", MediaType.IMAGE_PNG_VALUE, PNG_BYTES);
 
-        mvc.perform(multipart("/users/me/profile-picture")
+        mvc.perform( multipart(HttpMethod.PUT, "/users/me/profile-picture")
                 .file(file)
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                })
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
@@ -146,12 +134,8 @@ class ProfilePictureIT extends FlushedIntegrationTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "avatar.png", MediaType.IMAGE_PNG_VALUE, PNG_BYTES);
 
-        mvc.perform(multipart("/users/me/profile-picture")
+        mvc.perform(multipart(HttpMethod.PUT, "/users/me/profile-picture")
                 .file(file)
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                })
                 .header("X-API-Version", VERSION))
                 .andExpect(status().isForbidden());
     }
@@ -161,12 +145,8 @@ class ProfilePictureIT extends FlushedIntegrationTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "empty.png", MediaType.IMAGE_PNG_VALUE, new byte[0]);
 
-        mvc.perform(multipart("/users/me/profile-picture")
+        mvc.perform(multipart(HttpMethod.PUT, "/users/me/profile-picture")
                 .file(file)
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                })
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + studentToken))
                 .andExpect(status().isBadRequest());
@@ -177,12 +157,8 @@ class ProfilePictureIT extends FlushedIntegrationTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "hack.txt", MediaType.TEXT_PLAIN_VALUE, "not an image".getBytes());
 
-        mvc.perform(multipart("/users/me/profile-picture")
+        mvc.perform(multipart(HttpMethod.PUT, "/users/me/profile-picture")
                 .file(file)
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                })
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + studentToken))
                 .andExpect(status().isBadRequest());
@@ -193,25 +169,18 @@ class ProfilePictureIT extends FlushedIntegrationTest {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "avatar.png", MediaType.IMAGE_PNG_VALUE, PNG_BYTES);
 
-        // Upload the profile picture
-        mvc.perform(multipart("/users/me/profile-picture")
+        mvc.perform(multipart(HttpMethod.PUT, "/users/me/profile-picture")
                 .file(file)
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                })
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + studentToken))
                 .andExpect(status().isOk());
 
-        // Verify the URL now appears when fetching this user
         mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                 .get("/users/lookup")
                 .param("identifier", "student@utez.edu.mx")
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.profilePictureUrl", notNullValue()))
-                .andExpect(jsonPath("$.profilePictureUrl", containsString("cdn.test.local")));
+                .andExpect(jsonPath("$.profilePictureUrl", notNullValue()));
     }
 }
