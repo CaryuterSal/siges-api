@@ -53,6 +53,23 @@ public class S3StorageService implements StorageService {
     }
 
     @Override
+    public String uploadFile(byte[] file, String filename, String path) throws StorageException {
+        String contentType = detectAndValidate(file, file.length);
+
+        String key = path + "/" + UUID.randomUUID() + extensionFromType(contentType);
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(s3Properties.getBucketName())
+                .key(key)
+                .contentType(contentType)
+                .build();
+
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file));
+
+        return buildUrl(key);
+    }
+
+    @Override
     public void deleteFile(String fileUrl) {
         if (fileUrl == null || fileUrl.isBlank()) return;
 
