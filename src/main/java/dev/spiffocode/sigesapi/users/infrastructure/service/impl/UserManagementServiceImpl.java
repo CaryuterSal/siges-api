@@ -19,11 +19,14 @@ import dev.spiffocode.sigesapi.users.domain.repository.InstitutionalStaffReposit
 import dev.spiffocode.sigesapi.users.domain.repository.StudentRepository;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import dev.spiffocode.sigesapi.users.presentation.dto.*;
+import dev.spiffocode.sigesapi.common.infrastructure.service.StorageService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserRepository userRepository;
@@ -53,6 +57,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     private final InstitutionalStaffUniquenessValidator institutionalStaffUniquenessValidator;
 
     private final SecurityContextHelper securityContextHelper;
+    private final StorageService storageService;
 
     @Override
     public UserResponse updateCommonInfo(Long id, UserInfoUpdateRequest request) {
@@ -71,6 +76,31 @@ public class UserManagementServiceImpl implements UserManagementService {
         user.changePhoneNumber(normalizedPhoneNumber, updateTokenVersion);
         userRepository.save(user);
         return userMapper.toResponse(user);
+    }
+
+    @Override
+    public String updateProfilePicture(Long id, MultipartFile file) {
+        if (!securityContextHelper.isCurrentUser(id)) {
+            throw new AccessDeniedException("You can only update your own profile picture");
+        }
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+
+        String oldUrl = user.getProfilePictureUrl();
+        if (oldUrl != null && !oldUrl.isBlank()) {
+            try {
+                storageService.deleteFile(oldUrl);
+            } catch (Exception e) {
+                log.warn("Could not delete old profile picture", e);
+            }
+        }
+
+        String newUrl = storageService.uploadFile( file, "avatars");
+        user.setProfilePictureUrl(newUrl);
+        userRepository.save(user);
+
+        return newUrl;
     }
 
     @Override

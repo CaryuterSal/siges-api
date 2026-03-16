@@ -24,4 +24,5 @@ public sealed class UserResponse permits AdminResponse, ApplicantResponse {
     LocalDateTime deletedAt;
     String role;
     Boolean enabled;
+    String profilePictureUrl;
 }

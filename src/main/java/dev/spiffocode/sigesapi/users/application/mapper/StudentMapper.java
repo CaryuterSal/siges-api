@@ -24,6 +24,7 @@ public interface StudentMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "profilePictureUrl", ignore = true)
     Student toEntity(StudentRegistrationRequest adminRegistrationRequest, String rawPassword);
 
 }

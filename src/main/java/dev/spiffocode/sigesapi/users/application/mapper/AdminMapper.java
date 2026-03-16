@@ -24,5 +24,6 @@ public interface AdminMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "profilePictureUrl", ignore = true)
     Admin toEntity(AdminRegistrationRequest adminRegistrationRequest, String rawPassword);
 }
