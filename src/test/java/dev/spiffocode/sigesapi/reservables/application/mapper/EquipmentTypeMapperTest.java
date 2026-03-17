@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @UnitTestClass
 public class EquipmentTypeMapperTest {
 
-    private final EquipmentTypeMapper mapper = new EquipmentTypeMapperImpl();
+    private final EquipmentTypeMapper mapper = new dev.spiffocode.sigesapi.reservables.application.mapper.EquipmentTypeMapperImpl();
 
     @Test
     void register_dto_to_entity() {

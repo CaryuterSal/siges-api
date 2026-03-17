@@ -19,12 +19,12 @@ public class SpaceTypeSpecifications {
 
     public static Specification<@NonNull SpaceType> nameContains(String query){
         return (root, q, cb) ->
-            cb.like(cb.lower(root.get("name")), "%"+query.toLowerCase()+"%");
+                query == null || query.isBlank() ? null : cb.like(cb.lower(root.get("name")), "%"+query.toLowerCase()+"%");
     }
 
     public static Specification<@NonNull SpaceType> descriptionContains(String query){
         return (root, q, cb) ->
-                cb.like(cb.lower(root.get("description")), "%"+query.toLowerCase()+"%");
+                query == null || query.isBlank() ? null : cb.like(cb.lower(root.get("description")), "%"+query.toLowerCase()+"%");
     }
 
 

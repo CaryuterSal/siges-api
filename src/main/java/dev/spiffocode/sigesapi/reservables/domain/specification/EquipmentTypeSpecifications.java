@@ -20,12 +20,12 @@ public class EquipmentTypeSpecifications {
 
     public static Specification<@NonNull EquipmentType> nameContains(String query){
         return (root, q, cb) ->
-                cb.like(cb.lower(root.get("name")), "%"+query.toLowerCase()+"%");
+                query == null || query.isBlank() ? null : cb.like(cb.lower(root.get("name")), "%"+query.toLowerCase()+"%");
     }
 
     public static Specification<@NonNull EquipmentType> descriptionContains(String query){
         return (root, q, cb) ->
-                cb.like(cb.lower(root.get("description")), "%"+query.toLowerCase()+"%");
+                query == null || query.isBlank() ? null : cb.like(cb.lower(root.get("description")), "%"+query.toLowerCase()+"%");
     }
 
 
