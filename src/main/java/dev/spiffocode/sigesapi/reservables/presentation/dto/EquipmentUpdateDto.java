@@ -10,7 +10,6 @@ import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
-
 @SuperBuilder(toBuilder = true)
 @Jacksonized
 @ToString(callSuper = true)
@@ -26,4 +25,8 @@ public class EquipmentUpdateDto extends ReservableUpdateDto {
     @Schema(description = "ID of the optional space to which the equipment is related. For example, a projector can be related to a classroom.")
     @Positive
     Long spaceId;
+
+    @Schema(description = "ID of the equipment type to which the equipment belongs.")
+    @Positive
+    Long equipmentTypeId;
 }

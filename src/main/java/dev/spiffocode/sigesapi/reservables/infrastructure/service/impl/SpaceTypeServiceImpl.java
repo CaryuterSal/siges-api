@@ -1,13 +1,14 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
-import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
+import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceTypeMapper;
-import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
+import dev.spiffocode.sigesapi.reservables.application.service.SpaceTypeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceTypeService;
 import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceTypeNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
 import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceTypeRepository;
+import dev.spiffocode.sigesapi.reservables.domain.specification.SpaceTypeSpecifications;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeUpdateDto;
@@ -17,8 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
-import static dev.spiffocode.sigesapi.reservables.domain.specification.SpaceTypeSpecifications.byActiveFilter;
 
 @Service
 @RequiredArgsConstructor
@@ -40,8 +39,8 @@ public class SpaceTypeServiceImpl implements SpaceTypeService {
 
     @WithDeletedRecords
     @Override
-    public List<SpaceTypeDto> getAllSpaceTypes(ShowModeFilter showMode) {
-        List<SpaceType> spaceTypes = spaceTypeRepository.findAll(byActiveFilter(showMode));
+    public List<SpaceTypeDto> getAllSpaceTypes(SpaceTypeFilter filter) {
+        List<SpaceType> spaceTypes = spaceTypeRepository.findAll(SpaceTypeSpecifications.byFilter(filter));
         return spaceTypeMapper.toDto(spaceTypes);
     }
 

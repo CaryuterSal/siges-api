@@ -18,6 +18,7 @@ import org.hibernate.envers.Audited;
 @PrimaryKeyJoinColumn(name = "id")
 public class Equipment extends Reservable {
 
+
     @ManyToOne(
             fetch = FetchType.LAZY,
             cascade = {CascadeType.MERGE, CascadeType.PERSIST}
@@ -25,7 +26,10 @@ public class Equipment extends Reservable {
     @JoinColumn(name = "spaces_id")
     private Space space;
 
-    public void attachSpace(Space space){
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private EquipmentType type;
+
+    public void attachSpace(Space space) {
         this.space = space;
         space.getEquipments().add(this);
     }
@@ -33,6 +37,5 @@ public class Equipment extends Reservable {
     @NotBlank
     @Column(unique = true)
     private String inventoryNum;
-
 
 }
