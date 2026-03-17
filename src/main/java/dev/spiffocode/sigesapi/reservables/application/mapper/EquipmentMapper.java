@@ -16,8 +16,6 @@ import org.mapstruct.MappingTarget;
         AvailabilityMapper.class })
 public interface EquipmentMapper {
 
-    // TODO: field delete
-    // @Mapping(target = "deletedAt", source = "deletedAt")
     @Mapping(target = "spaceAttached", source = "space")
     @Mapping(target = "inventoryIdNum", source = "inventoryNum")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")
