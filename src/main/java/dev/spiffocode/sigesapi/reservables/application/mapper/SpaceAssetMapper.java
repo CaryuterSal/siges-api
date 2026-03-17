@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring", uses = { BuildingMapper.class, SpaceMapper.class, EquipmentTypeMapper.class,
+@Mapper(componentModel = "springlazy", uses = { BuildingMapper.class, SpaceMapper.class, EquipmentTypeMapper.class,
         InventoryItemMapper.class })
 public interface SpaceAssetMapper {
 

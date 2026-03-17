@@ -50,7 +50,8 @@ public class SpaceAsset implements Inventable {
     private EquipmentType type;
 
     @NotNull
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(nullable = false, name = "inventory_item_id")
     private InventoryItem inventoryItem;
 
     @CreatedDate

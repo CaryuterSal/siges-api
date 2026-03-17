@@ -26,7 +26,8 @@ public class Equipment extends Reservable implements Inventable {
     private EquipmentType type;
 
     @NotNull
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(nullable = false, name = "inventory_item_id")
     private InventoryItem inventoryItem;
 
     public void attachSpace(Space space) {

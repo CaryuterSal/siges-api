@@ -7,10 +7,8 @@ import dev.spiffocode.sigesapi.auth.presentation.dto.LoginRequest;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.model.EquipmentType;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
-import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
-import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentTypeRepository;
-import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceAssetRepository;
-import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceRepository;
+import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
+import dev.spiffocode.sigesapi.reservables.domain.repository.*;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceAssetDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceAssetRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceAssetUpdateDto;
@@ -25,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -59,6 +58,8 @@ public class SpaceAssetIT extends FlushedIntegrationTest {
     private String studentToken;
     private Space testSpace;
     private EquipmentType testType;
+    @Autowired
+    private SpaceTypeRepository spaceTypeRepository;
 
     @BeforeEach
     void setup() {
@@ -99,11 +100,27 @@ public class SpaceAssetIT extends FlushedIntegrationTest {
         Building building = Building.builder().name("Main Building").build();
         building = buildingRepository.save(building);
 
-        testSpace = Space.builder().name("Lab 1").building(building).build();
-        testSpace = spaceRepository.save(testSpace);
-
         testType = EquipmentType.builder().name("Electronics").description("Electronic equipment").build();
         testType = equipmentTypeRepository.save(testType);
+
+
+        SpaceType testSpaceType = SpaceType.builder()
+                .name("Laboratorio")
+                .description("Lab de clasees")
+                .build();
+        spaceTypeRepository.save(testSpaceType);
+
+        testSpace =  Space.builder()
+                .name("Lab 1")
+                .description("Lab grande para presentaciones")
+                .bookInAdvance(Duration.ofSeconds(1))
+                .capacity(20)
+                .studentsAvailable(true)
+                .building(building)
+                .type(testSpaceType)
+                .createdBy("system")
+                .build();
+        testSpace = spaceRepository.save(testSpace);
     }
 
     private SpaceAssetRegisterDto createValidDto(String invNum) {
