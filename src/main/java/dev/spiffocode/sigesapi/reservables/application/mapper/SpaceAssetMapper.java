@@ -33,14 +33,13 @@ public interface SpaceAssetMapper {
 
     @Mapping(target = "inventoryItem", source = "inventoryNum")
     @Mapping(target = "deletedAt", ignore = true)
-    @Mapping(target = "space", source = "space")
     @Mapping(target = "type", source = "type")
     @Mapping(target = "name", source = "dto.name")
     @Mapping(target = "description", source = "dto.description")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
-    void updateEntityFromDto(SpaceAssetUpdateDto dto, Space space, EquipmentType type,
+    void updateEntityFromDto(SpaceAssetUpdateDto dto, EquipmentType type,
                              @MappingTarget SpaceAsset entity);
 
     @AfterMapping

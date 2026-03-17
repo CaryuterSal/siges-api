@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface InventoryItemRepository extends JpaRepository<@NonNull InventoryItem,@NonNull Long> {
     boolean existsByInventoryNum(String inventoryNum);
-    boolean existsByInventoryNumAndIdNot(String inventoryNum, Long id);
+    boolean existsByInventoryNumAndInventoryNumNot(String inventoryNum, String currentInventoryNum);
 }

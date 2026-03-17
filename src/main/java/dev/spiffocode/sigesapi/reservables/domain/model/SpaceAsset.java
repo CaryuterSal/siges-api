@@ -42,10 +42,12 @@ public class SpaceAsset implements Inventable{
     @Column(length = 400)
     private String description;
 
+    @NotNull
     @ManyToOne(
             fetch = FetchType.LAZY,
             cascade = {CascadeType.MERGE, CascadeType.PERSIST}
     )
+    @JoinColumn(updatable = false, nullable = false)
     private Space space;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
@@ -54,7 +56,6 @@ public class SpaceAsset implements Inventable{
     @NotNull
     @OneToOne
     private InventoryItem inventoryItem;
-
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

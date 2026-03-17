@@ -1,38 +1,38 @@
 package dev.spiffocode.sigesapi.reservables.infrastructure.service.impl;
 
-import dev.spiffocode.sigesapi.reservables.domain.exception.EquipmentExistsException;
 import dev.spiffocode.sigesapi.reservables.domain.exception.InventableExistsException;
+import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceAssetExistsException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class EquipmentUniqueValidatorService {
+public class SpaceAssetUniqueValidatorService {
 
     private final InventableUniquenessValidatorService inventableValidator;
 
     /**
-     * @throws EquipmentExistsException If equipment with inventory ID number  (DELETED or not) exists
-     * @param inventoryNum register equipment inventory ID number
+     * @throws SpaceAssetExistsException If space asset with inventory ID number  (DELETED or not) exists
+     * @param inventoryNum register space asset inventory ID number
      */
     public void assertRegisterUnique(String inventoryNum){
         try {
             inventableValidator.assertRegisterUnique(inventoryNum);
         } catch (InventableExistsException e){
-                throw new EquipmentExistsException("Equipment with Inventory Num '%s' already exists".formatted(inventoryNum));
+            throw new SpaceAssetExistsException("Space asset with Inventory Num '%s' already exists".formatted(inventoryNum));
         }
     }
 
     /**
-     * @throws EquipmentExistsException If the update of the record would trigger a UniqueConstraintException
+     * @throws SpaceAssetExistsException If the update of the record would trigger a UniqueConstraintException
      * @param currentInventoryNum Inventory Num of the record to update
-     * @param inventoryNum new equipment inventory ID number
+     * @param inventoryNum new space asset inventory ID number
      */
     public void assertUpdateUnique(String currentInventoryNum, String inventoryNum){
         try {
             inventableValidator.assertUpdateUnique(currentInventoryNum, inventoryNum);
         } catch (InventableExistsException e){
-            throw new EquipmentExistsException("Equipment with Inventory Num '%s' already exists".formatted(inventoryNum));
+            throw new SpaceAssetExistsException("Space asset with Inventory Num '%s' already exists".formatted(inventoryNum));
         }
     }
 }

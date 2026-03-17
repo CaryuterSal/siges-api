@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,6 +28,7 @@ public class EquipmentUpdateDto extends ReservableUpdateDto {
     Long spaceId;
 
     @Schema(description = "ID of the equipment type to which the equipment belongs.")
+    @NotNull
     @Positive
     Long equipmentTypeId;
 }
