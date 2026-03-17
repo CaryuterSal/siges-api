@@ -237,7 +237,7 @@ class NotificationPreferencesIT extends FlushedIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.title").value("Validation failed"));
+                .andExpect(jsonPath("$.title").value("Bad Request"));
     }
 
     @Test
