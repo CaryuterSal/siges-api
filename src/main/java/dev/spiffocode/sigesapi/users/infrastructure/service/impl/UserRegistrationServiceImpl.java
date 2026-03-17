@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.users.infrastructure.service.impl;
 
+import dev.spiffocode.sigesapi.common.infrastructure.service.StorageService;
 import dev.spiffocode.sigesapi.mailsender.application.service.UserManagementEmailPort;
 import dev.spiffocode.sigesapi.users.application.mapper.AdminMapper;
 import dev.spiffocode.sigesapi.users.application.mapper.InstitutionalStaffMapper;
@@ -20,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -46,6 +49,9 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
 
     private final UserManagementEmailPort emailSender;
 
+    private final AvatarGenerator avatarGenerator;
+    private final StorageService storageService;
+
 
     @Override
     public AdminResponse registerAdmin(AdminRegistrationRequest request) {
@@ -59,6 +65,9 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         Admin entity = adminMapper.toEntity(request, encodedPassword);
 
         entity.changePhoneNumber(normalizedPhoneNumber, true);
+        entity.setProfilePictureUrl(
+                generateAndUploadAvatar(entity.getFirstName(), entity.getLastName())
+        );
         entity = adminRepository.save(entity);
 
         emailSender.sendAdminWelcomeEmail(request.getEmail(), entity.fullName(), rawPassword);
@@ -79,6 +88,9 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
 
         Student entity = studentMapper.toEntity(request, encodedPassword);
         entity.changePhoneNumber(normalizedPhoneNumber, true);
+        entity.setProfilePictureUrl(
+                generateAndUploadAvatar(entity.getFirstName(), entity.getLastName())
+        );
         entity = studentRepository.save(entity);
 
         emailSender.sendStudentWelcomeEmail(request.getEmail(), entity.fullName(), rawPassword);
@@ -101,10 +113,19 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         InstitutionalStaff entity = institutionalStaffMapper.toEntity(request, encodedPassword);
 
         entity.changePhoneNumber(normalizedPhoneNumber, true);
+        entity.setProfilePictureUrl(
+                generateAndUploadAvatar(entity.getFirstName(), entity.getLastName())
+        );
         entity = institutionalStaffRepository.save(entity);
 
         emailSender.sendInstitutionalStaffWelcomeEmail(request.getEmail(), entity.fullName(), rawPassword);
 
         return institutionalStaffMapper.toResponse(entity);
+    }
+
+    private String generateAndUploadAvatar(String firstName, String lastName) {
+        byte[] svg = avatarGenerator.generate(firstName, lastName);
+        String filename = "default-" + UUID.randomUUID() + ".svg";
+        return storageService.uploadFile(svg, filename, "avatars");
     }
 }

@@ -11,14 +11,14 @@ import org.mapstruct.MappingTarget;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {AdminMapper.class, InstitutionalStaffMapper.class, StudentMapper.class})
+@Mapper(componentModel = "spring", uses = { AdminMapper.class, InstitutionalStaffMapper.class, StudentMapper.class })
 public interface UserMapper {
     default UserResponse toResponse(User entity) {
         return switch (entity) {
             case Student s -> toStudentResponse(s);
             case Admin a -> toAdminResponse(a);
             case InstitutionalStaff i -> toInstitutionalStaffResponse(i);
-            default -> throw new IllegalArgumentException("Unknown user type: " + entity.getClass());
+            default -> throw new IllegalArgumentException("Unknown user type: " + entity.getClass().getSimpleName());
         };
     }
 
@@ -42,14 +42,15 @@ public interface UserMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "profilePictureUrl", ignore = true)
     User updateEntity(@MappingTarget User entity, UserInfoUpdateRequest request);
-
-
 
     @Mapping(target = "role", constant = "STUDENT")
     StudentResponse toStudentResponse(Student entity);
+
     @Mapping(target = "role", constant = "ADMIN")
     AdminResponse toAdminResponse(Admin entity);
+
     @Mapping(target = "role", constant = "INSTITUTIONAL_STAFF")
     InstitutionalStaffResponse toInstitutionalStaffResponse(InstitutionalStaff entity);
 }

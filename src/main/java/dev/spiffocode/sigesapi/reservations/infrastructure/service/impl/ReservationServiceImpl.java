@@ -23,8 +23,10 @@ import dev.spiffocode.sigesapi.reservations.domain.repository.ReservationReposit
 import dev.spiffocode.sigesapi.reservations.domain.specifications.ReservationSpecifications;
 import dev.spiffocode.sigesapi.reservations.presentation.*;
 import dev.spiffocode.sigesapi.users.domain.exception.UserNotFoundException;
+import dev.spiffocode.sigesapi.users.domain.model.Applicant;
 import dev.spiffocode.sigesapi.users.domain.model.Student;
 import dev.spiffocode.sigesapi.users.domain.model.User;
+import dev.spiffocode.sigesapi.users.domain.repository.ApplicantRepository;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -46,24 +48,25 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements ReservationService {
 
-        private final ReservableRepository reservableRepository;
-        private final ReservationRepository reservationRepository;
-        private final UserRepository userRepository;
-        private final NoteRepository noteRepository;
+    private final ReservableRepository reservableRepository;
+    private final ReservationRepository reservationRepository;
+    private final UserRepository userRepository;
+    private final NoteRepository noteRepository;
 
-        private final SecurityContextHelper securityContextHelper;
-        private final NotificationsPort notificationsPort;
+    private final SecurityContextHelper securityContextHelper;
+    private final NotificationsPort notificationsPort;
 
-        private final ReservationMapper reservationMapper;
-        private final Clock clock;
-        private final NoteMapper noteMapper;
+    private final ReservationMapper reservationMapper;
+    private final Clock clock;
+    private final NoteMapper noteMapper;
+    private final ApplicantRepository applicantRepository;
 
-        @Override
+    @Override
         public ReservationResponse createReservation(CreateReservationRequest request) {
                 Long userId = securityContextHelper.getCurrentUserId();
 
                 Reservable reservable = findReservableOrThrow(request.reservableId());
-                User petitioner = findUserOrThrow(userId);
+                Applicant petitioner = findApplicantOrThrow(userId);
 
                 boolean petitionerIsStudent = petitioner.getClass().equals(Student.class);
 
@@ -285,6 +288,11 @@ public class ReservationServiceImpl implements ReservationService {
         private User findUserOrThrow(String email) {
                 return userRepository.findByEmail(email)
                                 .orElseThrow(() -> new UserNotFoundException(email));
+        }
+
+        private Applicant findApplicantOrThrow(Long id) {
+            return applicantRepository.findById(id)
+                    .orElseThrow(() -> new UserNotFoundException(id));
         }
 
         private ReservationResponse toResponse(Reservation reservation) {

@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.common.infrastructure.config;
 
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.NotFoundException;
+import dev.spiffocode.sigesapi.common.infrastructure.exceptions.StorageException;
 import dev.spiffocode.sigesapi.reservations.domain.exception.ReservableNotAvailableForStudentsException;
 import dev.spiffocode.sigesapi.reservations.domain.exception.ReservationTooSoonException;
 import dev.spiffocode.sigesapi.users.domain.exception.InvalidRecoveryTokenException;
@@ -79,6 +80,14 @@ public class SpecificControllerAdvice {
     public ProblemDetail handleIllegalArgumentException(IllegalArgumentException e) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, e.getMessage());
         problem.setTitle("Invalid request");
+        return problem;
+    }
+
+    @ExceptionHandler({StorageException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ProblemDetail handleStorageException(StorageException e) {
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+        problem.setTitle("Internal Storage error");
         return problem;
     }
 }

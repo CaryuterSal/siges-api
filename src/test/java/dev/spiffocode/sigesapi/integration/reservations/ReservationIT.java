@@ -69,6 +69,7 @@ public class ReservationIT extends FlushedIntegrationTest {
     private String adminToken;
     private String studentToken;
     private Student testStudent;
+    private Student testStudent2;
     private Admin testAdmin;
     private Equipment testEquipment;
     private Space testSpace;
@@ -106,7 +107,19 @@ public class ReservationIT extends FlushedIntegrationTest {
                 .registrationNumber("STU001")
                 .createdBy("system")
                 .build();
+
+        testStudent2 = Student.builder()
+                .email("student2@siges.com")
+                .password(encoder.encode("password123"))
+                .firstName("Student 2")
+                .lastName("User")
+                .birthDate(LocalDate.of(2000, 1, 1))
+                .phoneNumber("+525555551556")
+                .registrationNumber("STU002")
+                .createdBy("system")
+                .build();
         userRepository.save(testStudent);
+        userRepository.save(testStudent2);
 
         adminToken = authService.login(new LoginRequest("admin@siges.com", "password123"), "127.0.0.1").accessToken();
         studentToken = authService.login(new LoginRequest("student@siges.com", "password123"), "127.0.0.1")
@@ -223,7 +236,7 @@ public class ReservationIT extends FlushedIntegrationTest {
                 .status(Status.PENDING)
                 .type(GroupingType.SINGLE)
                 .reservable(testEquipment)
-                .petitioner(testAdmin)
+                .petitioner(testStudent2)
                 .build();
         reservationRepository.save(r2);
 
@@ -408,7 +421,7 @@ public class ReservationIT extends FlushedIntegrationTest {
                 .status(Status.APPROVED)
                 .type(GroupingType.SINGLE)
                 .reservable(testEquipment)
-                .petitioner(testAdmin)
+                .petitioner(testStudent2)
                 .build();
         reservationRepository.save(r1);
 

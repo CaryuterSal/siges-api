@@ -1,11 +1,14 @@
 package dev.spiffocode.sigesapi.users.application.service;
 
 import dev.spiffocode.sigesapi.users.presentation.dto.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface UserManagementService {
     UserResponse updateCommonInfo(Long id, UserInfoUpdateRequest request);
+
+    String updateProfilePicture(Long id, MultipartFile file);
 
     UserResponse updateEmail(Long id, EmailUpdateRequest request);
 

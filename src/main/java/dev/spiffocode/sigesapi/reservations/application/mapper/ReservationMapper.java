@@ -8,7 +8,7 @@ import dev.spiffocode.sigesapi.reservations.presentation.NoteItem;
 import dev.spiffocode.sigesapi.reservations.presentation.RescheduleReservationRequest;
 import dev.spiffocode.sigesapi.reservations.presentation.ReservationResponse;
 import dev.spiffocode.sigesapi.users.application.mapper.UserMapper;
-import dev.spiffocode.sigesapi.users.domain.model.User;
+import dev.spiffocode.sigesapi.users.domain.model.Applicant;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -32,7 +32,7 @@ public interface ReservationMapper {
     @Mapping(target = "cancelledAt", ignore = true)
     @Mapping(target = "rejectedAt", ignore = true)
     @Mapping(target = "approvedAt", ignore = true)
-    Reservation toEntity(CreateReservationRequest request, User petitioner, Reservable reservable);
+    Reservation toEntity(CreateReservationRequest request, Applicant petitioner, Reservable reservable);
 
 
     @Mapping(target = "id", ignore = true)

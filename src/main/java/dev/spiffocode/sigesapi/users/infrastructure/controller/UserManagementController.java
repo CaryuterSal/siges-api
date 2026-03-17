@@ -4,6 +4,7 @@ import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
 import dev.spiffocode.sigesapi.users.application.service.*;
 import dev.spiffocode.sigesapi.users.presentation.dto.*;
 import dev.spiffocode.sigesapi.notifications.application.service.PushTokenService;
+import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,8 +19,10 @@ import org.springdoc.core.converters.models.PageableAsQueryParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.SortDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,6 +35,7 @@ public class UserManagementController {
         private final UserManagementService managementService;
         private final UserQueryService queryService;
         private final PushTokenService pushTokenService;
+        private final SecurityContextHelper securityContextHelper;
 
         @PatchMapping("/users/{id}")
         @ApiResponses({
@@ -159,35 +163,41 @@ public class UserManagementController {
                 return queryService.findUserByIdentifier(identifier);
         }
 
-        @GetMapping("/users/{id}/notification-preferences")
-        @Operation(summary = "Get the notification preferences for a specific user.")
-        public List<NotificationPreferenceResponse> getNotificationPreferences(@PathVariable Long id) {
-                return managementService.getNotificationPreferences(id);
+        @GetMapping("/users/me/notification-preferences")
+        @Operation(summary = "Get the notification preferences for the current user.")
+        public List<NotificationPreferenceResponse> getNotificationPreferences() {
+                return managementService.getNotificationPreferences(securityContextHelper.getCurrentUserId());
         }
 
-        @PutMapping("/users/{id}/notification-preferences")
-        @Operation(summary = "Update the notification preferences for a specific user. Replaces all existing preferences.")
+        @PutMapping("/users/me/notification-preferences")
+        @Operation(summary = "Update the notification preferences for the current user. Replaces all existing preferences.")
         public List<NotificationPreferenceResponse> updateNotificationPreferences(
-                        @PathVariable Long id,
                         @RequestBody @Valid List<NotificationPreferenceUpdateRequest> updates) {
-                return managementService.updateNotificationPreferences(id, updates);
+                return managementService.updateNotificationPreferences(securityContextHelper.getCurrentUserId(),
+                                updates);
         }
 
-        @PostMapping("/users/{id}/push-tokens")
-        @Operation(summary = "Register a new Push Token for the user.")
+        @PostMapping("/users/me/push-tokens")
+        @Operation(summary = "Register a new Push Token for the current user.")
         public ResponseEntity<@NonNull Void> registerPushToken(
-                        @PathVariable Long id,
                         @RequestBody @Valid PushTokenRequest request) {
-                pushTokenService.registerToken(id, request);
+                pushTokenService.registerToken(securityContextHelper.getCurrentUserId(), request);
                 return ResponseEntity.noContent().build();
         }
 
-        @DeleteMapping("/users/{id}/push-tokens/{token}")
-        @Operation(summary = "Unregister an existing Push Token for the user.")
+        @DeleteMapping("/users/me/push-tokens/{token}")
+        @Operation(summary = "Unregister an existing Push Token for the current user.")
         public ResponseEntity<@NonNull Void> unregisterPushToken(
-                        @PathVariable Long id,
                         @PathVariable String token) {
-                pushTokenService.unregisterToken(id, token);
+                pushTokenService.unregisterToken(securityContextHelper.getCurrentUserId(), token);
                 return ResponseEntity.noContent().build();
+        }
+
+        @PutMapping(value = "/users/me/profile-picture", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        @Operation(summary = "Uploads and updates the profile picture for the current user.")
+        public ResponseEntity<@NonNull ProfilePictureResponse> updateProfilePicture(
+                        @RequestParam("file") MultipartFile file) {
+                String newUrl = managementService.updateProfilePicture(securityContextHelper.getCurrentUserId(), file);
+                return ResponseEntity.ok(new ProfilePictureResponse(newUrl));
         }
 }

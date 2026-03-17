@@ -2,12 +2,13 @@ package dev.spiffocode.sigesapi.reservations.domain.model;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.Reservable;
 import dev.spiffocode.sigesapi.reservations.domain.exception.InvalidReservationStatusException;
-import dev.spiffocode.sigesapi.users.domain.model.User;
+import dev.spiffocode.sigesapi.users.domain.model.Applicant;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -40,8 +41,9 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotAudited
     @ManyToOne(optional = false)
-    private User petitioner;
+    private Applicant petitioner;
 
     @ManyToOne(optional = false)
     private Reservable reservable;

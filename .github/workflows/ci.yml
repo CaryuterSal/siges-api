@@ -19,11 +19,11 @@ jobs:
           distribution: corretto
           java-version: 21
           cache: gradle
+
       - name: Write Firebase credentials
         run: |
           echo "${{ secrets.FIREBASE_CREDENTIALS_ENCODED }}" | base64 -d > /tmp/firebase-credentials.json
-          
-          
+
       - name: run tests
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/firebase-credentials.json

@@ -12,7 +12,6 @@ public interface InstitutionalStaffMapper {
     @Mapping(target = "role", constant = "INSTITUTIONAL_STAFF")
     InstitutionalStaffResponse toResponse(InstitutionalStaff admin);
 
-
     @Mapping(target = "tokenVersion", constant = "0")
     @Mapping(target = "phoneNumber", ignore = true)
     @Mapping(target = "notificationPreferences", ignore = true)
@@ -25,5 +24,7 @@ public interface InstitutionalStaffMapper {
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "reservations", ignore = true)
+    @Mapping(target = "profilePictureUrl", ignore = true)
     InstitutionalStaff toEntity(InstitutionalStaffRegistrationRequest adminRegistrationRequest, String rawPassword);
 }
