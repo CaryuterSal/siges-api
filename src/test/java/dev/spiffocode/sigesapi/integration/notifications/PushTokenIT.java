@@ -86,7 +86,7 @@ public class PushTokenIT extends FlushedIntegrationTest {
     void registerToken_student_returns204() throws Exception {
         PushTokenRequest req = new PushTokenRequest("some-fcm-token", "device-id-123", Platform.MOBILE);
 
-        mvc.perform(post(API + "/" + testStudent.getId() + "/push-tokens")
+        mvc.perform(post(API + "/me/push-tokens")
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + studentToken)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -101,7 +101,7 @@ public class PushTokenIT extends FlushedIntegrationTest {
     void registerToken_admin_returns204() throws Exception {
         PushTokenRequest req = new PushTokenRequest("admin-fcm-token", "device-id-124", Platform.WEB);
 
-        mvc.perform(post(API + "/" + testAdmin.getId() + "/push-tokens")
+        mvc.perform(post(API + "/me/push-tokens")
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + adminToken)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -113,7 +113,7 @@ public class PushTokenIT extends FlushedIntegrationTest {
     void unregisterToken_student_returns204() throws Exception {
         // Register first
         PushTokenRequest req = new PushTokenRequest("some-fcm-token", "device-id-123", Platform.MOBILE);
-        mvc.perform(post(API + "/" + testStudent.getId() + "/push-tokens")
+        mvc.perform(post(API + "/me/push-tokens")
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + studentToken)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -121,7 +121,7 @@ public class PushTokenIT extends FlushedIntegrationTest {
                 .andExpect(status().isNoContent());
 
         // Unregister
-        mvc.perform(delete(API + "/" + testStudent.getId() + "/push-tokens/some-fcm-token")
+        mvc.perform(delete(API + "/me/push-tokens/some-fcm-token")
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + studentToken))
                 .andExpect(status().isNoContent());

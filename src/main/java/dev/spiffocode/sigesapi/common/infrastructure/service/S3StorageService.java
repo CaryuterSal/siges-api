@@ -26,7 +26,7 @@ public class S3StorageService implements StorageService {
     private final S3Properties s3Properties;
     private final Tika tika;
 
-    private static final List<String> ALLOWED_TYPES = List.of("image/jpeg", "image/png", "image/webp");
+    private static final List<String> ALLOWED_TYPES = List.of("image/jpeg", "image/png", "image/webp", "image/svg+xml");
     private static final long MAX_FILE_SIZE = 5 * 1024 * 1024;
 
     @Override
@@ -103,7 +103,7 @@ public class S3StorageService implements StorageService {
 
         if (!ALLOWED_TYPES.contains(detectedType))
             throw new IllegalArgumentException(
-                    "Invalid format. Allowed: JPG, PNG, WEBP. Detected: " + detectedType);
+                    "Invalid format. Allowed: JPG, PNG, WEBP, SVG. Detected: " + detectedType);
 
         return detectedType;
     }
