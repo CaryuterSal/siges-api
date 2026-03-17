@@ -11,7 +11,6 @@ import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
-
 @SuperBuilder(toBuilder = true)
 @Jacksonized
 @ToString(callSuper = true)
@@ -27,6 +26,10 @@ public class EquipmentRegisterDto extends ReservableRegisterDto {
     @Schema(description = "ID of the optional space to which the equipment is related. For example, a projector can be related to a classroom.")
     @Positive
     Long spaceId;
+
+    @Schema(description = "ID of the equipment type to which the equipment belongs.")
+    @Positive
+    Long equipmentTypeId;
 
     @Builder.Default
     @Schema(description = "Whether this equipment shouldn't be visible for regular reservations (this means it's only meant as a Space includes)")

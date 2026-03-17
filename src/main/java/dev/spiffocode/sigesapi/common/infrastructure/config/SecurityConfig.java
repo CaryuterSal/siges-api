@@ -51,14 +51,14 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/buildings/**", "/spaces/**", "/spacetypes/**",
-                                "/equipments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/buildings/**", "/spaces/**", "/spacetypes/**",
-                                "/equipments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PATCH, "/buildings/**", "/spaces/**", "/spacetypes/**",
-                                "/equipments/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/buildings/**", "/spaces/**", "/spacetypes/**",
-                                "/equipments/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/buildings/**", "/spaces/**", "/space-types/**",
+                                "/equipments/**", "/equipment-types/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/buildings/**", "/spaces/**", "/space-types/**",
+                                "/equipments/**", "/equipment-types/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/buildings/**", "/spaces/**", "/space-types/**",
+                                "/equipments/**", "/equipment-types/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/buildings/**", "/spaces/**", "/space-types/**",
+                                "/equipments/**", "/equipment-types/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/users/*").authenticated()
                         .requestMatchers(HttpMethod.PATCH, "/users/*").authenticated()
                         .requestMatchers("/users/me/**").authenticated()

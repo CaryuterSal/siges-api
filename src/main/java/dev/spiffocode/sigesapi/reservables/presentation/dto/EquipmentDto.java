@@ -7,7 +7,6 @@ import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
-
 @Setter
 @SuperBuilder
 @Jacksonized
@@ -15,6 +14,7 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 public class EquipmentDto extends ReservableDto {
     SpaceDto spaceAttached;
+    EquipmentTypeDto type;
     @Schema(example = "IN0013")
     String inventoryIdNum;
 }

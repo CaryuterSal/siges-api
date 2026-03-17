@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.reservables.infrastructure.controller;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
 import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
+import dev.spiffocode.sigesapi.reservables.application.service.SpaceTypeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceTypeService;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeRegisterDto;
@@ -26,9 +27,9 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "/spacetypes", version = "1.0.0")
+@RequestMapping(path = "/space-types", version = "1.0.0")
 @RequiredArgsConstructor
-@Tag(name = "spacetypes", description = "Endpoints for managing space types")
+@Tag(name = "Space Types", description = "Endpoints for managing space types")
 @SecurityRequirement(name = "jwt")
 public class SpaceTypeController {
 
@@ -47,8 +48,13 @@ public class SpaceTypeController {
     @GetMapping
     @Operation(summary = "Get all space types")
     public List<SpaceTypeDto> getAllSpaceTypes(
+            @RequestParam(required = false) String q,
             @RequestParam(defaultValue = "ACTIVE") ShowModeFilter showMode) {
-        return spaceTypeService.getAllSpaceTypes(showMode);
+        SpaceTypeFilter filter = SpaceTypeFilter.builder()
+                .showModeFilter(showMode)
+                .query(q)
+                .build();
+        return spaceTypeService.getAllSpaceTypes(filter);
     }
 
     @PostMapping

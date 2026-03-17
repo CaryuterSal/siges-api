@@ -79,6 +79,9 @@ public class EquipmentController {
             @Schema(description = "Filter by space the equipment is contained on")
             Long spaceId,
             @RequestParam(required = false)
+            @Schema(description = "Filter by the type of the equipment")
+            Long equipmentTypeId,
+            @RequestParam(required = false)
             @Schema(description = "Filter by the start time of a desired availability window", dependentRequiredMap = @DependentRequired("requestEnd"))
             LocalDateTime requestStart,
             @RequestParam(required = false)
@@ -91,6 +94,7 @@ public class EquipmentController {
         EquipmentFilter filter = EquipmentFilter.builder()
                 .statusFilter(status)
                 .buildingIdFilter(buildingId)
+                .equipmentTypeIdFilter(equipmentTypeId)
                 .studentsAvailableFilter(studentsAvailable)
                 .spaceIdFilter(spaceId)
                 .requestStartFilter(requestStart)

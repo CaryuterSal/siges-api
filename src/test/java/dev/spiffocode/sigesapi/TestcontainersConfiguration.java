@@ -1,11 +1,13 @@
 package dev.spiffocode.sigesapi;
 
+import com.google.firebase.messaging.*;
 import com.redis.testcontainers.RedisContainer;
 import dev.spiffocode.sigesapi.common.infrastructure.config.S3Properties;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.localstack.LocalStackContainer;
 import org.testcontainers.utility.DockerImageName;
@@ -16,6 +18,11 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 
 import java.io.IOException;
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @TestConfiguration(proxyBeanMethods = false)
 public class TestcontainersConfiguration {
@@ -59,5 +66,26 @@ public class TestcontainersConfiguration {
         client.createBucket(createBucketRequest);
 
         return client;
+    }
+
+    // En TestcontainersConfiguration
+    @Bean
+    @Primary
+    public FirebaseMessaging firebaseMessaging() throws FirebaseMessagingException {
+        FirebaseMessaging mock = mock(FirebaseMessaging.class);
+
+        when(mock.send(any(Message.class)))
+                .thenReturn("projects/siges/messages/fake-message-id");
+
+        BatchResponse responseMock = mock(BatchResponse.class);
+        when(responseMock.getFailureCount()).thenReturn(0);
+        when(responseMock.getSuccessCount()).thenReturn(1);
+        SendResponse sendResponseMock = mock(SendResponse.class);
+        when(sendResponseMock.getMessageId()).thenReturn("projects/siges/messages/fake-message-id");
+        when(responseMock.getResponses()).thenReturn(List.of(sendResponseMock));
+
+        when(mock.sendEachForMulticast(any(MulticastMessage.class)))
+                .thenReturn(responseMock);
+        return mock;
     }
 }

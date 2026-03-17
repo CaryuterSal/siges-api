@@ -4,10 +4,10 @@ import dev.spiffocode.sigesapi.FlushedIntegrationTest;
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
 import dev.spiffocode.sigesapi.auth.presentation.dto.LoginRequest;
-import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
-import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceTypeRepository;
-import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeRegisterDto;
-import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeUpdateDto;
+import dev.spiffocode.sigesapi.reservables.domain.model.EquipmentType;
+import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentTypeRepository;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentTypeRegisterDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentTypeUpdateDto;
 import dev.spiffocode.sigesapi.users.domain.model.Admin;
 import dev.spiffocode.sigesapi.users.domain.model.Student;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @IntegrationTestClass
-public class SpaceTypeIT extends FlushedIntegrationTest {
+public class EquipmentTypeIT extends FlushedIntegrationTest {
 
     @Autowired
     MockMvc mvc;
@@ -34,13 +34,13 @@ public class SpaceTypeIT extends FlushedIntegrationTest {
     @Autowired
     UserRepository userRepository;
     @Autowired
-    SpaceTypeRepository spaceTypeRepository;
+    EquipmentTypeRepository equipmentTypeRepository;
     @Autowired
     PasswordEncoder encoder;
     @Autowired
     BearerAuthService authService;
 
-    private static final String API = "/space-types";
+    private static final String API = "/equipment-types";
     private static final String VERSION = "1.0.0";
 
     private String adminToken;
@@ -48,7 +48,7 @@ public class SpaceTypeIT extends FlushedIntegrationTest {
 
     @BeforeEach
     void setup() {
-        spaceTypeRepository.deleteAll();
+        equipmentTypeRepository.deleteAll();
         userRepository.deleteAll();
 
         Admin admin = Admin.builder()
@@ -80,47 +80,47 @@ public class SpaceTypeIT extends FlushedIntegrationTest {
     }
 
     @Test
-    void getAllSpaceTypes_unauthenticated_returns403() throws Exception {
+    void getAllEquipmentTypes_unauthenticated_returns403() throws Exception {
         mvc.perform(get(API).header("X-API-Version", VERSION))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void getAllSpaceTypes_authenticated_returns200() throws Exception {
-        SpaceType st = SpaceType.builder()
-                .name("Aula")
-                .description("Salón de clases")
+    void getAllEquipmentTypes_authenticated_returns200() throws Exception {
+        EquipmentType et = EquipmentType.builder()
+                .name("Projector")
+                .description("Multimedia projector")
                 .build();
-        spaceTypeRepository.save(st);
+        equipmentTypeRepository.save(et);
 
         mvc.perform(get(API)
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + studentToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].name").value("Aula"));
+                .andExpect(jsonPath("$[0].name").value("Projector"));
     }
 
     @Test
-    void getSpaceType_authenticated_returns200() throws Exception {
-        SpaceType st = SpaceType.builder()
-                .name("Laboratorio")
-                .description("Laboratorio de cómputo")
+    void getEquipmentType_authenticated_returns200() throws Exception {
+        EquipmentType et = EquipmentType.builder()
+                .name("Laptop")
+                .description("Portable computer")
                 .build();
-        st = spaceTypeRepository.save(st);
+        et = equipmentTypeRepository.save(et);
 
-        mvc.perform(get(API + "/" + st.getId())
+        mvc.perform(get(API + "/" + et.getId())
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Laboratorio"));
+                .andExpect(jsonPath("$.name").value("Laptop"));
     }
 
     @Test
-    void registerSpaceType_asAdmin_returns201() throws Exception {
-        SpaceTypeRegisterDto dto = SpaceTypeRegisterDto.builder()
-                .name("Auditorio")
-                .description("Espacio para eventos")
+    void registerEquipmentType_asAdmin_returns201() throws Exception {
+        EquipmentTypeRegisterDto dto = EquipmentTypeRegisterDto.builder()
+                .name("Speaker")
+                .description("Audio output device")
                 .build();
 
         mvc.perform(post(API)
@@ -129,15 +129,15 @@ public class SpaceTypeIT extends FlushedIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("Auditorio"))
+                .andExpect(jsonPath("$.name").value("Speaker"))
                 .andExpect(header().exists("Location"));
     }
 
     @Test
-    void registerSpaceType_asStudent_returns403() throws Exception {
-        SpaceTypeRegisterDto dto = SpaceTypeRegisterDto.builder()
-                .name("Oficina")
-                .description("Espacio administrativo")
+    void registerEquipmentType_asStudent_returns403() throws Exception {
+        EquipmentTypeRegisterDto dto = EquipmentTypeRegisterDto.builder()
+                .name("Camera")
+                .description("Digital camera")
                 .build();
 
         mvc.perform(post(API)
@@ -149,48 +149,48 @@ public class SpaceTypeIT extends FlushedIntegrationTest {
     }
 
     @Test
-    void updateSpaceType_asAdmin_returns200() throws Exception {
-        SpaceType st = SpaceType.builder()
-                .name("Cancha")
-                .description("Espacio deportivo")
+    void updateEquipmentType_asAdmin_returns200() throws Exception {
+        EquipmentType et = EquipmentType.builder()
+                .name("Monitor")
+                .description("Computer screen")
                 .build();
-        st = spaceTypeRepository.save(st);
+        et = equipmentTypeRepository.save(et);
 
-        SpaceTypeUpdateDto dto = new SpaceTypeUpdateDto("Cancha de Futbol", "Espacio deportivo actualizado");
+        EquipmentTypeUpdateDto dto = new EquipmentTypeUpdateDto("4K Monitor", "Updated description");
 
-        mvc.perform(put(API + "/" + st.getId())
+        mvc.perform(put(API + "/" + et.getId())
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + adminToken)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Cancha de Futbol"));
+                .andExpect(jsonPath("$.name").value("4K Monitor"));
     }
 
     @Test
-    void deactivateSpaceType_asAdmin_returns204() throws Exception {
-        SpaceType st = SpaceType.builder()
-                .name("Baños")
-                .description("Servicios sanitarios")
+    void deactivateEquipmentType_asAdmin_returns204() throws Exception {
+        EquipmentType et = EquipmentType.builder()
+                .name("Cable")
+                .description("Connection cable")
                 .build();
-        st = spaceTypeRepository.save(st);
+        et = equipmentTypeRepository.save(et);
 
-        mvc.perform(patch(API + "/" + st.getId() + "/deactivate")
+        mvc.perform(patch(API + "/" + et.getId() + "/deactivate")
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void activateSpaceType_asAdmin_returns204() throws Exception {
-        SpaceType st = SpaceType.builder()
-                .name("Cafetería")
-                .description("Venta de alimentos")
+    void activateEquipmentType_asAdmin_returns204() throws Exception {
+        EquipmentType et = EquipmentType.builder()
+                .name("Keyboard")
+                .description("Input device")
                 .build();
-        st = spaceTypeRepository.save(st);
-        spaceTypeRepository.softDeleteById(st.getId());
+        et = equipmentTypeRepository.save(et);
+        equipmentTypeRepository.softDeleteById(et.getId());
 
-        mvc.perform(patch(API + "/" + st.getId() + "/activate")
+        mvc.perform(patch(API + "/" + et.getId() + "/activate")
                 .header("X-API-Version", VERSION)
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNoContent());

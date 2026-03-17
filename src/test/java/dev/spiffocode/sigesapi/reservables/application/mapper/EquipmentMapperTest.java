@@ -3,6 +3,7 @@ package dev.spiffocode.sigesapi.reservables.application.mapper;
 import dev.spiffocode.sigesapi.UnitTestClass;
 import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
+import dev.spiffocode.sigesapi.reservables.domain.model.EquipmentType;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentDto;
@@ -74,8 +75,9 @@ public class EquipmentMapperTest {
 
         Building building = Building.builder().id(10L).build();
         Space space = Space.builder().id(20L).build();
+        EquipmentType et = EquipmentType.builder().id(10L).build();
 
-        Equipment entity = mapper.toEntity(request, building, space);
+        Equipment entity = mapper.toEntity(request, building, space, et);
 
         assertNotNull(entity);
         assertEquals(request.getName(), entity.getName());
@@ -98,8 +100,9 @@ public class EquipmentMapperTest {
         Building building = Building.builder().id(10L).build();
         Space space = Space.builder().id(20L).build();
         Equipment entity = Equipment.builder().id(1L).build();
+        EquipmentType et = EquipmentType.builder().id(10L).build();
 
-        mapper.updateEntityFromDto(request, building, space, entity);
+        mapper.updateEntityFromDto(request, building, space, et, entity);
 
         assertEquals(request.getName(), entity.getName());
         assertEquals(request.getDescription(), entity.getDescription());
