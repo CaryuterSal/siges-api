@@ -23,11 +23,12 @@ public class AvailabilityMapperTest {
 
     @Test
     void entity_to_dto() {
+        InventoryItem inventoryItem = new InventoryItem("INV-123");
         Equipment equipment = Equipment.builder()
                 .id(1L)
                 .name("Projector")
                 .description("HDMI Projector")
-                .inventoryNum("INV-123")
+                .inventoryItem(inventoryItem)
                 .studentsAvailable(false)
                 .building(Building.builder().id(10L).build())
                 .space(Space.builder().id(20L).build())

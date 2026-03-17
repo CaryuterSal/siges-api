@@ -4,10 +4,7 @@ import dev.spiffocode.sigesapi.FlushedIntegrationTest;
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
 import dev.spiffocode.sigesapi.auth.presentation.dto.LoginRequest;
-import dev.spiffocode.sigesapi.reservables.domain.model.Availability;
-import dev.spiffocode.sigesapi.reservables.domain.model.AvailabilitySlot;
-import dev.spiffocode.sigesapi.reservables.domain.model.Building;
-import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
+import dev.spiffocode.sigesapi.reservables.domain.model.*;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingRegisterDto;
@@ -190,8 +187,9 @@ public class BuildingIT extends FlushedIntegrationTest {
                 .build();
         av.setGroup(slot);
 
+        InventoryItem inventoryItem = new InventoryItem("INV-1002");
         Equipment eq = Equipment.builder()
-                .inventoryNum("INV-1002")
+                .inventoryItem(inventoryItem)
                 .name("Proyector Epson")
                 .description("Proyector para clases")
                 .studentsAvailable(true)

@@ -16,13 +16,9 @@ import org.hibernate.envers.Audited;
 @ToString
 @Table(name = "equipments")
 @PrimaryKeyJoinColumn(name = "id")
-public class Equipment extends Reservable implements Inventable{
+public class Equipment extends Reservable implements Inventable {
 
-
-    @ManyToOne(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
-    )
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "spaces_id")
     private Space space;
 
@@ -30,7 +26,7 @@ public class Equipment extends Reservable implements Inventable{
     private EquipmentType type;
 
     @NotNull
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private InventoryItem inventoryItem;
 
     public void attachSpace(Space space) {

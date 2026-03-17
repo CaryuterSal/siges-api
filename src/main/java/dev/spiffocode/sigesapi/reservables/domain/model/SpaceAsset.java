@@ -1,6 +1,5 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +27,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
 @Filter(name = "softDeleteFilter")
-public class SpaceAsset implements Inventable{
+public class SpaceAsset implements Inventable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,10 +42,7 @@ public class SpaceAsset implements Inventable{
     private String description;
 
     @NotNull
-    @ManyToOne(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
-    )
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(updatable = false, nullable = false)
     private Space space;
 
@@ -54,7 +50,7 @@ public class SpaceAsset implements Inventable{
     private EquipmentType type;
 
     @NotNull
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     private InventoryItem inventoryItem;
 
     @CreatedDate
@@ -71,7 +67,6 @@ public class SpaceAsset implements Inventable{
 
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
-
 
     public void attachSpace(Space space) {
         this.space = space;

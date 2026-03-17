@@ -149,8 +149,9 @@ public class ReservationIT extends FlushedIntegrationTest {
                 .createdBy("system")
                 .build();
 
+        InventoryItem inventoryItem = new InventoryItem("INV-1000");
         testEquipment = Equipment.builder()
-                .inventoryNum("INV-1000")
+                .inventoryItem(inventoryItem)
                 .name("MacBook Pro")
                 .description("Sample laptop")
                 .studentsAvailable(true)

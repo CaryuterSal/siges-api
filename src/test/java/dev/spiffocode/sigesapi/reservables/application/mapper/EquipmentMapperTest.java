@@ -1,10 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.application.mapper;
 
 import dev.spiffocode.sigesapi.UnitTestClass;
-import dev.spiffocode.sigesapi.reservables.domain.model.Building;
-import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
-import dev.spiffocode.sigesapi.reservables.domain.model.EquipmentType;
-import dev.spiffocode.sigesapi.reservables.domain.model.Space;
+import dev.spiffocode.sigesapi.reservables.domain.model.*;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentRegisterDto;
@@ -36,11 +33,12 @@ public class EquipmentMapperTest {
 
     @Test
     void to_dto() {
+        InventoryItem inventoryItem = new InventoryItem("INV-123");
         Equipment entity = Equipment.builder()
                 .id(1L)
                 .name("Projector")
                 .description("HDMI Projector")
-                .inventoryNum("INV-123")
+                .inventoryItem(inventoryItem)
                 .studentsAvailable(false)
                 .building(Building.builder().id(10L).build())
                 .space(Space.builder().id(20L).build())

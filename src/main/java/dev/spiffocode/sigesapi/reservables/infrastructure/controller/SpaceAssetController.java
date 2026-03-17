@@ -92,7 +92,7 @@ public class SpaceAssetController {
 
     @PostMapping("/{spaceId}/assets")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Register a new asset")
+    @Operation(summary = "Register a new asset within an space scope")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Space asset registered", useReturnTypeSchema = true, headers = {
                     @Header(name = "Location", description = "Relative URI to which retrieve the currently created asset")}),

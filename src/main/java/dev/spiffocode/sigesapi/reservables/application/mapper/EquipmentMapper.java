@@ -19,7 +19,7 @@ public interface EquipmentMapper {
     @Mapping(target = "availabilitySlots", source = "availability")
     EquipmentDto toDto(Equipment equipment);
 
-    @Mapping(target = "inventoryItem", source = "inventoryNum")
+    @Mapping(target = "inventoryItem", source = "dto.inventoryNum")
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "space", source = "space")
     @Mapping(target = "building", source = "building")
@@ -35,7 +35,7 @@ public interface EquipmentMapper {
     @Mapping(target = "createdBy", ignore = true)
     Equipment toEntity(EquipmentRegisterDto dto, Building building, Space space, EquipmentType type);
 
-    @Mapping(target = "inventoryItem", source = "inventoryNum")
+    @Mapping(target = "inventoryItem", source = "dto.inventoryNum")
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "space", source = "space")
     @Mapping(target = "building", source = "building")
