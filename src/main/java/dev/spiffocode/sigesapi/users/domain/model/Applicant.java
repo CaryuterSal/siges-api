@@ -21,7 +21,7 @@ import java.util.List;
 @NoArgsConstructor
 @SuperBuilder
 @EqualsAndHashCode(callSuper = true)
-public class Applicant extends User {
+public abstract class Applicant extends User {
 
     @Builder.Default
     @OneToMany(mappedBy = "petitioner", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)

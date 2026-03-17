@@ -119,6 +119,7 @@ public class ReservationIT extends FlushedIntegrationTest {
                 .createdBy("system")
                 .build();
         userRepository.save(testStudent);
+        userRepository.save(testStudent2);
 
         adminToken = authService.login(new LoginRequest("admin@siges.com", "password123"), "127.0.0.1").accessToken();
         studentToken = authService.login(new LoginRequest("student@siges.com", "password123"), "127.0.0.1")

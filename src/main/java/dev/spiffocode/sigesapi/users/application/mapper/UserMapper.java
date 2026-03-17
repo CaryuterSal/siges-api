@@ -18,7 +18,7 @@ public interface UserMapper {
             case Student s -> toStudentResponse(s);
             case Admin a -> toAdminResponse(a);
             case InstitutionalStaff i -> toInstitutionalStaffResponse(i);
-            default -> throw new IllegalArgumentException("Unknown user type: " + entity.getClass());
+            default -> throw new IllegalArgumentException("Unknown user type: " + entity.getClass().getSimpleName());
         };
     }
 
