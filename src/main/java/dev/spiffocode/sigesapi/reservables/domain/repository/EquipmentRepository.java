@@ -22,6 +22,7 @@ public interface EquipmentRepository extends
     @Query(value = """
     SELECT r.*, e.* FROM equipments e
     INNER JOIN reservables r ON r.id = e.id
+    INNER JOIN inventory_items i ON i.id = e.inventory_item_id
     WHERE r.deleted_at IS NOT NULL
     """, nativeQuery = true)
     List<Equipment> findAllDeleted();
@@ -32,7 +33,12 @@ public interface EquipmentRepository extends
         UPDATE reservables
         SET deleted_at = NOW()
         FROM equipments e
-        WHERE reservables.id = e.id AND reservables.id = :id
+        WHERE reservables.id = e.id AND reservables.id = :id;
+    
+        UPDATE inventory_items
+        SET deleted_at = NOW()
+        FROM equipments e
+        WHERE inventory_items.id = e.inventory_item_id AND e.id = :id;
     """, nativeQuery = true)
     int softDeleteById(@Param("id") Long id);
 
@@ -41,11 +47,14 @@ public interface EquipmentRepository extends
         UPDATE reservables
         SET deleted_at = NULL
         FROM equipments e
-        WHERE reservables.id = e.id AND reservables.id = :id
+        WHERE reservables.id = e.id AND reservables.id = :id;
+    
+        UPDATE inventory_items
+        SET deleted_at = NULL
+        FROM equipments e
+        WHERE inventory_items.id = e.inventory_item_id AND e.id = :id;
     """, nativeQuery = true)
     int restore(@Param("id") Long id);
 
     List<Equipment> findBySpaceId(Long spaceId);
-    boolean existsByInventoryNum(String inventoryNum);
-    boolean existsByInventoryNumAndIdNot(String inventoryNum, Long id);
 }
