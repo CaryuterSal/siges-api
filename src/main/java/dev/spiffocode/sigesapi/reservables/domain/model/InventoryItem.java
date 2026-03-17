@@ -22,10 +22,6 @@ import org.hibernate.envers.Audited;
 public class InventoryItem {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @NotBlank
-    @Column(unique = true)
     private String inventoryNum;
 }

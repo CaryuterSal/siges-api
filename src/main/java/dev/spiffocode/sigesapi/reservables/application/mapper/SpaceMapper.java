@@ -5,6 +5,7 @@ import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceRegisterDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceSummaryDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceUpdateDto;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -19,6 +20,11 @@ public interface SpaceMapper {
     @Mapping(target = "availableForStudents", source = "studentsAvailable")
     @Mapping(target = "availabilitySlots", source = "availability")
     SpaceDto toDto(Space space);
+
+
+    @Mapping(target = "spaceType", source = "type")
+    @Mapping(target = "bookInAdvanceDuration", source = "bookInAdvance")
+    SpaceSummaryDto toSummaryDto(Space space);
 
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "equipments", ignore = true)

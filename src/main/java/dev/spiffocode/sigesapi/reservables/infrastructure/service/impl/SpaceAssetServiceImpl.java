@@ -26,22 +26,22 @@ public class SpaceAssetServiceImpl implements SpaceAssetService {
     }
 
     @Override
-    public SpaceAssetDto registerSpace(SpaceAssetRegisterDto request) {
+    public SpaceAssetDto registerSpaceAsset(long spaceId, SpaceAssetRegisterDto request) {
         return null;
     }
 
     @Override
-    public SpaceAssetDto updateSpace(long id, SpaceAssetUpdateDto request) {
+    public SpaceAssetDto updateSpaceAsset(long id, SpaceAssetUpdateDto request) {
         return null;
     }
 
     @Override
-    public void deactivateSpace(long id) {
+    public void deactivateSpaceAsset(long id) {
 
     }
 
     @Override
-    public void activateSpace(long id) {
+    public void activateSpaceAsset(long id) {
 
     }
 }

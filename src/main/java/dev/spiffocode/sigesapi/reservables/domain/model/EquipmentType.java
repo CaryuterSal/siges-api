@@ -46,4 +46,15 @@ public class EquipmentType {
         equipment.setType(this);
     }
 
+
+    @Builder.Default
+    @Filter(name = "softDeleteFilter")
+    @OneToMany(mappedBy = "type", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private List<SpaceAsset> spaceAssets = new ArrayList<>();
+
+    public void addSpaceAsset(SpaceAsset spaceAsset) {
+        spaceAssets.add(spaceAsset);
+        spaceAsset.setType(this);
+    }
+
 }

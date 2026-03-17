@@ -70,4 +70,10 @@ public class SpaceAsset implements Inventable{
 
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
+
+
+    public void attachSpace(Space space) {
+        this.space = space;
+        space.getAssets().add(this);
+    }
 }

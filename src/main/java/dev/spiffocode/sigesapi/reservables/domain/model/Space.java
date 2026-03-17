@@ -45,7 +45,7 @@ public class Space extends Reservable {
             mappedBy = "space",
             cascade = {CascadeType.MERGE, CascadeType.PERSIST}
     )
-    private List<Equipment> assets = new ArrayList<>();
+    private List<SpaceAsset> assets = new ArrayList<>();
 
     @Builder.Default
     @ToString.Exclude

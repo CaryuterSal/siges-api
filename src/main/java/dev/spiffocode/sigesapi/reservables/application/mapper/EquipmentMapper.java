@@ -1,9 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.application.mapper;
 
-import dev.spiffocode.sigesapi.reservables.domain.model.Building;
-import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
-import dev.spiffocode.sigesapi.reservables.domain.model.EquipmentType;
-import dev.spiffocode.sigesapi.reservables.domain.model.Space;
+import dev.spiffocode.sigesapi.reservables.domain.model.*;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentUpdateDto;
@@ -13,15 +10,16 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring", uses = { BuildingMapper.class, SpaceMapper.class, EquipmentTypeMapper.class,
-        AvailabilityMapper.class })
+        AvailabilityMapper.class, InventoryItemMapper.class })
 public interface EquipmentMapper {
 
     @Mapping(target = "spaceAttached", source = "space")
-    @Mapping(target = "inventoryIdNum", source = "inventoryNum")
+    @Mapping(target = "inventoryIdNum", source = "inventoryItem.inventoryNum")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")
     @Mapping(target = "availabilitySlots", source = "availability")
     EquipmentDto toDto(Equipment equipment);
 
+    @Mapping(target = "inventoryItem", source = "inventoryNum")
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "space", source = "space")
     @Mapping(target = "building", source = "building")
@@ -37,6 +35,7 @@ public interface EquipmentMapper {
     @Mapping(target = "createdBy", ignore = true)
     Equipment toEntity(EquipmentRegisterDto dto, Building building, Space space, EquipmentType type);
 
+    @Mapping(target = "inventoryItem", source = "inventoryNum")
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "space", source = "space")
     @Mapping(target = "building", source = "building")
