@@ -22,6 +22,7 @@ public class EquipmentSpecifications {
                                 .or(cast(nameContains(filter.searchQuery())))
                 )
                 .and(cast(inBuilding(filter.buildingIdFilter())))
+                .and(inType(filter.equipmentTypeIdFilter()))
                 .and(cast(availableForStudents(filter.studentsAvailableFilter())))
                 .and(cast(byActiveFilter(filter.showModeFilter())));
 
@@ -37,5 +38,10 @@ public class EquipmentSpecifications {
             if(inventoryNum == null || inventoryNum.isBlank()) return null;
             return cb.like(cb.lower(root.get("inventoryNum")), "%" + inventoryNum.toLowerCase() + "%");
         };
+    }
+
+    public static Specification<@NonNull Equipment> inType(Long id){
+        return (root, query, cb) ->
+                id == null ? null : cb.equal(root.get("type").get("id"), id);
     }
 }
