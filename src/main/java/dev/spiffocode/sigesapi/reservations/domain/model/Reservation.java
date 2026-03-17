@@ -2,7 +2,7 @@ package dev.spiffocode.sigesapi.reservations.domain.model;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.Reservable;
 import dev.spiffocode.sigesapi.reservations.domain.exception.InvalidReservationStatusException;
-import dev.spiffocode.sigesapi.users.domain.model.User;
+import dev.spiffocode.sigesapi.users.domain.model.Applicant;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -41,7 +41,7 @@ public class Reservation {
     private Long id;
 
     @ManyToOne(optional = false)
-    private User petitioner;
+    private Applicant petitioner;
 
     @ManyToOne(optional = false)
     private Reservable reservable;
