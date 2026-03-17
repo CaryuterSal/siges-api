@@ -11,11 +11,11 @@ public interface SpaceAssetService {
 
     Page<@NonNull SpaceAssetDto> searchSpaceAssetsByFilter(Pageable pageable, SpaceAssetFilter filter);
 
-    SpaceAssetDto registerSpace(SpaceAssetRegisterDto request);
+    SpaceAssetDto registerSpaceAsset(long spaceId, SpaceAssetRegisterDto request);
 
-    SpaceAssetDto updateSpace(long id, SpaceAssetUpdateDto request);
+    SpaceAssetDto updateSpaceAsset(long id, SpaceAssetUpdateDto request);
 
-    void deactivateSpace(long id);
+    void deactivateSpaceAsset(long id);
 
-    void activateSpace(long id);
+    void activateSpaceAsset(long id);
 }
