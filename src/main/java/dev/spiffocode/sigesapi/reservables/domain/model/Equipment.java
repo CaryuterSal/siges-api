@@ -1,7 +1,7 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.envers.Audited;
@@ -16,26 +16,22 @@ import org.hibernate.envers.Audited;
 @ToString
 @Table(name = "equipments")
 @PrimaryKeyJoinColumn(name = "id")
-public class Equipment extends Reservable {
+public class Equipment extends Reservable implements Inventable {
 
-
-    @ManyToOne(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
-    )
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     @JoinColumn(name = "spaces_id")
     private Space space;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private EquipmentType type;
 
+    @NotNull
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(nullable = false, name = "inventory_item_id")
+    private InventoryItem inventoryItem;
+
     public void attachSpace(Space space) {
         this.space = space;
         space.getEquipments().add(this);
     }
-
-    @NotBlank
-    @Column(unique = true)
-    private String inventoryNum;
-
 }

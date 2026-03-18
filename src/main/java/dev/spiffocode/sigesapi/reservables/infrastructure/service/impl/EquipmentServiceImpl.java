@@ -96,7 +96,7 @@ public class EquipmentServiceImpl implements EquipmentService {
         Building building = findBuilding(request.getBuildingId());
         EquipmentType type = findEquipmentType(request.getEquipmentTypeId());
 
-        uniqueValidator.assertUpdateUnique(id, request.getInventoryNum());
+        uniqueValidator.assertUpdateUnique(equipment.getInventoryNum(), request.getInventoryNum());
 
         equipmentMapper.updateEntityFromDto(request, building, space, type, equipment);
         equipment = equipmentRepository.save(equipment);
@@ -118,11 +118,9 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     public EquipmentType findEquipmentType(Long id) {
-        return Optional.ofNullable(id)
-                .map(actualId -> equipmentTypeRepository.findById(actualId)
+        return equipmentTypeRepository.findById(id)
                         .orElseThrow(() -> new EquipmentTypeNotFoundException(
-                                "Equipment type with ID %dl not found".formatted(actualId), actualId)))
-                .orElse(null);
+                                "Equipment type with ID %dl not found".formatted(id), id));
     }
 
     @Override

@@ -36,7 +36,7 @@ public class EquipmentSpecifications {
     public static Specification<@NonNull Equipment> inventoryNumContains(String inventoryNum){
         return (root, query, cb) -> {
             if(inventoryNum == null || inventoryNum.isBlank()) return null;
-            return cb.like(cb.lower(root.get("inventoryNum")), "%" + inventoryNum.toLowerCase() + "%");
+            return cb.like(cb.lower(root.get("inventoryItem").get("inventoryNum")), "%" + inventoryNum.toLowerCase() + "%");
         };
     }
 

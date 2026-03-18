@@ -37,6 +37,16 @@ public class Space extends Reservable {
     @Positive
     private Integer capacity;
 
+
+    @Builder.Default
+    @ToString.Exclude
+    @Filter(name = "softDeleteFilter")
+    @OneToMany(
+            mappedBy = "space",
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
+    )
+    private List<SpaceAsset> assets = new ArrayList<>();
+
     @Builder.Default
     @ToString.Exclude
     @Filter(name = "softDeleteFilter")

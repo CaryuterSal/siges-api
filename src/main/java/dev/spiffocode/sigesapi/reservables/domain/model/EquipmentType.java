@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "equipments")
+@ToString
 @Table(name = "equipment_types")
 @FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
 @Filter(name = "softDeleteFilter")
@@ -36,6 +36,7 @@ public class EquipmentType {
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
 
+    @ToString.Exclude
     @Builder.Default
     @Filter(name = "softDeleteFilter")
     @OneToMany(mappedBy = "type", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
@@ -44,6 +45,18 @@ public class EquipmentType {
     public void addEquipment(Equipment equipment) {
         equipments.add(equipment);
         equipment.setType(this);
+    }
+
+
+    @ToString.Exclude
+    @Builder.Default
+    @Filter(name = "softDeleteFilter")
+    @OneToMany(mappedBy = "type", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
+    private List<SpaceAsset> spaceAssets = new ArrayList<>();
+
+    public void addSpaceAsset(SpaceAsset spaceAsset) {
+        spaceAssets.add(spaceAsset);
+        spaceAsset.setType(this);
     }
 
 }

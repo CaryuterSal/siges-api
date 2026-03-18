@@ -1,22 +1,14 @@
 package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
-import lombok.EqualsAndHashCode;
-import lombok.Setter;
-import lombok.Value;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 
 import java.time.Duration;
-import java.util.List;
 
-@Setter
 @SuperBuilder
 @Jacksonized
-@EqualsAndHashCode(callSuper = true)
-@Value
-public class SpaceDto extends ReservableDto {
+public class SpaceSummaryDto extends ReservableDto{
     SpaceTypeDto spaceType;
     Duration bookInAdvanceDuration;
     Integer capacity;
-    List<SpaceAssetDto> assets;
 }
