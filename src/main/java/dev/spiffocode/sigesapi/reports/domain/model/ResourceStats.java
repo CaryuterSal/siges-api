@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "v_resource_stats")
 @Immutable
@@ -23,6 +25,6 @@ public class ResourceStats {
 
     private Long totalReservations;
     private Long reservationsThisMonth;
-    private Double occupancyRate;
-    private Double avgDaysBetweenReservations;
+    private BigDecimal occupancyRate;
+    private BigDecimal avgDaysBetweenReservations;
 }

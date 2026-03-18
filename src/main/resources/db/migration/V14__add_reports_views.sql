@@ -100,8 +100,8 @@ SELECT
     -- Reservas este mes
     (SELECT COUNT(*)
      FROM reservations
-     WHERE EXTRACT(YEAR FROM start_time) = EXTRACT(YEAR FROM CURRENT_DATE)
-       AND EXTRACT(MONTH FROM start_time) = EXTRACT(MONTH FROM CURRENT_DATE)
+     WHERE EXTRACT(YEAR FROM "date") = EXTRACT(YEAR FROM CURRENT_DATE)
+       AND EXTRACT(MONTH FROM "date") = EXTRACT(MONTH FROM CURRENT_DATE)
     ) AS reservations_this_month;
 
 
@@ -116,8 +116,8 @@ SELECT
     COUNT(res.id) AS total_reservations,
 
     COUNT(res.id) FILTER (
-        WHERE EXTRACT(YEAR  FROM res.start_time) = EXTRACT(YEAR  FROM CURRENT_DATE)
-            AND EXTRACT(MONTH FROM res.start_time) = EXTRACT(MONTH FROM CURRENT_DATE)
+        WHERE EXTRACT(YEAR  FROM res."date") = EXTRACT(YEAR  FROM CURRENT_DATE)
+            AND EXTRACT(MONTH FROM res."date") = EXTRACT(MONTH FROM CURRENT_DATE)
         ) AS reservations_this_month,
 
     COALESCE(ROUND(

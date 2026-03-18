@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "v_dashboard_stats")
 @Immutable
@@ -21,21 +23,22 @@ public class DashboardStats {
 
     private Integer pendingRequests;
     private Integer pendingRequestsToday;
-    private Double pendingRequestsPercentage;
+    private BigDecimal pendingRequestsPercentage;
     private Integer pendingRequestsDiffYesterday;
 
     private Integer availableSpaces;
     private Integer totalSpaces;
-    private Double availableSpacesPercentage;
+    private BigDecimal availableSpacesPercentage;
     private Integer availableSpacesDiffYesterday;
 
     private Integer inUseEquipments;
     private Integer totalEquipments;
-    private Double inUseEquipmentsPercentage;
+    private BigDecimal inUseEquipmentsPercentage;
     private Integer inUseEquipmentsDiffYesterday;
 
     private Integer todayReservations;
-    private Double avgDailyReservations30d;
-    private Integer todayReservationsDiffAvg;
+    @Column(name = "avg_daily_reservations_30d")
+    private BigDecimal avgDailyReservations30d;
+    private BigDecimal todayReservationsDiffAvg;
     private Integer reservationsThisMonth;
 }
