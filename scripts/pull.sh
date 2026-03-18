@@ -39,6 +39,9 @@ DOCKER_TOKEN=$(get_param docker/token)
 DOCKER_USER=$(get_param docker/username)
 echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
 
+echo "Limpiando imágenes antiguas..."
+docker image prune -a -f
+
 echo "Jalando imagen..."
 cd /home/ubuntu/siges
 docker compose -f compose.yaml -f compose.prod.yaml pull
