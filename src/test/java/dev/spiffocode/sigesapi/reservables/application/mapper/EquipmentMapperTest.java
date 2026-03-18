@@ -2,11 +2,7 @@ package dev.spiffocode.sigesapi.reservables.application.mapper;
 
 import dev.spiffocode.sigesapi.UnitTestClass;
 import dev.spiffocode.sigesapi.reservables.domain.model.*;
-import dev.spiffocode.sigesapi.reservables.presentation.dto.BuildingDto;
-import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentDto;
-import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentRegisterDto;
-import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentUpdateDto;
-import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -27,10 +23,13 @@ public class EquipmentMapperTest {
 
     @Mock
     private AvailabilityMapper availabilityMapper;
+    @Mock
+    private InventoryItemMapper inventoryItemMapper;
+    @Mock
+    private EquipmentTypeMapper equipmentTypeMapper;
 
     @InjectMocks
     private EquipmentMapperImpl mapper;
-
     @Test
     void to_dto() {
         InventoryItem inventoryItem = new InventoryItem("INV-123");
@@ -46,9 +45,11 @@ public class EquipmentMapperTest {
 
         BuildingDto mockBuildingDto = BuildingDto.builder().id(10L).name("Building").build();
         SpaceDto mockSpaceDto = SpaceDto.builder().id(20L).name("Space").build();
+        EquipmentTypeDto mockEquipmentType = EquipmentTypeDto.builder().id(10L).name("Equipment").build();
 
         when(buildingMapper.toDto(any(Building.class))).thenReturn(mockBuildingDto);
         when(spaceMapper.toDto(any(Space.class))).thenReturn(mockSpaceDto);
+
 
         EquipmentDto dto = mapper.toDto(entity);
 
@@ -56,7 +57,7 @@ public class EquipmentMapperTest {
         assertEquals(entity.getId(), dto.getId());
         assertEquals(entity.getName(), dto.getName());
         assertEquals(entity.getDescription(), dto.getDescription());
-        assertEquals(entity.getInventoryNum(), dto.getInventoryIdNum());
+        assertEquals(inventoryItem.getInventoryNum(), entity.getInventoryNum());
         assertEquals(entity.isStudentsAvailable(), dto.isAvailableForStudents());
         assertEquals(mockBuildingDto.id(), dto.getBuilding().id());
         assertEquals(mockSpaceDto.getId(), dto.getSpaceAttached().getId());
@@ -75,12 +76,13 @@ public class EquipmentMapperTest {
         Space space = Space.builder().id(20L).build();
         EquipmentType et = EquipmentType.builder().id(10L).build();
 
+        when(inventoryItemMapper.toEntity(any())).thenReturn(new InventoryItem("123"));
         Equipment entity = mapper.toEntity(request, building, space, et);
 
         assertNotNull(entity);
         assertEquals(request.getName(), entity.getName());
         assertEquals(request.getDescription(), entity.getDescription());
-        assertEquals(request.getInventoryNum(), entity.getInventoryNum());
+        assertEquals("123", entity.getInventoryNum());
         assertEquals(request.getStudentsAvailable(), entity.isStudentsAvailable());
         assertEquals(building, entity.getBuilding());
         assertEquals(space, entity.getSpace());
@@ -100,6 +102,7 @@ public class EquipmentMapperTest {
         Equipment entity = Equipment.builder().id(1L).build();
         EquipmentType et = EquipmentType.builder().id(10L).build();
 
+        when(inventoryItemMapper.toEntity(any())).thenReturn(new InventoryItem("123"));
         mapper.updateEntityFromDto(request, building, space, et, entity);
 
         assertEquals(request.getName(), entity.getName());

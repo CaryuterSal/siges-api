@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ToString(exclude = "equipments")
+@ToString
 @Table(name = "equipment_types")
 @FilterDef(name = "softDeleteFilter", defaultCondition = "deleted_at IS NULL")
 @Filter(name = "softDeleteFilter")
@@ -36,6 +36,7 @@ public class EquipmentType {
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
 
+    @ToString.Exclude
     @Builder.Default
     @Filter(name = "softDeleteFilter")
     @OneToMany(mappedBy = "type", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
@@ -47,6 +48,7 @@ public class EquipmentType {
     }
 
 
+    @ToString.Exclude
     @Builder.Default
     @Filter(name = "softDeleteFilter")
     @OneToMany(mappedBy = "type", cascade = { CascadeType.MERGE, CascadeType.PERSIST })

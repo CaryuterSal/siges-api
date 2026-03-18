@@ -5,12 +5,10 @@ import dev.spiffocode.sigesapi.FlushedIntegrationTest;
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
 import dev.spiffocode.sigesapi.auth.presentation.dto.LoginRequest;
-import dev.spiffocode.sigesapi.reservables.domain.model.Building;
-import dev.spiffocode.sigesapi.reservables.domain.model.Equipment;
-import dev.spiffocode.sigesapi.reservables.domain.model.InventoryItem;
-import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
+import dev.spiffocode.sigesapi.reservables.domain.model.*;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentTypeRepository;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilityExceptionRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentRegisterDto;
@@ -59,8 +57,11 @@ public class EquipmentIT extends FlushedIntegrationTest {
         private String adminToken;
         private String studentToken;
         private Building testBuilding;
+        private EquipmentType testType;
+    @Autowired
+    private EquipmentTypeRepository equipmentTypeRepository;
 
-        @Test
+    @Test
         void serialize_equipment_update_dto() throws JsonProcessingException {
                 EquipmentUpdateDto dto = EquipmentUpdateDto.builder()
                                 .inventoryNum("INV-5000")
@@ -124,6 +125,11 @@ public class EquipmentIT extends FlushedIntegrationTest {
 
                 testBuilding = Building.builder().name("Main Building").build();
                 testBuilding = buildingRepository.save(testBuilding);
+
+                testType = EquipmentType.builder().name("Default").description("Default type for all test").build();
+                testType = equipmentTypeRepository.save(testType);
+
+
         }
 
         private EquipmentRegisterDto createValidDto() {
@@ -147,6 +153,7 @@ public class EquipmentIT extends FlushedIntegrationTest {
                                 .inventoryNum("INV-1002")
                                 .name("Proyector Epson")
                                 .description("Proyector para clases")
+                                .equipmentTypeId(testType.getId())
                                 .studentsAvailable(true)
                                 .buildingId(testBuilding.getId())
                                 .availability(List.of(slot))
@@ -254,6 +261,7 @@ public class EquipmentIT extends FlushedIntegrationTest {
                     .inventoryNum("INV-5000")
                     .name("New Laptop")
                     .description("Updated!")
+                    .equipmentTypeId(testType.getId())
                     .studentsAvailable(false)
                     .buildingId(testBuilding.getId())
                     .build();

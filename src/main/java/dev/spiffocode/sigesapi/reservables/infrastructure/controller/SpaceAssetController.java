@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
 
@@ -90,6 +91,8 @@ public class SpaceAssetController {
         return spaceAssetService.searchSpaceAssetsByFilter(pageable, filter);
     }
 
+    private final ObjectMapper mapper;
+
     @PostMapping("/{spaceId}/assets")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register a new asset within an space scope")
@@ -104,7 +107,7 @@ public class SpaceAssetController {
         SpaceAssetDto response = spaceAssetService.registerSpaceAsset(spaceId, request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
-                .pathSegment("/spaces/assets/{id}")
+                .pathSegment("spaces/assets/{id}")
                 .buildAndExpand(response.id())
                 .toUri();
         return ResponseEntity.created(location).body(response);
