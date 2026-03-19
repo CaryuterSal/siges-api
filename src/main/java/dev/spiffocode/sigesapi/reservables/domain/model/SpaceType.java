@@ -30,7 +30,7 @@ public class SpaceType {
     @Column(nullable = false, unique = true, length = 45)
     private String name;
 
-    @Column(nullable = false, length = 400)
+    @Column(length = 400)
     private String description;
 
     @Column(insertable = false, updatable = false)
@@ -38,12 +38,8 @@ public class SpaceType {
 
     @Builder.Default
     @Filter(name = "softDeleteFilter")
-    @OneToMany(
-            mappedBy = "type",
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
-    )
+    @OneToMany(mappedBy = "type", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private List<Space> spaces = new ArrayList<>();
-
 
     public void addSpace(Space space) {
         spaces.add(space);

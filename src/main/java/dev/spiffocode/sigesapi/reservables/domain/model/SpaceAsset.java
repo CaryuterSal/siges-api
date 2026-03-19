@@ -37,7 +37,6 @@ public class SpaceAsset implements Inventable {
     @Column(nullable = false, length = 200)
     private String name;
 
-    @NotBlank
     @Column(length = 400)
     private String description;
 

@@ -10,7 +10,6 @@ import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
 
-
 @Value
 @NonFinal
 @SuperBuilder(toBuilder = true)

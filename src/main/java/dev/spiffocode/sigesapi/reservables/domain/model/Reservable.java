@@ -51,56 +51,38 @@ public abstract class Reservable {
     @Enumerated(EnumType.STRING)
     private ReservableStatus status = ReservableStatus.AVAILABLE;
 
-
-    @NotBlank
     @Column(length = 400)
     private String description;
-
 
     @NotNull
     @Column(nullable = false)
     private boolean studentsAvailable;
 
-    @ManyToOne(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}
-    )
+    @ManyToOne(fetch = FetchType.LAZY, cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH })
     @JoinColumn(name = "buildings_id")
     @ToString.Exclude
     private Building building;
 
-
     @Builder.Default
-    @OneToMany(
-            mappedBy = "reservable",
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "reservable", cascade = { CascadeType.MERGE, CascadeType.PERSIST }, orphanRemoval = true)
     List<AvailabilitySlot> availability = new ArrayList<>();
 
-    public void addAvailabilitySlot(AvailabilitySlot availabilitySlot){
+    public void addAvailabilitySlot(AvailabilitySlot availabilitySlot) {
         availability.add(availabilitySlot);
         availabilitySlot.setReservable(this);
     }
 
     @Builder.Default
-    @OneToMany(
-            mappedBy = "reservable",
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
-            orphanRemoval = true
-    )
+    @OneToMany(mappedBy = "reservable", cascade = { CascadeType.MERGE, CascadeType.PERSIST }, orphanRemoval = true)
     List<AvailabilityException> availabilityExceptions = new ArrayList<>();
 
-    public void addAvailabilityException(AvailabilityException availabilityException){
+    public void addAvailabilityException(AvailabilityException availabilityException) {
         availabilityExceptions.add(availabilityException);
         availabilityException.setReservable(this);
     }
 
     @Builder.Default
-    @OneToMany(
-            mappedBy = "reservable",
-            cascade = {CascadeType.ALL}
-    )
+    @OneToMany(mappedBy = "reservable", cascade = { CascadeType.ALL })
     List<Reservation> reservations = new ArrayList<>();
 
     @CreatedDate
@@ -118,8 +100,8 @@ public abstract class Reservable {
     @Column(insertable = false, updatable = false)
     private LocalDateTime deletedAt;
 
-
-    public void assertCanDoReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime, boolean isStudent, Clock clock){
+    public void assertCanDoReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime,
+            boolean isStudent, Clock clock) {
         if (getStatus() != ReservableStatus.AVAILABLE)
             throw new ReservableNotAvailableException(getId());
         assertSpecificCanDoReservation(requestedDate, startTime, endTime, clock);
@@ -127,7 +109,7 @@ public abstract class Reservable {
         assertUserHasPermission(isStudent);
     }
 
-    public void assertAvailabilityAllowsReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime){
+    public void assertAvailabilityAllowsReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime) {
         DayOfWeek requestedDay = requestedDate.getDayOfWeek();
         boolean withinSchedule = getAvailability().stream()
                 .flatMap(slot -> slot.getMembers().stream())
@@ -152,12 +134,13 @@ public abstract class Reservable {
                     endTime);
     }
 
-    private void assertUserHasPermission(boolean isStudent){
+    private void assertUserHasPermission(boolean isStudent) {
         if (isStudent && !isStudentsAvailable())
             throw new ReservableNotAvailableForStudentsException(getId());
     }
 
-    protected  void assertSpecificCanDoReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime, Clock clock){
+    protected void assertSpecificCanDoReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime,
+            Clock clock) {
     }
 
 }

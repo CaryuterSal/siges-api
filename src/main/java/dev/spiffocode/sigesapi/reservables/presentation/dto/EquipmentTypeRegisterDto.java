@@ -19,6 +19,5 @@ public class EquipmentTypeRegisterDto {
 
     @Schema(description = "Short description with details about the type of equipment", example = "Equipo de proyección visual para presentaciones")
     @Size(max = 400)
-    @NotBlank
     String description;
 }
