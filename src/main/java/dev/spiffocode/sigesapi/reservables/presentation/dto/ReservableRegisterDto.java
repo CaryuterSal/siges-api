@@ -30,8 +30,8 @@ public abstract class ReservableRegisterDto {
     @NotBlank
     String name;
 
-    @Schema(description = "Short resource description", example = "Cable HDMI de 10 Mts")
-    @Size(max = 455)
+    @Schema(description = "the description of the reservable", example = "Salón de cómputo con 40 pcs")
+    @Size(max = 400)
     String description;
 
     @Schema(description = "Whether this resource can be reserved by students")

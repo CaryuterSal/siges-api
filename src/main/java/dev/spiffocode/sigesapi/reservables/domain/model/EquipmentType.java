@@ -30,7 +30,7 @@ public class EquipmentType {
     @Column(nullable = false, unique = true, length = 45)
     private String name;
 
-    @Column(nullable = false, length = 400)
+    @Column(length = 400)
     private String description;
 
     @Column(insertable = false, updatable = false)
@@ -46,7 +46,6 @@ public class EquipmentType {
         equipments.add(equipment);
         equipment.setType(this);
     }
-
 
     @ToString.Exclude
     @Builder.Default
