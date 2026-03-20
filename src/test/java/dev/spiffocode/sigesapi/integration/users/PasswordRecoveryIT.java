@@ -165,29 +165,30 @@ class PasswordRecoveryIT extends FlushedIntegrationTest {
                                 .param("token", tokenValue))
                                 .andExpect(status().isFound())
                                 .andExpect(header().exists("Location"))
-                                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("token=")));
+                                .andExpect(header().string("Location",
+                                                "https://frontend.com/reset-password?token=" + tokenValue));
         }
 
         @Test
-        void redirect_withExpiredToken_redirectsWithErrorParam() throws Exception {
+        void redirect_withExpiredToken_redirectsToExpiredUrl() throws Exception {
                 String tokenValue = seedTokenForStudent(true, false);
 
                 mvc.perform(get(BASE + "/redirect")
                                 .header("X-API-Version", VERSION)
                                 .param("token", tokenValue))
                                 .andExpect(status().isFound())
-                                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("error=")));
+                                .andExpect(header().string("Location", "https://frontend.com/token-expired"));
         }
 
         @Test
-        void redirect_withUsedToken_redirectsWithErrorParam() throws Exception {
+        void redirect_withUsedToken_redirectsToUsedUrl() throws Exception {
                 String tokenValue = seedTokenForStudent(false, true);
 
                 mvc.perform(get(BASE + "/redirect")
                                 .header("X-API-Version", VERSION)
                                 .param("token", tokenValue))
                                 .andExpect(status().isFound())
-                                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("error=")));
+                                .andExpect(header().string("Location", "https://frontend.com/token-used"));
         }
 
         @Test

@@ -90,8 +90,8 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
             }
 
             String baseUrl = recoveryToken.getPlatform() == RecoveryPlatform.MOBILE
-                    ? recoveryProperties.getMobileRedirectUrl()
-                    : recoveryProperties.getWebRedirectUrl();
+                    ? recoveryProperties.getMobileSuccessUrl()
+                    : recoveryProperties.getWebSuccessUrl();
 
             return UriComponentsBuilder.fromUriString(baseUrl)
                     .queryParam("token", token)
@@ -99,17 +99,23 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                     .toUri();
 
         } catch (InvalidRecoveryTokenException | JWTVerificationException e) {
-            return buildErrorRedirect(RecoveryPlatform.WEB, "invalid_token");
+            return buildErrorRedirect(RecoveryPlatform.WEB, "token_expired");
         }
     }
 
     private URI buildErrorRedirect(RecoveryPlatform platform, String reason) {
-        String baseUrl = platform == RecoveryPlatform.MOBILE
-                ? recoveryProperties.getMobileRedirectUrl()
-                : recoveryProperties.getWebRedirectUrl();
+        String baseUrl;
+        if (platform == RecoveryPlatform.MOBILE) {
+            baseUrl = "token_used".equals(reason)
+                    ? recoveryProperties.getMobileUsedUrl()
+                    : recoveryProperties.getMobileExpiredUrl();
+        } else {
+            baseUrl = "token_used".equals(reason)
+                    ? recoveryProperties.getWebUsedUrl()
+                    : recoveryProperties.getWebExpiredUrl();
+        }
 
         return UriComponentsBuilder.fromUriString(baseUrl)
-                .queryParam("error", reason)
                 .build()
                 .toUri();
     }

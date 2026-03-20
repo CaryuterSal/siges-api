@@ -17,8 +17,19 @@ import java.time.Duration;
 @Setter
 @ToString
 @Validated
-public class RecoveryProperties{
-    @NotBlank String webRedirectUrl;
-    @NotBlank String mobileRedirectUrl;   // myapp://reset-password (deep link)
-    @NotNull Duration tokenExpiration;   // PT15M = 15 minutos
+public class RecoveryProperties {
+    @NotBlank
+    String webSuccessUrl;
+    @NotBlank
+    String webUsedUrl;
+    @NotBlank
+    String webExpiredUrl;
+    @NotBlank
+    String mobileSuccessUrl;
+    @NotBlank
+    String mobileUsedUrl;
+    @NotBlank
+    String mobileExpiredUrl;
+    @NotNull
+    Duration tokenExpiration;
 }
