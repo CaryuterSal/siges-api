@@ -42,10 +42,13 @@ public class FcmPushNotificationAdapter implements PushNotificationPort {
                 .addAllTokens(tokens)
                 .build();
 
+        log.info(
+                "\n=== OUTGOING PUSH NOTIFICATION ===\nTo User: {}\nTitle: {}\nBody: {}\nMetadata: {}\nTokens: {}\n===================================",
+                userId, title, body, metadata, tokens);
         try {
             BatchResponse response = fcm.sendEachForMulticast(message);
-            log.info("Notification sent to user {}: {}/{} successful",
-                    userId, response.getSuccessCount(), tokens.size());
+            log.info("Push notification results for user {}: {} success, {} failure",
+                    userId, response.getSuccessCount(), response.getFailureCount());
 
             if (response.getFailureCount() > 0) {
                 List<String> invalidTokens = extractInvalidTokens(response, tokens);
@@ -91,9 +94,12 @@ public class FcmPushNotificationAdapter implements PushNotificationPort {
                 .setTopic(topic)
                 .build();
 
+        log.info(
+                "\n=== OUTGOING PUSH NOTIFICATION ===\nTo Topic: {}\nTitle: {}\nBody: {}\nMetadata: {}\n===================================",
+                topic, title, body, metadata);
         try {
             fcm.send(message);
-            log.info("Notification '{}' sent to topic {}", title, topic);
+            log.info("Push notification sent to topic: {}", topic);
         } catch (FirebaseMessagingException ex) {
             log.warn("Failed Topic notification '{}' send", title);
             log.warn(ex.getMessage());

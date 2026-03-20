@@ -103,7 +103,8 @@ public class UserManagementEmailAdapter implements UserManagementEmailPort {
 
     @Async("asyncExecutor")
     @Override
-    public void sendStudentRegistrationNumberChangeEmail(String email, String name, String oldNumber, String newNumber) {
+    public void sendStudentRegistrationNumberChangeEmail(String email, String name, String oldNumber,
+            String newNumber) {
         Context ctx = new Context();
         ctx.setVariable("name", name);
         ctx.setVariable("label", "Matrícula");
@@ -123,17 +124,18 @@ public class UserManagementEmailAdapter implements UserManagementEmailPort {
 
     @Retryable
     private void sendHtml(String to, String subject, String template, Context ctx) {
-        log.debug("Sending email to {}", to);
+        String htmlContent = templateEngine.process(template, ctx);
+        log.info("\n=== OUTGOING EMAIL ===\nTo: {}\nSubject: {}\nTemplate: {}\n=======================", to, subject,
+                template);
         try {
             Resend resend = new Resend(apiKey);
             CreateEmailOptions params = CreateEmailOptions.builder()
                     .from(from)
                     .to(to)
                     .subject(subject)
-                    .html(templateEngine.process(template, ctx))
+                    .html(htmlContent)
                     .build();
             resend.emails().send(params);
-            log.info("Correo '{}' enviado a {}", subject, to);
         } catch (ResendException e) {
             log.error("Error al enviar correo '{}' a {}: {}", subject, to, e.getMessage());
             throw new RuntimeException(e);

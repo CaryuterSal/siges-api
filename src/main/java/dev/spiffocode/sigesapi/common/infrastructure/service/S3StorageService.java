@@ -43,7 +43,10 @@ public class S3StorageService implements StorageService {
                     .contentType(contentType)
                     .build();
 
+            log.info("\n=== OUTGOING S3 UPLOAD ===\nBucket: {}\nKey: {}\nContentType: {}\n==========================",
+                    s3Properties.getBucketName(), key, contentType);
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+            log.info("S3 Upload successful: {}", key);
 
             return buildUrl(key);
         } catch (S3Exception | IOException e) {
@@ -64,8 +67,11 @@ public class S3StorageService implements StorageService {
                 .contentType(contentType)
                 .build();
 
+        log.info("\n=== OUTGOING S3 UPLOAD ===\nBucket: {}\nKey: {}\nContentType: {}\n==========================",
+                s3Properties.getBucketName(), key, contentType);
         try {
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file));
+            log.info("S3 Upload successful: {}", key);
         } catch (S3Exception e) {
             log.error("Failed to upload file to S3", e);
             throw new StorageException("Failed to upload file", e);
@@ -76,7 +82,8 @@ public class S3StorageService implements StorageService {
 
     @Override
     public void deleteFile(String fileUrl) {
-        if (fileUrl == null || fileUrl.isBlank()) return;
+        if (fileUrl == null || fileUrl.isBlank())
+            return;
 
         String key = fileUrl.replace(buildBaseUrl() + "/", "");
 
@@ -84,14 +91,17 @@ public class S3StorageService implements StorageService {
                 .bucket(s3Properties.getBucketName())
                 .key(key)
                 .build();
+
+        log.info("\n=== OUTGOING S3 DELETE ===\nBucket: {}\nKey: {}\n==========================",
+                s3Properties.getBucketName(), key);
         try {
             s3Client.deleteObject(request);
-        } catch (S3Exception ex){
+            log.info("S3 Delete successful: {}", key);
+        } catch (S3Exception ex) {
             log.warn("Could not delete file from S3", ex);
             throw new StorageException("Could not delete file from S3", ex);
         }
     }
-
 
     private String detectAndValidate(byte[] bytes, long size) {
         if (bytes.length == 0)
@@ -111,7 +121,7 @@ public class S3StorageService implements StorageService {
     private String extensionFromType(String contentType) {
         return switch (contentType) {
             case "image/jpeg" -> ".jpg";
-            case "image/png"  -> ".png";
+            case "image/png" -> ".png";
             case "image/webp" -> ".webp";
             default -> "";
         };
@@ -123,7 +133,8 @@ public class S3StorageService implements StorageService {
 
     private String buildBaseUrl() {
         String domain = s3Properties.getCloudfrontDomain();
-        if (!domain.startsWith("http")) domain = "https://" + domain;
+        if (!domain.startsWith("http"))
+            domain = "https://" + domain;
         return domain.endsWith("/") ? domain.substring(0, domain.length() - 1) : domain;
     }
 }
