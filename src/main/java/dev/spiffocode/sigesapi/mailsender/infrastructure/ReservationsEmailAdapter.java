@@ -67,17 +67,18 @@ public class ReservationsEmailAdapter implements ReservationsEmailPort {
 
     @Retryable
     private void sendHtml(String to, String subject, String template, Context ctx) {
-        log.debug("Sending email to {}", to);
+        String htmlContent = templateEngine.process(template, ctx);
+        log.info("\n=== OUTGOING EMAIL ===\nTo: {}\nSubject: {}\nTemplate: {}\n=======================", to, subject,
+                template);
         try {
             Resend resend = new Resend(apiKey);
             CreateEmailOptions params = CreateEmailOptions.builder()
                     .from(from)
                     .to(to)
                     .subject(subject)
-                    .html(templateEngine.process(template, ctx))
+                    .html(htmlContent)
                     .build();
             resend.emails().send(params);
-            log.info("Correo '{}' enviado a {}", subject, to);
         } catch (ResendException e) {
             log.error("Error al enviar correo '{}' a {}: {}", subject, to, e.getMessage());
             throw new RuntimeException(e);
