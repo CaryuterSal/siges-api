@@ -141,7 +141,6 @@ public class UserManagementController {
 
         @ApiResponses({
                         @ApiResponse(responseCode = "200", description = "OK", useReturnTypeSchema = true),
-                        @ApiResponse(responseCode = "400", description = "Invalid sort field"),
                         @ApiResponse(responseCode = "404", description = "User not found")
         })
         @GetMapping("/users/{id}")
@@ -149,6 +148,16 @@ public class UserManagementController {
         public UserResponse findById(
                         @PathVariable Long id) {
                 return queryService.findUserById(id);
+        }
+
+        @ApiResponses({
+                @ApiResponse(responseCode = "200", description = "OK", useReturnTypeSchema = true),
+                @ApiResponse(responseCode = "400", description = "Invalid sort field"),
+        })
+        @GetMapping("/users/me")
+        @Operation(summary = "Finds a user by its ID. Only available for admins")
+        public UserResponse findSelfProfile() {
+            return queryService.findUserById(securityContextHelper.getCurrentUserId());
         }
 
         @ApiResponses({
