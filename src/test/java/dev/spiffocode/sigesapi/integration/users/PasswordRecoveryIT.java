@@ -166,7 +166,7 @@ class PasswordRecoveryIT extends FlushedIntegrationTest {
                                 .andExpect(status().isFound())
                                 .andExpect(header().exists("Location"))
                                 .andExpect(header().string("Location",
-                                                "https://frontend.com/reset-password?token=" + tokenValue));
+                                                "https://frontend.com/reset-password?token=" + tokenValue + "&email=" + savedStudent.getEmail()));
         }
 
         @Test

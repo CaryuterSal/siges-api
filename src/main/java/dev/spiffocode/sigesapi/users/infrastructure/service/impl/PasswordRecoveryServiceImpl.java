@@ -95,6 +95,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
             return UriComponentsBuilder.fromUriString(baseUrl)
                     .queryParam("token", token)
+                    .queryParam("email", recoveryToken.getUser().getEmail())
                     .build()
                     .toUri();
 
