@@ -5,8 +5,6 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.mailsender.application.service.UserManagementEmailPort;
 import dev.spiffocode.sigesapi.notifications.application.service.NotificationsPort;
-import dev.spiffocode.sigesapi.notifications.application.service.SendNotificationCommand;
-import dev.spiffocode.sigesapi.notifications.domain.model.Type;
 import dev.spiffocode.sigesapi.users.application.service.PasswordRecoveryService;
 import dev.spiffocode.sigesapi.users.domain.exception.InvalidRecoveryTokenException;
 import dev.spiffocode.sigesapi.users.domain.exception.RecoveryTokenExpiredException;
@@ -28,7 +26,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.time.Clock;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -84,8 +81,12 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
             PasswordRecoveryToken recoveryToken = recoveryTokenRepository.findByJti(jti)
                     .orElseThrow(() -> new InvalidRecoveryTokenException("Invalid token"));
 
-            if (recoveryToken.isExpired(clock) || recoveryToken.isUsed()) {
+            if (recoveryToken.isExpired(clock)) {
                 return buildErrorRedirect(recoveryToken.getPlatform(), "token_expired");
+            }
+
+            if (recoveryToken.isUsed()) {
+                return buildErrorRedirect(recoveryToken.getPlatform(), "token_used");
             }
 
             String baseUrl = recoveryToken.getPlatform() == RecoveryPlatform.MOBILE
