@@ -18,6 +18,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Clock;
 import java.time.LocalDate;
@@ -172,6 +173,10 @@ public abstract class User implements CustomUserDetails {
         this.password = password;
         setTokenVersion(getTokenVersion() + 1);
         return Objects.equals(old, password);
+    }
+
+    public boolean passwordMatches(PasswordEncoder encoder, String rawPassword) {
+        return encoder.matches(rawPassword, this.password);
     }
 
 }

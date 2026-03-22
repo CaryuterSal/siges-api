@@ -2,7 +2,7 @@ package dev.spiffocode.sigesapi.users.infrastructure.controller;
 
 import dev.spiffocode.sigesapi.common.presentation.ValidationProblem;
 import dev.spiffocode.sigesapi.users.application.service.PasswordRecoveryService;
-import dev.spiffocode.sigesapi.users.presentation.dto.PasswordUpdateRequest;
+import dev.spiffocode.sigesapi.users.presentation.dto.PasswordRecoveryUpdateRequest;
 import dev.spiffocode.sigesapi.users.presentation.dto.RequestAccountRecovery;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -88,7 +88,7 @@ public class PasswordRecoveryController {
     })
     @Operation(summary = "Updates a password")
     @PatchMapping("/password-recovery/reset")
-    public ResponseEntity<@NonNull Void> resetPassword(@RequestBody @Valid PasswordUpdateRequest request) {
+    public ResponseEntity<@NonNull Void> resetPassword(@RequestBody @Valid PasswordRecoveryUpdateRequest request) {
         recoveryService.updatePassword(request);
         return ResponseEntity.noContent().build();
     }

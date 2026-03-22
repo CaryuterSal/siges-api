@@ -6,15 +6,15 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.extern.jackson.Jacksonized;
 
-@Builder
+@Builder(toBuilder = true)
 @Jacksonized
-public record PasswordUpdateRequest(
+public record PasswordRecoveryUpdateRequest(
         @Schema(
-                description = "Old password that confirms account ownership",
-                example = "OlsPass"
+                description = "Recovery token received via email",
+                example = "eyJhbGciOiJIUzI1NiJ9..."
         )
         @NotBlank
-        String oldPassword,
+        String token,
 
         @Schema(
                 description = "New password. Must contain at least one uppercase, one lowercase, one number and one special character",
@@ -25,6 +25,6 @@ public record PasswordUpdateRequest(
                 regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,}$",
                 message = "Password must be at least 8 characters and contain uppercase, lowercase, number and special character"
         )
-        String newPassword
+                String newPassword
 ) {
 }
