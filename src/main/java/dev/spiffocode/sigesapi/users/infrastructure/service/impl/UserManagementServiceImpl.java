@@ -1,6 +1,9 @@
 package dev.spiffocode.sigesapi.users.infrastructure.service.impl;
 
+import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
 import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
+import dev.spiffocode.sigesapi.auth.presentation.dto.AuthenticatedResponse;
+import dev.spiffocode.sigesapi.auth.presentation.dto.LoginRequest;
 import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
 import dev.spiffocode.sigesapi.mailsender.application.service.UserManagementEmailPort;
 import dev.spiffocode.sigesapi.notifications.domain.model.Type;
@@ -10,6 +13,7 @@ import dev.spiffocode.sigesapi.users.application.mapper.StudentMapper;
 import dev.spiffocode.sigesapi.users.application.mapper.UserMapper;
 import dev.spiffocode.sigesapi.users.application.service.PhoneNumberNormalizer;
 import dev.spiffocode.sigesapi.users.application.service.UserManagementService;
+import dev.spiffocode.sigesapi.users.domain.exception.OldPasswordDoNotMatchException;
 import dev.spiffocode.sigesapi.users.domain.exception.UserNotFoundException;
 import dev.spiffocode.sigesapi.users.domain.model.InstitutionalStaff;
 import dev.spiffocode.sigesapi.users.domain.model.Student;
@@ -55,6 +59,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     private final UserUniquenessValidator userUniquenessValidator;
     private final StudentUniquenessValidator studentUniquenessValidator;
     private final InstitutionalStaffUniquenessValidator institutionalStaffUniquenessValidator;
+    private final BearerAuthService authService;
 
     private final SecurityContextHelper securityContextHelper;
     private final StorageService storageService;
@@ -225,5 +230,25 @@ public class UserManagementServiceImpl implements UserManagementService {
         userRepository.save(user);
 
         return getNotificationPreferences(userId);
+    }
+
+    @Transactional
+    @Override
+    public AuthenticatedResponse updatePassword(PasswordUpdateRequest request, String requestIp) {
+        Long userId = securityContextHelper.getCurrentUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow();
+        if(!user.passwordMatches(passwordEncoder,  request.oldPassword())) {
+            throw new OldPasswordDoNotMatchException();
+        }
+        user.changePassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+
+        emailPort.sendPasswordChangedEmail(user.getEmail(), user.fullName());
+
+        return authService.login(
+                new LoginRequest(user.getEmail(), request.newPassword()),
+                requestIp
+        );
     }
 }

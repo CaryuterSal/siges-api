@@ -6,6 +6,7 @@ import dev.spiffocode.sigesapi.common.infrastructure.exceptions.StorageException
 import dev.spiffocode.sigesapi.reservations.domain.exception.ReservableNotAvailableForStudentsException;
 import dev.spiffocode.sigesapi.reservations.domain.exception.ReservationTooSoonException;
 import dev.spiffocode.sigesapi.users.domain.exception.InvalidRecoveryTokenException;
+import dev.spiffocode.sigesapi.users.domain.exception.OldPasswordDoNotMatchException;
 import dev.spiffocode.sigesapi.users.domain.exception.RecoveryTokenExpiredException;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
@@ -67,7 +68,7 @@ public class SpecificControllerAdvice {
         return problem;
     }
 
-    @ExceptionHandler({ReservableNotAvailableForStudentsException.class, ReservationTooSoonException.class})
+    @ExceptionHandler({ReservableNotAvailableForStudentsException.class, ReservationTooSoonException.class, OldPasswordDoNotMatchException.class})
     @ResponseStatus(HttpStatus.UNPROCESSABLE_CONTENT)
     public ProblemDetail handleUnprocessableContent(Exception e){
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, e.getMessage());

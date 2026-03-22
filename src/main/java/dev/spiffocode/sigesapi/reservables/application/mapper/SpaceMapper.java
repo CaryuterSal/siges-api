@@ -75,13 +75,6 @@ public interface SpaceMapper {
         if (spaceType != null) {
             spaceType.addSpace(space);
         }
-
-        if (space.getAvailability() != null && !space.getAvailability().isEmpty()) {
-            space.getAvailability().forEach(av -> av.setReservable(space));
-        }
-
-        if(space.getAvailabilityExceptions() != null && !space.getAvailabilityExceptions().isEmpty()) {
-            space.getAvailabilityExceptions().forEach(av -> av.setReservable(space));
-        }
+        ReservableMapper.linkRelations(space);
     }
 }

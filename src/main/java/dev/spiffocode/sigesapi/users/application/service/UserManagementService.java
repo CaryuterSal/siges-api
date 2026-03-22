@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.users.application.service;
 
+import dev.spiffocode.sigesapi.auth.presentation.dto.AuthenticatedResponse;
 import dev.spiffocode.sigesapi.users.presentation.dto.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,4 +25,6 @@ public interface UserManagementService {
 
     List<NotificationPreferenceResponse> updateNotificationPreferences(Long userId,
             List<NotificationPreferenceUpdateRequest> updates);
+
+    AuthenticatedResponse updatePassword(PasswordUpdateRequest request, String requestIp);
 }

@@ -10,8 +10,6 @@ import org.springframework.data.repository.history.RevisionRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface SpaceAssetRepository extends
         JpaRepository<@NonNull SpaceAsset, @NonNull Long>,

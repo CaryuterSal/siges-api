@@ -3,6 +3,7 @@ package dev.spiffocode.sigesapi.users.infrastructure.service.impl;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
+import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
 import dev.spiffocode.sigesapi.mailsender.application.service.UserManagementEmailPort;
 import dev.spiffocode.sigesapi.notifications.application.service.NotificationsPort;
 import dev.spiffocode.sigesapi.users.application.service.PasswordRecoveryService;
@@ -14,7 +15,7 @@ import dev.spiffocode.sigesapi.users.domain.model.User;
 import dev.spiffocode.sigesapi.users.domain.repository.PasswordRecoveryTokenRepository;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import dev.spiffocode.sigesapi.users.infrastructure.properties.RecoveryProperties;
-import dev.spiffocode.sigesapi.users.presentation.dto.PasswordUpdateRequest;
+import dev.spiffocode.sigesapi.users.presentation.dto.PasswordRecoveryUpdateRequest;
 import dev.spiffocode.sigesapi.users.presentation.dto.RequestAccountRecovery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -41,6 +42,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
     private final UserManagementEmailPort emailPort;
     private final NotificationsPort notificationsPort;
     private final Clock clock;
+    private final SecurityContextHelper securityContextHelper;
 
     @Async
     @Transactional
@@ -123,7 +125,7 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
 
     @Transactional
     @Override
-    public void updatePassword(PasswordUpdateRequest request) {
+    public void updatePassword(PasswordRecoveryUpdateRequest request) {
         try {
             String jti = jwtService.extractJti(request.token());
 
