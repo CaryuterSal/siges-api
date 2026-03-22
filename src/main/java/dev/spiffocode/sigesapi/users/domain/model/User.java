@@ -86,7 +86,7 @@ public abstract class User implements CustomUserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = true, length = 512)
+    @Column(length = 512)
     private String profilePictureUrl;
 
     private LocalDateTime lastLogin;

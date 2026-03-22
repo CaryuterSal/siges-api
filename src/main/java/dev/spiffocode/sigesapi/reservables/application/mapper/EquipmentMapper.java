@@ -69,13 +69,6 @@ public interface EquipmentMapper {
         if (type != null) {
             type.addEquipment(equipment);
         }
-
-        if (equipment.getAvailability() != null && !equipment.getAvailability().isEmpty()) {
-            equipment.getAvailability().forEach(av -> av.setReservable(equipment));
-        }
-
-        if (equipment.getAvailabilityExceptions() != null && !equipment.getAvailabilityExceptions().isEmpty()) {
-            equipment.getAvailabilityExceptions().forEach(av -> av.setReservable(equipment));
-        }
+        ReservableMapper.linkRelations(equipment);
     }
 }

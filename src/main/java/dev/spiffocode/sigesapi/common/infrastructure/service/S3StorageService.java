@@ -43,10 +43,9 @@ public class S3StorageService implements StorageService {
                     .contentType(contentType)
                     .build();
 
-            log.info("\n=== OUTGOING S3 UPLOAD ===\nBucket: {}\nKey: {}\nContentType: {}\n==========================",
-                    s3Properties.getBucketName(), key, contentType);
+            logOutgoing(key, contentType);
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
-            log.info("S3 Upload successful: {}", key);
+            logSuccess(key);
 
             return buildUrl(key);
         } catch (S3Exception | IOException e) {
@@ -67,11 +66,10 @@ public class S3StorageService implements StorageService {
                 .contentType(contentType)
                 .build();
 
-        log.info("\n=== OUTGOING S3 UPLOAD ===\nBucket: {}\nKey: {}\nContentType: {}\n==========================",
-                s3Properties.getBucketName(), key, contentType);
+        logOutgoing(key, contentType);
         try {
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file));
-            log.info("S3 Upload successful: {}", key);
+            logSuccess(key);
         } catch (S3Exception e) {
             log.error("Failed to upload file to S3", e);
             throw new StorageException("Failed to upload file", e);
@@ -136,5 +134,14 @@ public class S3StorageService implements StorageService {
         if (!domain.startsWith("http"))
             domain = "https://" + domain;
         return domain.endsWith("/") ? domain.substring(0, domain.length() - 1) : domain;
+    }
+
+    private void logOutgoing(String key, String contentType) {
+        log.info("\n=== OUTGOING S3 UPLOAD ===\nBucket: {}\nKey: {}\nContentType: {}\n==========================",
+                s3Properties.getBucketName(), key, contentType);
+    }
+
+    private void logSuccess(String key){
+        log.info("S3 Upload successful: {}", key);
     }
 }

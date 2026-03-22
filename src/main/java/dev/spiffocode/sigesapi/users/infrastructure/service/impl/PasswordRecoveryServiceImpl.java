@@ -8,7 +8,6 @@ import dev.spiffocode.sigesapi.mailsender.application.service.UserManagementEmai
 import dev.spiffocode.sigesapi.notifications.application.service.NotificationsPort;
 import dev.spiffocode.sigesapi.users.application.service.PasswordRecoveryService;
 import dev.spiffocode.sigesapi.users.domain.exception.InvalidRecoveryTokenException;
-import dev.spiffocode.sigesapi.users.domain.exception.OldPasswordDoNotMatchException;
 import dev.spiffocode.sigesapi.users.domain.exception.RecoveryTokenExpiredException;
 import dev.spiffocode.sigesapi.users.domain.model.PasswordRecoveryToken;
 import dev.spiffocode.sigesapi.users.domain.model.RecoveryPlatform;
@@ -17,7 +16,6 @@ import dev.spiffocode.sigesapi.users.domain.repository.PasswordRecoveryTokenRepo
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
 import dev.spiffocode.sigesapi.users.infrastructure.properties.RecoveryProperties;
 import dev.spiffocode.sigesapi.users.presentation.dto.PasswordRecoveryUpdateRequest;
-import dev.spiffocode.sigesapi.users.presentation.dto.PasswordUpdateRequest;
 import dev.spiffocode.sigesapi.users.presentation.dto.RequestAccountRecovery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
