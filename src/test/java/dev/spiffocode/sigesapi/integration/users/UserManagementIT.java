@@ -10,6 +10,7 @@ import dev.spiffocode.sigesapi.users.domain.model.Student;
 import dev.spiffocode.sigesapi.users.domain.repository.InstitutionalStaffRepository;
 import dev.spiffocode.sigesapi.users.domain.repository.StudentRepository;
 import dev.spiffocode.sigesapi.users.domain.repository.UserRepository;
+import dev.spiffocode.sigesapi.users.presentation.dto.PasswordUpdateRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -639,4 +640,83 @@ class UserManagementIT extends FlushedIntegrationTest {
                                 .header("Authorization", "Bearer " + adminToken))
                                 .andExpect(status().isNotFound());
         }
+
+        @Test
+        void updatePassword_returnsNewToken() throws Exception {
+            PasswordUpdateRequest request = PasswordUpdateRequest.builder()
+                    .oldPassword("Admin123!")
+                    .newPassword("Student123!")
+                    .build();
+            mvc.perform(patch("/users/me/password")
+                            .header("X-API-Version", VERSION)
+                            .header("Authorization", "Bearer " + studentToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.accessToken").exists())
+                    .andExpect(jsonPath("$.refreshToken").exists());
+        }
+
+
+        @Test
+        void updatePassword_returnsValidTokens() throws Exception {
+            PasswordUpdateRequest request = PasswordUpdateRequest.builder()
+                    .oldPassword("Admin123!")
+                    .newPassword("Student123!")
+                    .build();
+
+
+            String returnedToken  = mapper.readTree(mvc.perform(patch("/users/me/password")
+                            .header("X-API-Version", VERSION)
+                            .header("Authorization", "Bearer " + adminToken)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(mapper.writeValueAsString(request)))
+                    .andReturn().getResponse().getContentAsString()).get("accessToken").asString();
+
+            mvc.perform(get("/users/me")
+                    .header("X-API-Version", VERSION)
+                    .header("Authorization", "Bearer " + returnedToken))
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        void updatePassword_invalidatesOldToken() throws Exception {
+            PasswordUpdateRequest request = PasswordUpdateRequest.builder()
+                    .oldPassword("Admin123!")
+                    .newPassword("Student123!")
+                    .build();
+
+
+            mvc.perform(patch("/users/me/password")
+                                    .header("X-API-Version", VERSION)
+                                    .header("Authorization", "Bearer " + adminToken)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(mapper.writeValueAsString(request)));
+
+            mvc.perform(get("/users/me")
+                            .header("X-API-Version", VERSION)
+                            .header("Authorization", "Bearer " + adminToken))
+                    .andExpect(status().isForbidden());
+        }
+
+    @Test
+    void updatePassword_updatesPassword() throws Exception {
+        PasswordUpdateRequest request = PasswordUpdateRequest.builder()
+                .oldPassword("Admin123!")
+                .newPassword("Student123!")
+                .build();
+
+
+        mvc.perform(patch("/users/me/password")
+                .header("X-API-Version", VERSION)
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request)));
+
+        LoginRequest loginRequest = new LoginRequest("admin@utez.edu.mx", "Student123!");
+        mvc.perform(post("/auth/login")
+                        .header("X-API-Version", VERSION)
+                        .header("Authorization", "Bearer " + loginRequest))
+                .andExpect(status().isOk());
+    }
 }
