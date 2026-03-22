@@ -716,7 +716,8 @@ class UserManagementIT extends FlushedIntegrationTest {
         LoginRequest loginRequest = new LoginRequest("admin@utez.edu.mx", "Student123!");
         mvc.perform(post("/auth/login")
                         .header("X-API-Version", VERSION)
-                        .header("Authorization", "Bearer " + loginRequest))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(loginRequest)))
                 .andExpect(status().isOk());
     }
 }
