@@ -13,7 +13,6 @@ import lombok.extern.jackson.Jacksonized;
 @EqualsAndHashCode(callSuper = true)
 public class InstitutionalStaffRegistrationRequest extends ApplicantRegistrationRequest{
 
-    //TODO: Validate format with official staff
     @Schema(
             description = "Unique employee number for the institutional staff",
             example = "IN-002"
