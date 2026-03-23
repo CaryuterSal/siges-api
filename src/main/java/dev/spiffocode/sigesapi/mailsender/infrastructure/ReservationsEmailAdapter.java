@@ -14,7 +14,7 @@ import org.thymeleaf.context.Context;
 @RequiredArgsConstructor
 public class ReservationsEmailAdapter implements ReservationsEmailPort {
 
-    SpecificEmailPort emailPort;
+    private final SpecificEmailPort emailPort;
 
     @Async("asyncExecutor")
     @Override
