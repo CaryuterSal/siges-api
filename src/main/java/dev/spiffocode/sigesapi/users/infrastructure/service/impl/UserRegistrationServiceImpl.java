@@ -59,7 +59,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
 
         userUniquenessValidator.assertRegisterUnique(request.getEmail(), normalizedPhoneNumber);
 
-        String rawPassword = passwordGenerator.generatePassword();
+        String rawPassword = request.getPassword() != null ? request.getPassword() : passwordGenerator.generatePassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         Admin entity = adminMapper.toEntity(request, encodedPassword);
@@ -83,7 +83,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         userUniquenessValidator.assertRegisterUnique(request.getEmail(), normalizedPhoneNumber);
         studentUniquenessValidator.assertRegisterUnique(request.getRegistrationNumber());
 
-        String rawPassword = passwordGenerator.generatePassword();
+        String rawPassword = request.getPassword() != null ? request.getPassword() : passwordGenerator.generatePassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         Student entity = studentMapper.toEntity(request, encodedPassword);
@@ -107,7 +107,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         institutionalStaffUniquenessValidator.assertRegisterUnique(request.getEmployeeNumber());
 
 
-        String rawPassword = passwordGenerator.generatePassword();
+        String rawPassword = request.getPassword() != null ? request.getPassword() : passwordGenerator.generatePassword();
         String encodedPassword = passwordEncoder.encode(rawPassword);
 
         InstitutionalStaff entity = institutionalStaffMapper.toEntity(request, encodedPassword);

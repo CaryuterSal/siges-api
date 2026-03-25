@@ -59,4 +59,10 @@ public sealed abstract class UserRegistrationRequest permits AdminRegistrationRe
     @Past
     LocalDate birthDate;
 
+    @Schema(
+            description = "Optional fixed password. If not used an automatic password is generated and sent via email to the user registered",
+            example = "Test1$"
+    )
+    String password;
+
 }
