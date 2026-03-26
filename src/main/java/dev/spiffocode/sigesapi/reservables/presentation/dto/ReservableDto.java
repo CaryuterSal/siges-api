@@ -8,25 +8,24 @@ import lombok.Setter;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
-import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Setter
 @SuperBuilder
-@Jacksonized
 @AllArgsConstructor
 @Value
 @NonFinal
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "resourceType", visible = true)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "reservableType", visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = SpaceDto.class, name = "SPACE"),
+        @JsonSubTypes.Type(value = SpaceSummaryDto.class, name = "SPACE"),
         @JsonSubTypes.Type(value = EquipmentDto.class, name = "EQUIPMENT")
 })
-public class ReservableDto {
-    @Schema(example = "SPACE", examples = {"SPACE", "EQUIPMENT"})
-    String resourceType;
+public abstract sealed class ReservableDto permits EquipmentDto, SpaceDto, SpaceSummaryDto {
+    @Schema(example = "SPACE", examples = { "SPACE", "EQUIPMENT" })
+    String reservableType;
     long id;
     @Schema(example = "Cable HDMI")
     String name;
