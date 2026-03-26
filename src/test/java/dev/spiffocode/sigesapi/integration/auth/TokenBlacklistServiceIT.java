@@ -24,7 +24,7 @@ class TokenBlacklistServiceIT {
     @Test
     void blacklist_expires() {
 
-        Date expires = new Date(clock.millis() + 1000);
+        Date expires = new Date(clock.millis() + 1300);
 
         assertFalse(service.isBlacklisted("abc"));
 
