@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.domain.specification;
 
+import dev.spiffocode.sigesapi.reservables.application.service.ReservableFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.domain.model.*;
 import jakarta.persistence.criteria.Join;
@@ -14,6 +15,22 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class ReservableSpecifications {
+
+    public static Specification<@NonNull Reservable> byFilter(ReservableFilter filter) {
+        return Specification
+                .where(ReservableSpecifications.byActiveFilter(filter.getShowModeFilter()))
+                .and(
+                    nameContains(filter.getSearchQuery())
+                    .or(ReservableSpecifications.descriptionContains(filter.getSearchQuery()))
+                )
+                .and(ReservableSpecifications.statusIs(filter.getStatus()))
+                .and(ReservableSpecifications.inBuilding(filter.getBuildingIdFilter()))
+                .and(ReservableSpecifications.availableForStudents(filter.getStudentsAvailableFilter()))
+                .and(ReservableSpecifications.isAvailableBySchedule(filter.getRequestStartFilter(),
+                        filter.getRequestEndFilter()))
+                .and(ReservableSpecifications.hasNoExceptionFor(filter.getRequestStartFilter(),
+                        filter.getRequestEndFilter()));
+    }
 
 
     public static Specification<@NonNull Reservable> onlyDeleted(){

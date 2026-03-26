@@ -17,6 +17,7 @@ public interface EquipmentMapper {
     @Mapping(target = "inventoryIdNum", source = "inventoryItem.inventoryNum")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")
     @Mapping(target = "availabilitySlots", source = "availability")
+    @Mapping(target = "reservableType", constant = "EQUIPMENT")
     EquipmentDto toDto(Equipment equipment);
 
     @Mapping(target = "inventoryItem", source = "dto.inventoryNum")

@@ -19,6 +19,7 @@ public interface SpaceMapper {
     @Mapping(target = "bookInAdvanceDuration", source = "bookInAdvance")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")
     @Mapping(target = "availabilitySlots", source = "availability")
+    @Mapping(target = "reservableType", constant = "SPACE")
     SpaceDto toDto(Space space);
 
 
@@ -26,6 +27,7 @@ public interface SpaceMapper {
     @Mapping(target = "bookInAdvanceDuration", source = "bookInAdvance")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")
     @Mapping(target = "availabilitySlots", source = "availability")
+    @Mapping(target = "reservableType", constant = "SPACE")
     SpaceSummaryDto toSummaryDto(Space space);
 
     @Mapping(target = "deletedAt", ignore = true)
