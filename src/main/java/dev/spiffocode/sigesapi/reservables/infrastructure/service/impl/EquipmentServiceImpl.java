@@ -5,6 +5,7 @@ import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedReco
 import dev.spiffocode.sigesapi.reservables.application.mapper.EquipmentMapper;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentService;
+import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.exception.EquipmentTypeNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.exception.ReservableNotFoundException;
@@ -66,6 +67,8 @@ public class EquipmentServiceImpl implements EquipmentService {
     }
 
     private Specification<@NonNull Equipment> resolveSpecification(EquipmentFilter filter) {
+
+        EquipmentFilter actualFilter = securityContextHelper.isAdmin() ? filter : filter.withShowModeFilter(ShowModeFilter.ACTIVE);
         Specification<@NonNull Equipment> spec = equipmentSpecification(filter);
 
         if (securityContextHelper.isStudent())

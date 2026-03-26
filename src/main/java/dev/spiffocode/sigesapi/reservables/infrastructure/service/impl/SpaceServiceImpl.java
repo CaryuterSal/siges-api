@@ -4,6 +4,7 @@ import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
 import dev.spiffocode.sigesapi.common.infrastructure.persistence.WithDeletedRecords;
 import dev.spiffocode.sigesapi.reservables.application.mapper.SpaceMapper;
+import dev.spiffocode.sigesapi.reservables.application.service.ShowModeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceService;
 import dev.spiffocode.sigesapi.reservables.domain.exception.BuildingNotFoundException;
@@ -63,8 +64,8 @@ public class SpaceServiceImpl implements SpaceService {
     }
 
     private Specification<@NonNull Space> resolveSpecification(SpaceFilter filter) {
+        SpaceFilter actualFilter = securityContextHelper.isAdmin() ? filter : filter.withShowModeFilter(ShowModeFilter.ACTIVE);
         Specification<@NonNull Space> spec = spaceSpecification(filter);
-
         if(securityContextHelper.isStudent()) return spec.and(cast(availableForStudents(true)));
         return spec;
     }
