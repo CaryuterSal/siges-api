@@ -57,4 +57,6 @@ public interface EquipmentRepository extends
     int restore(@Param("id") Long id);
 
     List<Equipment> findBySpaceId(Long spaceId);
+    boolean existsBySpaceId(Long spaceId);
+    boolean existsByTypeId(Long id);
 }

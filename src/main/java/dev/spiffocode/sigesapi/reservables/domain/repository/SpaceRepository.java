@@ -56,4 +56,5 @@ public interface SpaceRepository extends
 
     boolean existsByNameAndBuilding(String name, Building building);
     boolean existsByNameAndBuildingAndIdNot(String name, Building building, Long id);
+    boolean existsByTypeId(Long id);
 }

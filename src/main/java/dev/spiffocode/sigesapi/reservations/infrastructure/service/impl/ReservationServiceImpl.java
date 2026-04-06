@@ -88,7 +88,9 @@ public class ReservationServiceImpl implements ReservationService {
                                 .entityId(saved.getId())
                                 .metadata(Map.of(
                                         "reservationId", saved.getId().toString(),
-                                        "reservableId", reservable.getId().toString()))
+                                        "reservableId", reservable.getId().toString(),
+                                        "issuedByName", petitioner.fullName(),
+                                        "issuedById", petitioner.getId().toString()))
                                 .build());
                 return reservationMapper.toDto(saved, List.of());
         }
@@ -119,7 +121,10 @@ public class ReservationServiceImpl implements ReservationService {
                                 .type(Type.RESERVATION_RESCHEDULE)
                                 .entityId(reservation.getId())
                                 .metadata(Map.of("reservationId", reservation.getId().toString(), "reservableId",
-                                                reservation.getReservable().getId().toString()))
+                                                reservation.getReservable().getId().toString(),
+
+                                        "issuedByName", reservation.getPetitioner().fullName(),
+                                        "issuedById", reservation.getPetitioner().getId().toString()))
                                 .build());
 
                 return toResponse(reservationRepository.save(reservation));
@@ -187,7 +192,9 @@ public class ReservationServiceImpl implements ReservationService {
                                         .type(Type.RESERVATION_CANCELLED)
                                         .entityId(id)
                                         .metadata(Map.of("reservationId", id.toString(), "reservableId",
-                                                        reservation.getReservable().getId().toString()))
+                                                        reservation.getReservable().getId().toString(),
+                                                "issuedByName", reservation.getPetitioner().fullName(),
+                                                "issuedById", reservation.getPetitioner().getId().toString()))
                                         .build());
                 }
 
@@ -227,7 +234,9 @@ public class ReservationServiceImpl implements ReservationService {
                                 .type(Type.COMMENT_ON_RESERVATION)
                                 .entityId(reservationId)
                                 .metadata(Map.of("reservationId", reservationId.toString(), "reservableId",
-                                                reservation.getReservable().getId().toString()))
+                                                reservation.getReservable().getId().toString(),
+                                        "issuedByName", reservation.getPetitioner().fullName(),
+                                        "issuedById", reservation.getPetitioner().getId().toString()))
                                 .build();
 
                 if (isAdmin) {

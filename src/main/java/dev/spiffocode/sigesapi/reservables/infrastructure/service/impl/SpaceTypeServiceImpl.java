@@ -7,6 +7,7 @@ import dev.spiffocode.sigesapi.reservables.application.service.SpaceTypeFilter;
 import dev.spiffocode.sigesapi.reservables.application.service.SpaceTypeService;
 import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceTypeNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
+import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceTypeRepository;
 import dev.spiffocode.sigesapi.reservables.domain.specification.SpaceTypeSpecifications;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceTypeDto;
@@ -25,6 +26,7 @@ import java.util.List;
 public class SpaceTypeServiceImpl implements SpaceTypeService {
 
     private final SpaceTypeRepository spaceTypeRepository;
+    private final SpaceRepository spaceRepository;
     private final SpaceTypeMapper spaceTypeMapper;
     private final SpaceTypeUniqueValidatorService uniqueValidator;
 
@@ -70,7 +72,7 @@ public class SpaceTypeServiceImpl implements SpaceTypeService {
         SpaceType spaceType = spaceTypeRepository.findById(id)
                 .orElseThrow(() -> new SpaceTypeNotFoundException("Space type with ID %dl not found".formatted(id), id));
 
-        if(spaceType.getSpaces() != null && !spaceType.getSpaces().isEmpty()){
+        if(spaceRepository.existsByTypeId(spaceType.getId())){
             throw new ConflictingStateException("Cannot deactivate Space Type. Still have spaces linked to. Either deactivate those spaces or re-assign them to other space type");
         }
         spaceTypeRepository.softDeleteById(id);
