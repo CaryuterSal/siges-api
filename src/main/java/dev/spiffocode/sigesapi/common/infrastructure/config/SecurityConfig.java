@@ -65,6 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/admins/**", "/institutional-staff/**", "/students/**", "/users/**").hasRole("ADMIN")
                         .requestMatchers("/reservations/*/approve", "/reservations/*/reject", "/reservations/*/start", "/reservations/*/finish").hasRole("ADMIN")
                         .requestMatchers("/reports/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET,"/reservations/*").authenticated()
                         .requestMatchers("/reservations/*").hasRole("APPLICANT")
                         .requestMatchers("/password-recovery/**").permitAll()
                         .anyRequest().authenticated())
