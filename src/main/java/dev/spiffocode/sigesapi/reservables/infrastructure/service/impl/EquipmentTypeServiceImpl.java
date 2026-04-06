@@ -7,6 +7,7 @@ import dev.spiffocode.sigesapi.reservables.application.service.EquipmentTypeFilt
 import dev.spiffocode.sigesapi.reservables.application.service.EquipmentTypeService;
 import dev.spiffocode.sigesapi.reservables.domain.exception.EquipmentTypeNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.EquipmentType;
+import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentTypeRepository;
 import dev.spiffocode.sigesapi.reservables.domain.specification.EquipmentTypeSpecifications;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentTypeDto;
@@ -25,6 +26,7 @@ import java.util.List;
 public class EquipmentTypeServiceImpl implements EquipmentTypeService {
 
     private final EquipmentTypeRepository equipmentTypeRepository;
+    private final EquipmentRepository equipmentRepository;
     private final EquipmentTypeMapper equipmentTypeMapper;
     private final EquipmentTypeUniqueValidatorService uniqueValidator;
 
@@ -73,7 +75,7 @@ public class EquipmentTypeServiceImpl implements EquipmentTypeService {
                 .orElseThrow(() -> new EquipmentTypeNotFoundException(
                         "Equipment type with ID %dl not found".formatted(id), id));
 
-        if (equipmentType.getEquipments() != null && !equipmentType.getEquipments().isEmpty()) {
+        if (equipmentRepository.existsByTypeId(equipmentType.getId())) {
             throw new ConflictingStateException(
                     "Cannot deactivate Equipment Type. Still have equipments linked to. Either deactivate those equipments or re-assign them to other equipment type");
         }

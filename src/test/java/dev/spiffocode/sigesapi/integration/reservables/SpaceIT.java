@@ -4,11 +4,9 @@ import dev.spiffocode.sigesapi.FlushedIntegrationTest;
 import dev.spiffocode.sigesapi.IntegrationTestClass;
 import dev.spiffocode.sigesapi.auth.application.service.BearerAuthService;
 import dev.spiffocode.sigesapi.auth.presentation.dto.LoginRequest;
-import dev.spiffocode.sigesapi.reservables.domain.model.Building;
-import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
-import dev.spiffocode.sigesapi.reservables.domain.model.Space;
-import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
+import dev.spiffocode.sigesapi.reservables.domain.model.*;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceTypeRepository;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotRegisterDto;
@@ -25,11 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.List;
 import java.util.Set;
 
@@ -55,6 +49,8 @@ public class SpaceIT extends FlushedIntegrationTest {
         PasswordEncoder encoder;
         @Autowired
         BearerAuthService authService;
+        @Autowired
+        EquipmentRepository equipmentRepository;
 
         private static final String API = "/spaces";
         private static final String VERSION = "1.0.0";
@@ -294,4 +290,73 @@ public class SpaceIT extends FlushedIntegrationTest {
                                 .header("Authorization", "Bearer " + adminToken))
                                 .andExpect(status().isNoContent());
         }
+
+    @Test
+    void deactivateSpace_withLinkedEquipments_returns409() throws Exception {
+        Space s = Space.builder()
+                .name("Space With Equipment")
+                .description("Has equipment")
+                .studentsAvailable(true)
+                .building(testBuilding)
+                .type(testSpaceType)
+                .capacity(5)
+                .bookInAdvance(Duration.ZERO)
+                .status(ReservableStatus.AVAILABLE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .createdBy("system")
+                .build();
+        s = spaceRepository.save(s);
+
+        Equipment equipment = Equipment.builder()
+                .name("Proyector")
+                .space(s)
+                .status(ReservableStatus.AVAILABLE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .inventoryItem(new InventoryItem("hfhdu123"))
+                .createdBy("system")
+                .build();
+        equipmentRepository.save(equipment);
+
+        mvc.perform(patch(API + "/" + s.getId() + "/deactivate")
+                        .header("X-API-Version", VERSION)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void deactivateSpace_withSoftDeletedEquipments_returns204() throws Exception {
+        Space s = Space.builder()
+                .name("Space With Deleted Equipment")
+                .description("Equipment ya eliminado")
+                .studentsAvailable(true)
+                .building(testBuilding)
+                .type(testSpaceType)
+                .capacity(5)
+                .bookInAdvance(Duration.ZERO)
+                .status(ReservableStatus.AVAILABLE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .createdBy("system")
+                .build();
+        s = spaceRepository.save(s);
+
+        Equipment equipment = Equipment.builder()
+                .name("Proyector")
+                .space(s)
+                .status(ReservableStatus.AVAILABLE)
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .inventoryItem(new InventoryItem("hfhdu123"))
+                .createdBy("system")
+                .build();
+        equipment = equipmentRepository.save(equipment);
+        equipmentRepository.softDeleteById(equipment.getId());
+
+        mvc.perform(patch(API + "/" + s.getId() + "/deactivate")
+                        .header("X-API-Version", VERSION)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+    }
 }

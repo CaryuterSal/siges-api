@@ -27,4 +27,5 @@ public interface ReservableRepository extends JpaRepository<@NonNull Reservable,
     List<Reservable> findByBuildingId(Long buildingId);
 
     List<Reservable> findByStatus(ReservableStatus status);
+    boolean existsByBuildingId(Long buildingId);
 }

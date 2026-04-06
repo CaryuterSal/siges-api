@@ -15,6 +15,7 @@ import dev.spiffocode.sigesapi.reservables.domain.model.Building;
 import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.domain.model.SpaceType;
 import dev.spiffocode.sigesapi.reservables.domain.repository.BuildingRepository;
+import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceRepository;
 import dev.spiffocode.sigesapi.reservables.domain.repository.SpaceTypeRepository;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.SpaceDto;
@@ -39,6 +40,7 @@ import static dev.spiffocode.sigesapi.reservables.domain.specification.SpaceSpec
 public class SpaceServiceImpl implements SpaceService {
 
     private final SpaceRepository spaceRepository;
+    private final EquipmentRepository equipmentRepository;
     private final SpaceMapper spaceMapper;
     private final SpaceTypeRepository spaceTypeRepository;
     private final BuildingRepository buildingRepository;
@@ -115,7 +117,7 @@ public class SpaceServiceImpl implements SpaceService {
         Space space = spaceRepository.findById(id)
                 .orElseThrow(() -> new SpaceNotFoundException("Space with ID %dl not found".formatted(id), id));
 
-        if(space.getEquipments() != null && !space.getEquipments().isEmpty()){
+        if(equipmentRepository.existsBySpaceId(space.getId())) {
             throw new ConflictingStateException("Cannot deactivate Space. Still have equipments linked to. Either deactivate those equipments or re-assign them to other space");
         }
         spaceRepository.softDeleteById(id);
