@@ -32,8 +32,9 @@ public interface ReservationMapper {
     @Mapping(target = "cancelledAt", ignore = true)
     @Mapping(target = "rejectedAt", ignore = true)
     @Mapping(target = "approvedAt", ignore = true)
+    @Mapping(target = "rejectionReason", ignore = true)
+    @Mapping(target = "approvalObservation", ignore = true)
     Reservation toEntity(CreateReservationRequest request, Applicant petitioner, Reservable reservable);
-
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
@@ -48,5 +49,8 @@ public interface ReservationMapper {
     @Mapping(target = "cancelledAt", ignore = true)
     @Mapping(target = "rejectedAt", ignore = true)
     @Mapping(target = "approvedAt", ignore = true)
+    @Mapping(target = "requestReason", ignore = true)
+    @Mapping(target = "rejectionReason", ignore = true)
+    @Mapping(target = "approvalObservation", ignore = true)
     Reservation updateSchedule(@MappingTarget Reservation entity, RescheduleReservationRequest request);
 }

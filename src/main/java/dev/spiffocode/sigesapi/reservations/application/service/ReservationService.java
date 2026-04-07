@@ -8,14 +8,24 @@ import org.springframework.data.domain.Pageable;
 
 public interface ReservationService {
     ReservationResponse createReservation(CreateReservationRequest request);
+
     ReservationResponse rescheduleReservation(Long id, RescheduleReservationRequest request);
-    ReservationResponse approveReservation(Long id);
+
+    ReservationResponse approveReservation(Long id, ApproveReservationRequest request);
+
     ReservationResponse rejectReservation(Long id, RejectReservationRequest request);
+
     ReservationResponse cancelReservation(Long id, CancelReservationRequest request);
+
     ReservationResponse startReservation(Long id);
+
     ReservationResponse finishReservation(Long id);
+
     ReservationResponse addNote(Long reservationId, PublishNoteRequest request);
+
     NoteItem editNote(Long reservationId, Long noteId, EditNoteRequest request);
+
     ReservationResponse getReservation(Long id);
+
     Page<@NonNull ReservationResponse> getReservations(ReservationFilterRequest filter, Pageable pageable);
 }
