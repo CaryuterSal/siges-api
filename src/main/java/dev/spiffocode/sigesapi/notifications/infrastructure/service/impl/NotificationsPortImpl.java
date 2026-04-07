@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class NotificationsPortImpl implements NotificationsPort {
     private final PushNotificationPort pushNotificationPort;
 
     @Async
+    @Transactional
     @Override
     public void sendNotification(long userId, SendNotificationCommand command) {
         sendNotificationInternal(userId, command, false);
@@ -123,6 +125,7 @@ public class NotificationsPortImpl implements NotificationsPort {
     }
 
     @Async
+    @Transactional
     @Override
     public void sendNotificationToAdmins(SendNotificationCommand command) {
         var admins = adminRepository.findAll();

@@ -54,7 +54,7 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private ReadStatus readStatus = ReadStatus.UNREAD;
 
-    @ManyToOne(optional = false, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne(optional = false)
     private User user;
 
     @ElementCollection
