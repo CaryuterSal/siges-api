@@ -7,6 +7,7 @@ import dev.spiffocode.sigesapi.notifications.domain.model.Type;
 import dev.spiffocode.sigesapi.reservables.domain.exception.ReservableNotFoundException;
 import dev.spiffocode.sigesapi.reservables.domain.model.Reservable;
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
+import dev.spiffocode.sigesapi.reservables.domain.model.Space;
 import dev.spiffocode.sigesapi.reservables.domain.repository.ReservableRepository;
 import dev.spiffocode.sigesapi.reservations.application.mapper.NoteMapper;
 import dev.spiffocode.sigesapi.reservations.application.mapper.ReservationMapper;
@@ -73,6 +74,9 @@ public class ReservationServiceImpl implements ReservationService {
                 reservable.assertCanDoReservation(request.date(), request.startTime(), request.endTime(),
                                 petitionerIsStudent, clock);
                 validateNoOverlap(reservable, request.date(), request.startTime(), request.endTime());
+                if(reservable instanceof Space space){
+                    space.assertCapacity(request.companions());
+                }
 
                 Reservation reservation = reservationMapper.toEntity(request, petitioner, reservable);
 

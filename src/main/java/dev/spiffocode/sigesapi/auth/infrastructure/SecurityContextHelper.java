@@ -11,20 +11,27 @@ import java.util.Objects;
 @Component
 public class SecurityContextHelper {
 
-    public boolean isAuthenticated(){
+    public boolean isAuthenticated() {
         Authentication authentication = getAuthentication();
         return authentication != null && authentication.isAuthenticated();
     }
 
     public Long getCurrentUserId() {
-        return ((CustomUserDetails) Objects.requireNonNull(getAuthentication().getPrincipal())).getId();
+        Authentication authentication = getAuthentication();
+        if (authentication == null || authentication.getPrincipal() == null
+                || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
+            return null;
+        }
+        return ((CustomUserDetails) authentication.getPrincipal()).getId();
     }
 
-    public String getCurrentUserEmail(){
-        if (getAuthentication() == null || getAuthentication() instanceof AnonymousAuthenticationToken) {
+    public String getCurrentUserEmail() {
+        Authentication authentication = getAuthentication();
+        if (authentication == null || authentication instanceof AnonymousAuthenticationToken
+                || authentication.getPrincipal() == null) {
             return "anonymousUser";
         }
-        return ((CustomUserDetails) Objects.requireNonNull(getAuthentication().getPrincipal())).getEmail();
+        return ((CustomUserDetails) authentication.getPrincipal()).getEmail();
     }
 
     public boolean isAdmin() {
@@ -44,7 +51,8 @@ public class SecurityContextHelper {
     }
 
     public boolean isCurrentUser(Long targetId) {
-        return getCurrentUserId().equals(targetId);
+        Long currentId = getCurrentUserId();
+        return currentId != null && currentId.equals(targetId);
     }
 
     public boolean isAdminOrCurrentUser(Long targetId) {
@@ -56,7 +64,11 @@ public class SecurityContextHelper {
     }
 
     private boolean hasRole(String role) {
-        return getAuthentication().getAuthorities().stream()
+        Authentication authentication = getAuthentication();
+        if (authentication == null) {
+            return false;
+        }
+        return authentication.getAuthorities().stream()
                 .anyMatch(a -> Objects.equals(a.getAuthority(), role));
     }
 }

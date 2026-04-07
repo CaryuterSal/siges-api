@@ -164,6 +164,7 @@ public class ReservationIT extends FlushedIntegrationTest {
                 .reservable(testEquipment)
                 .build();
         testEquipment.getAvailability().add(as);
+        testSpace.getAvailability().add(as);
 
         Availability availability = Availability.builder()
                 .dayOfWeek(DayOfWeek.MONDAY)
@@ -176,12 +177,17 @@ public class ReservationIT extends FlushedIntegrationTest {
 
         as.getMembers().add(availability);
         testEquipment = equipmentRepository.save(testEquipment);
+        testSpace = spaceRepository.save(testSpace);
         SecurityContextHolder.createEmptyContext();
     }
 
     private CreateReservationRequest createValidReservationRequest() {
+        return createValidReservationRequest(testEquipment);
+    }
+
+    private CreateReservationRequest createValidReservationRequest(Reservable reservable) {
         return CreateReservationRequest.builder()
-                .reservableId(testEquipment.getId())
+                .reservableId(reservable.getId())
                 .date(LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY)))
                 .startTime(LocalTime.of(10, 0))
                 .endTime(LocalTime.of(12, 0))
@@ -202,6 +208,19 @@ public class ReservationIT extends FlushedIntegrationTest {
                 .andExpect(jsonPath("$.id", notNullValue()))
                 .andExpect(jsonPath("$.status").value(Status.PENDING.name()))
                 .andExpect(header().exists("Location"));
+    }
+
+    @Test
+    void createReservation_capacity_exceeded_returns422() throws Exception {
+        CreateReservationRequest req = createValidReservationRequest(testSpace);
+        req = req.withCompanions(101);
+
+        mvc.perform(post(API)
+                        .header("X-API-Version", VERSION)
+                        .header("Authorization", "Bearer " + studentToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(req)))
+                .andExpect(status().isUnprocessableContent());
     }
 
     @Test
