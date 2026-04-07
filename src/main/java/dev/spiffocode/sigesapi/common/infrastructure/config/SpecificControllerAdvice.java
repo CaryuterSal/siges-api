@@ -3,6 +3,7 @@ package dev.spiffocode.sigesapi.common.infrastructure.config;
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.ConflictingStateException;
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.NotFoundException;
 import dev.spiffocode.sigesapi.common.infrastructure.exceptions.StorageException;
+import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceCapacityExceededException;
 import dev.spiffocode.sigesapi.reservations.domain.exception.ReservableNotAvailableForStudentsException;
 import dev.spiffocode.sigesapi.reservations.domain.exception.ReservationTooSoonException;
 import dev.spiffocode.sigesapi.users.domain.exception.InvalidRecoveryTokenException;
@@ -68,7 +69,7 @@ public class SpecificControllerAdvice {
         return problem;
     }
 
-    @ExceptionHandler({ReservableNotAvailableForStudentsException.class, ReservationTooSoonException.class, OldPasswordDoNotMatchException.class})
+    @ExceptionHandler({ReservableNotAvailableForStudentsException.class, ReservationTooSoonException.class, OldPasswordDoNotMatchException.class, SpaceCapacityExceededException.class})
     @ResponseStatus(HttpStatus.UNPROCESSABLE_CONTENT)
     public ProblemDetail handleUnprocessableContent(Exception e){
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, e.getMessage());

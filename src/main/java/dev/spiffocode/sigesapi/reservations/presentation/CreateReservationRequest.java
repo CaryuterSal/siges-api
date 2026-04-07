@@ -8,6 +8,7 @@ import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Builder;
+import lombok.With;
 import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDate;
@@ -26,7 +27,7 @@ public record CreateReservationRequest(
 
         @NotNull @Schema(description = "Whether the reservation is meant for only one person (SINGLE) or a group of them (GROUP)") GroupingType type,
 
-        @Schema(description = "Number of companions for the reservation. Only required for group reservations.") Integer companions,
+        @Schema(description = "Number of companions for the reservation. Only required for group reservations.") @With  Integer companions,
 
         @Schema(description = "Reason for the reservation request") String requestReason) {
     @AssertTrue(message = "companions is required and must be positive when type is GROUP")

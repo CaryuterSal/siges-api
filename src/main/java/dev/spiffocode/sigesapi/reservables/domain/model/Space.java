@@ -1,5 +1,6 @@
 package dev.spiffocode.sigesapi.reservables.domain.model;
 
+import dev.spiffocode.sigesapi.reservables.domain.exception.SpaceCapacityExceededException;
 import dev.spiffocode.sigesapi.reservations.domain.exception.ReservationTooSoonException;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -55,6 +56,12 @@ public class Space extends Reservable {
             cascade = {CascadeType.MERGE, CascadeType.PERSIST}
     )
     private List<Equipment> equipments = new ArrayList<>();
+
+    public void assertCapacity(int capacity){
+        if(capacity > this.capacity){
+            throw new SpaceCapacityExceededException(this.capacity, capacity);
+        }
+    }
 
     @Override
     protected void assertSpecificCanDoReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime, Clock clock) {
