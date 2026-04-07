@@ -13,16 +13,18 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class CustomRevisionListener {
 
     private final SecurityContextHelper securityContextHelper;
-
     @PrePersist
     private void onPersist(CustomRevisionEntity entity) {
-        if(!securityContextHelper.isAuthenticated()) return;
+        ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
-        HttpServletRequest curRequest =
-                ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
-                        .getRequest();
-
-        entity.setRemoteHost(curRequest.getRemoteHost());
-        entity.setRemoteUser(securityContextHelper.getCurrentUserEmail());
+        if (attrs != null) {
+            HttpServletRequest curRequest = attrs.getRequest();
+            entity.setRemoteHost(curRequest.getRemoteHost());
+            entity.setRemoteUser(securityContextHelper.getCurrentUserEmail());
+        } else {
+            entity.setRemoteHost("SYSTEM_ASYNC");
+            String email = securityContextHelper.isAuthenticated() ? securityContextHelper.getCurrentUserEmail() : "SYSTEM";
+            entity.setRemoteUser(email);
+        }
     }
 }

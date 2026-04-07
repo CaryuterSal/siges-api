@@ -1,15 +1,11 @@
 package dev.spiffocode.sigesapi.common.infrastructure.config;
 
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.servlet.filter.OrderedRequestContextFilter;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.task.DelegatingSecurityContextAsyncTaskExecutor;
-import org.springframework.web.filter.RequestContextFilter;
 
 import java.util.concurrent.Executor;
 
@@ -28,13 +24,6 @@ public class AsyncConfig {
                 (r, executor1) -> log.warn("Task rejected, thread pool is full and queue is also full"));
         executor.initialize();
         return new DelegatingSecurityContextAsyncTaskExecutor(executor);
-    }
-
-    @Bean
-    public FilterRegistrationBean<@NonNull RequestContextFilter> requestContextFilter() {
-        OrderedRequestContextFilter filter = new OrderedRequestContextFilter();
-        filter.setThreadContextInheritable(true);
-        return new FilterRegistrationBean<>(filter);
     }
 
 }
