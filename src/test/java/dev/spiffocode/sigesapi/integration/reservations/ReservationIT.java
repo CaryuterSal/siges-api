@@ -271,10 +271,14 @@ public class ReservationIT extends FlushedIntegrationTest {
                 .build();
         r = reservationRepository.save(r);
         SecurityContextHolder.clearContext();
+        
+        ApproveReservationRequest request = new ApproveReservationRequest(null);
 
         mvc.perform(patch(API + "/" + r.getId() + "/approve")
                 .header("X-API-Version", VERSION)
-                .header("Authorization", "Bearer " + adminToken))
+                .header("Authorization", "Bearer " + adminToken)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value(Status.APPROVED.name()));
     }
