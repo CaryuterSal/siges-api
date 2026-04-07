@@ -16,32 +16,19 @@ import java.time.LocalTime;
 @Builder
 @Jacksonized
 public record CreateReservationRequest(
-        @NotNull
-        @Positive
-        @Schema(description = "ID of the reservable this reservation is issued to")
-        Long reservableId,
+        @NotNull @Positive @Schema(description = "ID of the reservable this reservation is issued to") Long reservableId,
 
-        @FutureOrPresent
-        @NotNull
-        @Schema(description = "Date this reservation is intended to")
-        LocalDate date,
+        @FutureOrPresent @NotNull @Schema(description = "Date this reservation is intended to") LocalDate date,
 
-        @NotNull
-        @Schema(description = "Start time the reservation is intended to in the desired date")
-        LocalTime startTime,
+        @NotNull @Schema(description = "Start time the reservation is intended to in the desired date") LocalTime startTime,
 
-        @NotNull
-        @Schema(description = "Start time the reservation is intended to in the desired date")
-        LocalTime endTime,
+        @NotNull @Schema(description = "Start time the reservation is intended to in the desired date") LocalTime endTime,
 
-        @NotNull
-        @Schema(description = "Whether the reservation is meant for only one person (SINGLE) or a group of them (GROUP)")
-        GroupingType type,
+        @NotNull @Schema(description = "Whether the reservation is meant for only one person (SINGLE) or a group of them (GROUP)") GroupingType type,
 
-        @Schema(
-                description = "Number of companions for the reservation. Only required for group reservations.")
-        Integer companions
-){
+        @Schema(description = "Number of companions for the reservation. Only required for group reservations.") Integer companions,
+
+        @Schema(description = "Reason for the reservation request") String requestReason) {
     @AssertTrue(message = "companions is required and must be positive when type is GROUP")
     @JsonIgnore
     public boolean isCompanionsValid() {

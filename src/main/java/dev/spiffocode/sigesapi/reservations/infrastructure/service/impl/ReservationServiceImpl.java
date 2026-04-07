@@ -48,20 +48,20 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReservationServiceImpl implements ReservationService {
 
-    private final ReservableRepository reservableRepository;
-    private final ReservationRepository reservationRepository;
-    private final UserRepository userRepository;
-    private final NoteRepository noteRepository;
+        private final ReservableRepository reservableRepository;
+        private final ReservationRepository reservationRepository;
+        private final UserRepository userRepository;
+        private final NoteRepository noteRepository;
 
-    private final SecurityContextHelper securityContextHelper;
-    private final NotificationsPort notificationsPort;
+        private final SecurityContextHelper securityContextHelper;
+        private final NotificationsPort notificationsPort;
 
-    private final ReservationMapper reservationMapper;
-    private final Clock clock;
-    private final NoteMapper noteMapper;
-    private final ApplicantRepository applicantRepository;
+        private final ReservationMapper reservationMapper;
+        private final Clock clock;
+        private final NoteMapper noteMapper;
+        private final ApplicantRepository applicantRepository;
 
-    @Override
+        @Override
         public ReservationResponse createReservation(CreateReservationRequest request) {
                 Long userId = securityContextHelper.getCurrentUserId();
 
@@ -70,7 +70,8 @@ public class ReservationServiceImpl implements ReservationService {
 
                 boolean petitionerIsStudent = petitioner.getClass().equals(Student.class);
 
-                reservable.assertCanDoReservation(request.date(), request.startTime(), request.endTime(), petitionerIsStudent, clock);
+                reservable.assertCanDoReservation(request.date(), request.startTime(), request.endTime(),
+                                petitionerIsStudent, clock);
                 validateNoOverlap(reservable, request.date(), request.startTime(), request.endTime());
 
                 Reservation reservation = reservationMapper.toEntity(request, petitioner, reservable);
@@ -80,17 +81,17 @@ public class ReservationServiceImpl implements ReservationService {
                                 .type(Type.RESERVATION_CREATED)
                                 .entityId(saved.getId())
                                 .metadata(Map.of(
-                                        "reservationId", saved.getId().toString(),
-                                        "reservableId", reservable.getId().toString()))
+                                                "reservationId", saved.getId().toString(),
+                                                "reservableId", reservable.getId().toString()))
                                 .build());
                 notificationsPort.sendNotificationToAdmins(SendNotificationCommand.builder()
                                 .type(Type.RESERVATION_CREATED)
                                 .entityId(saved.getId())
                                 .metadata(Map.of(
-                                        "reservationId", saved.getId().toString(),
-                                        "reservableId", reservable.getId().toString(),
-                                        "issuedByName", petitioner.fullName(),
-                                        "issuedById", petitioner.getId().toString()))
+                                                "reservationId", saved.getId().toString(),
+                                                "reservableId", reservable.getId().toString(),
+                                                "issuedByName", petitioner.fullName(),
+                                                "issuedById", petitioner.getId().toString()))
                                 .build());
                 return reservationMapper.toDto(saved, List.of());
         }
@@ -103,7 +104,8 @@ public class ReservationServiceImpl implements ReservationService {
                 if (reservation.getStatus() != Status.PENDING && reservation.getStatus() != Status.APPROVED)
                         throw new InvalidReservationStatusException(reservation.getStatus(), Status.PENDING);
 
-                reservation.getReservable().assertAvailabilityAllowsReservation(request.date(), request.startTime(), request.endTime());
+                reservation.getReservable().assertAvailabilityAllowsReservation(request.date(), request.startTime(),
+                                request.endTime());
                 validateNoOverlap(reservation.getReservable(), request.date(),
                                 request.startTime(), request.endTime(), id);
 
@@ -123,8 +125,8 @@ public class ReservationServiceImpl implements ReservationService {
                                 .metadata(Map.of("reservationId", reservation.getId().toString(), "reservableId",
                                                 reservation.getReservable().getId().toString(),
 
-                                        "issuedByName", reservation.getPetitioner().fullName(),
-                                        "issuedById", reservation.getPetitioner().getId().toString()))
+                                                "issuedByName", reservation.getPetitioner().fullName(),
+                                                "issuedById", reservation.getPetitioner().getId().toString()))
                                 .build());
 
                 return toResponse(reservationRepository.save(reservation));
@@ -135,9 +137,9 @@ public class ReservationServiceImpl implements ReservationService {
         // ─────────────────────────────────────────────
 
         @Override
-        public ReservationResponse approveReservation(Long id) {
+        public ReservationResponse approveReservation(Long id, ApproveReservationRequest request) {
                 Reservation reservation = findReservationOrThrow(id);
-                reservation.approve(clock);
+                reservation.approve(request.observation(), clock);
 
                 notificationsPort.sendNotification(reservation.getPetitioner().getId(),
                                 SendNotificationCommand.builder()
@@ -193,8 +195,8 @@ public class ReservationServiceImpl implements ReservationService {
                                         .entityId(id)
                                         .metadata(Map.of("reservationId", id.toString(), "reservableId",
                                                         reservation.getReservable().getId().toString(),
-                                                "issuedByName", reservation.getPetitioner().fullName(),
-                                                "issuedById", reservation.getPetitioner().getId().toString()))
+                                                        "issuedByName", reservation.getPetitioner().fullName(),
+                                                        "issuedById", reservation.getPetitioner().getId().toString()))
                                         .build());
                 }
 
@@ -203,20 +205,20 @@ public class ReservationServiceImpl implements ReservationService {
 
         @Override
         public ReservationResponse startReservation(Long id) {
-            Reservation reservation = findReservationOrThrow(id);
-            reservation.start(clock);
-            reservation.getReservable().setStatus(ReservableStatus.LOANED);
-            reservableRepository.save(reservation.getReservable());
-            return toResponse(reservationRepository.save(reservation));
+                Reservation reservation = findReservationOrThrow(id);
+                reservation.start(clock);
+                reservation.getReservable().setStatus(ReservableStatus.LOANED);
+                reservableRepository.save(reservation.getReservable());
+                return toResponse(reservationRepository.save(reservation));
         }
 
         @Override
         public ReservationResponse finishReservation(Long id) {
-            Reservation reservation = findReservationOrThrow(id);
-            reservation.finish(clock);
-            reservation.getReservable().setStatus(ReservableStatus.AVAILABLE);
-            reservableRepository.save(reservation.getReservable());
-            return toResponse(reservationRepository.save(reservation));
+                Reservation reservation = findReservationOrThrow(id);
+                reservation.finish(clock);
+                reservation.getReservable().setStatus(ReservableStatus.AVAILABLE);
+                reservableRepository.save(reservation.getReservable());
+                return toResponse(reservationRepository.save(reservation));
         }
 
         // ─────────────────────────────────────────────
@@ -235,8 +237,8 @@ public class ReservationServiceImpl implements ReservationService {
                                 .entityId(reservationId)
                                 .metadata(Map.of("reservationId", reservationId.toString(), "reservableId",
                                                 reservation.getReservable().getId().toString(),
-                                        "issuedByName", reservation.getPetitioner().fullName(),
-                                        "issuedById", reservation.getPetitioner().getId().toString()))
+                                                "issuedByName", reservation.getPetitioner().fullName(),
+                                                "issuedById", reservation.getPetitioner().getId().toString()))
                                 .build();
 
                 if (isAdmin) {
@@ -275,7 +277,9 @@ public class ReservationServiceImpl implements ReservationService {
         @Override
         public Page<@NonNull ReservationResponse> getReservations(ReservationFilterRequest filter, Pageable pageable) {
                 return reservationRepository
-                                .findAll(ReservationSpecifications.specificationFromFilter(filter, securityContextHelper.getCurrentUserId(), securityContextHelper.isApplicant()), pageable)
+                                .findAll(ReservationSpecifications.specificationFromFilter(filter,
+                                                securityContextHelper.getCurrentUserId(),
+                                                securityContextHelper.isApplicant()), pageable)
                                 .map(this::toResponse);
         }
 
@@ -300,8 +304,8 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         private Applicant findApplicantOrThrow(Long id) {
-            return applicantRepository.findById(id)
-                    .orElseThrow(() -> new UserNotFoundException(id));
+                return applicantRepository.findById(id)
+                                .orElseThrow(() -> new UserNotFoundException(id));
         }
 
         private ReservationResponse toResponse(Reservation reservation) {
@@ -315,16 +319,18 @@ public class ReservationServiceImpl implements ReservationService {
         private void validateNoOverlap(Reservable reservable, LocalDate date,
                         LocalTime start, LocalTime end) {
                 boolean overlap = reservationRepository.existsOverlap(reservable, date, start, end,
-                                                List.of(Status.PENDING, Status.APPROVED));
+                                List.of(Status.PENDING, Status.APPROVED));
 
-                if (overlap) throw new ReservationOverlapException(date, start, end);
+                if (overlap)
+                        throw new ReservationOverlapException(date, start, end);
         }
 
         private void validateNoOverlap(Reservable reservable, LocalDate date,
-                                       LocalTime start, LocalTime end, @NonNull Long excludeId) {
-            boolean overlap = reservationRepository.existsOverlapExcluding(reservable, date, start, end,
-                    List.of(Status.PENDING, Status.APPROVED), excludeId);
+                        LocalTime start, LocalTime end, @NonNull Long excludeId) {
+                boolean overlap = reservationRepository.existsOverlapExcluding(reservable, date, start, end,
+                                List.of(Status.PENDING, Status.APPROVED), excludeId);
 
-            if (overlap) throw new ReservationOverlapException(date, start, end);
+                if (overlap)
+                        throw new ReservationOverlapException(date, start, end);
         }
 }

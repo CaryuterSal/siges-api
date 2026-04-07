@@ -26,13 +26,11 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@Table(name = "reservations",
-        indexes = {
-                @Index(columnList = "status"),
-                @Index(columnList = "date, start_time, end_time"),
-                @Index(columnList = "reservable_id")
-        }
-)
+@Table(name = "reservations", indexes = {
+        @Index(columnList = "status"),
+        @Index(columnList = "date, start_time, end_time"),
+        @Index(columnList = "reservable_id")
+})
 @EntityListeners(AuditingEntityListener.class)
 @Audited
 public class Reservation {
@@ -77,6 +75,10 @@ public class Reservation {
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
     private List<Note> notes = new ArrayList<>();
 
+    private String requestReason;
+    private String rejectionReason;
+    private String approvalObservation;
+
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -85,19 +87,20 @@ public class Reservation {
     @Column(nullable = false, updatable = false)
     private String createdBy;
 
-    public void approve(Clock clock) {
+    public void approve(String observation, Clock clock) {
         if (this.status != Status.PENDING)
             throw new InvalidReservationStatusException(this.status, Status.PENDING);
         this.status = Status.APPROVED;
         this.approvedAt = LocalDateTime.now(clock);
+        this.approvalObservation = observation;
     }
 
-    public void reject(String comment, Clock clock) {
+    public void reject(String reason, Clock clock) {
         if (this.status != Status.PENDING)
             throw new InvalidReservationStatusException(this.status, Status.PENDING);
         this.status = Status.REJECTED;
         this.rejectedAt = LocalDateTime.now(clock);
-        addNote(comment);
+        this.rejectionReason = reason;
     }
 
     public void cancel(String reason, Clock clock) {
@@ -107,9 +110,8 @@ public class Reservation {
             throw new InvalidReservationStatusException(this.status, Status.CANCELLED);
         this.status = Status.CANCELLED;
         this.cancelledAt = LocalDateTime.now(clock);
-        addNote(reason);
+        this.rejectionReason = reason;
     }
-
 
     public void start(Clock clock) {
         if (this.status != Status.APPROVED)
@@ -128,7 +130,7 @@ public class Reservation {
     public boolean reschedule(LocalDate date, LocalTime startTime, LocalTime endTime, Clock clock) {
         if (this.getStatus() != Status.PENDING && this.getStatus() != Status.APPROVED)
             throw new InvalidReservationStatusException(this.getStatus(), Status.PENDING);
-        if(this.date != date || this.startTime != startTime || this.endTime != endTime){
+        if (this.date != date || this.startTime != startTime || this.endTime != endTime) {
             this.status = Status.PENDING;
             return true;
         }
@@ -136,7 +138,8 @@ public class Reservation {
     }
 
     public void addNote(String comment) {
-        if (comment == null || comment.isBlank()) return;
+        if (comment == null || comment.isBlank())
+            return;
         this.notes.add(Note.builder()
                 .comment(comment)
                 .reservation(this)

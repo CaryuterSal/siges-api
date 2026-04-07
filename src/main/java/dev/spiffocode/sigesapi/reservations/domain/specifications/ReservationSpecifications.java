@@ -8,24 +8,25 @@ import lombok.NonNull;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class ReservationSpecifications {
-    public static Specification<@NonNull Reservation> specificationFromFilter(ReservationFilterRequest filter, Long userId, boolean isApplicant) {
+    public static Specification<@NonNull Reservation> specificationFromFilter(ReservationFilterRequest filter,
+            Long userId, boolean isApplicant) {
         return Specification
                 .where(byPetitionerId(filter.petitionerId()))
                 .and(byPetitionerName(filter.petitionerName()))
                 .and(byDate(filter.date()))
                 .and(byDateFrom(filter.dateFrom()))
                 .and(byDateTo(filter.dateTo()))
-                .and(byStatus(filter.status()))
+                .and(byStatuses(filter.statuses()))
                 .and(byReservableId(filter.reservableId()))
                 .and(byType(filter.type()))
                 .and(filterOutIfApplicant(userId, isApplicant));
     }
 
     private static Specification<@NonNull Reservation> filterOutIfApplicant(Long userId, boolean isApplicant) {
-        return (root, query, cb) -> isApplicant ?
-                cb.equal(root.get("petitioner").get("id"), userId) : null;
+        return (root, query, cb) -> isApplicant ? cb.equal(root.get("petitioner").get("id"), userId) : null;
     }
 
     private static Specification<@NonNull Reservation> byPetitionerId(Long id) {
@@ -35,12 +36,12 @@ public class ReservationSpecifications {
 
     private static Specification<@NonNull Reservation> byPetitionerName(String name) {
         return (root, query, cb) -> {
-            if (name == null || name.isBlank()) return null;
+            if (name == null || name.isBlank())
+                return null;
             String pattern = "%" + name.toLowerCase() + "%";
             return cb.or(
                     cb.like(cb.lower(root.get("petitioner").get("firstName")), pattern),
-                    cb.like(cb.lower(root.get("petitioner").get("lastName")), pattern)
-            );
+                    cb.like(cb.lower(root.get("petitioner").get("lastName")), pattern));
         };
     }
 
@@ -59,9 +60,9 @@ public class ReservationSpecifications {
                 : cb.lessThanOrEqualTo(root.get("date"), to);
     }
 
-    private static Specification<@NonNull Reservation> byStatus(Status status) {
-        return (root, query, cb) -> status == null ? null
-                : cb.equal(root.get("status"), status);
+    private static Specification<@NonNull Reservation> byStatuses(List<Status> statuses) {
+        return (root, query, cb) -> statuses == null || statuses.isEmpty() ? null
+                : root.get("status").in(statuses);
     }
 
     private static Specification<@NonNull Reservation> byReservableId(Long id) {
