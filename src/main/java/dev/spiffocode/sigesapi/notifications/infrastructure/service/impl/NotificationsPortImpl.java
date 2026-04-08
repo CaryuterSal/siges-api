@@ -20,7 +20,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -81,9 +83,10 @@ public class NotificationsPortImpl implements NotificationsPort {
                     .build();
             notification = notificationRepository.save(notification);
 
-            command.metadata().put("id", notification.getId().toString());
+            Map<String, String> metadata = command.metadata() == null ? new HashMap<>() : new HashMap<>(command.metadata());
+            metadata.put("id", notification.getId().toString());
 
-            notification.setMetadata(command.metadata());
+            notification.setMetadata(metadata);
             notification = notificationRepository.save(notification);
 
             if (!skipPush) {
@@ -91,7 +94,7 @@ public class NotificationsPortImpl implements NotificationsPort {
                         userId,
                         notificationTitle,
                         notificationMessage,
-                        command.metadata() == null ? java.util.Collections.emptyMap() : command.metadata());
+                        metadata);
             }
         }
 
