@@ -78,8 +78,12 @@ public class NotificationsPortImpl implements NotificationsPort {
                     .title(notificationTitle)
                     .body(notificationMessage)
                     .readStatus(ReadStatus.UNREAD)
-                    .metadata(command.metadata() == null ? java.util.Collections.emptyMap() : command.metadata())
                     .build();
+            notification = notificationRepository.save(notification);
+
+            command.metadata().put("id", notification.getId().toString());
+
+            notification.setMetadata(command.metadata());
             notificationRepository.save(notification);
 
             if (!skipPush) {
