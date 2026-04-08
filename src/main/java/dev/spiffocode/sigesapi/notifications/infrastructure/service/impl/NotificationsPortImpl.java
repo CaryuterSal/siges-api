@@ -84,7 +84,7 @@ public class NotificationsPortImpl implements NotificationsPort {
             command.metadata().put("id", notification.getId().toString());
 
             notification.setMetadata(command.metadata());
-            notificationRepository.save(notification);
+            notification = notificationRepository.save(notification);
 
             if (!skipPush) {
                 pushNotificationPort.sendPushNotification(
