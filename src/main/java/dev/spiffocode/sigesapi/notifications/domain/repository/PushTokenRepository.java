@@ -9,8 +9,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface PushTokenRepository extends JpaRepository<@NonNull PushToken,@NonNull String> {
+public interface PushTokenRepository extends JpaRepository<@NonNull PushToken, @NonNull Long> {
     List<PushToken> findByUserId(@NonNull Long userId);
+
+    Optional<PushToken> findByToken(String token);
 
     Optional<PushToken> findByDeviceId(String deviceId);
 

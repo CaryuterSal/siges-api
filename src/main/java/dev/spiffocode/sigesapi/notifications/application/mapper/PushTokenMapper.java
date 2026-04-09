@@ -10,6 +10,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface PushTokenMapper {
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "lastUsedAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "notificationsSent", ignore = true)
@@ -17,6 +18,7 @@ public interface PushTokenMapper {
     @Mapping(target = "user", source = "user")
     PushToken toEntity(PushTokenRequest pushTokenRequest, User user);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "lastUsedAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "notificationsSent", ignore = true)

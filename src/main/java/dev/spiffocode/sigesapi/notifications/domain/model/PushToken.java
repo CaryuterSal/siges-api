@@ -21,10 +21,9 @@ import java.util.List;
 @Setter
 @Builder
 @ToString
-@Table(name = "push_tokens",
-    indexes = {
-            @Index(columnList = "device_id")
-    })
+@Table(name = "push_tokens", indexes = {
+                @Index(columnList = "device_id")
+})
 @EntityListeners(AuditingEntityListener.class)
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @FilterDef(name = "softDeleteFilter")
@@ -33,6 +32,10 @@ import java.util.List;
 public class PushToken {
 
         @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long id;
+
+        @Column(unique = true, nullable = false)
         private String token;
 
         private String deviceId;
@@ -47,7 +50,7 @@ public class PushToken {
 
         private LocalDateTime lastUsedAt;
 
-        @ManyToOne(optional = false, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+        @ManyToOne(optional = false, cascade = { CascadeType.PERSIST })
         private User user;
 
         @Generated

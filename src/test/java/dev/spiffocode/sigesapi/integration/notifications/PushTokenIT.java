@@ -28,102 +28,129 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @IntegrationTestClass
 public class PushTokenIT extends FlushedIntegrationTest {
 
-    @Autowired
-    MockMvc mvc;
-    @Autowired
-    ObjectMapper mapper;
-    @Autowired
-    UserRepository userRepository;
-    @Autowired
-    PasswordEncoder encoder;
-    @Autowired
-    BearerAuthService authService;
+        @Autowired
+        MockMvc mvc;
+        @Autowired
+        ObjectMapper mapper;
+        @Autowired
+        UserRepository userRepository;
+        @Autowired
+        PasswordEncoder encoder;
+        @Autowired
+        BearerAuthService authService;
 
-    @MockitoBean
-    PushNotificationPort pushNotificationPort;
+        @MockitoBean
+        PushNotificationPort pushNotificationPort;
 
-    private static final String API = "/users";
-    private static final String VERSION = "1.0.0";
+        private static final String API = "/users";
+        private static final String VERSION = "1.0.0";
 
-    private String studentToken;
-    private String adminToken;
-    private Student testStudent;
-    private Admin testAdmin;
+        private String studentToken;
+        private String adminToken;
+        private Student testStudent;
+        private Admin testAdmin;
 
-    @BeforeEach
-    void setup() {
-        userRepository.deleteAll();
+        @BeforeEach
+        void setup() {
+                userRepository.deleteAll();
 
-        testStudent = Student.builder()
-                .email("student@siges.com")
-                .password(encoder.encode("password123"))
-                .firstName("Student")
-                .lastName("User")
-                .birthDate(LocalDate.of(2000, 1, 1))
-                .phoneNumber("+525555555556")
-                .registrationNumber("STU001")
-                .createdBy("system")
-                .build();
-        userRepository.save(testStudent);
+                testStudent = Student.builder()
+                                .email("student@siges.com")
+                                .password(encoder.encode("password123"))
+                                .firstName("Student")
+                                .lastName("User")
+                                .birthDate(LocalDate.of(2000, 1, 1))
+                                .phoneNumber("+525555555556")
+                                .registrationNumber("STU001")
+                                .createdBy("system")
+                                .build();
+                userRepository.save(testStudent);
 
-        testAdmin = Admin.builder()
-                .email("admin@siges.com")
-                .password(encoder.encode("password123"))
-                .firstName("Admin")
-                .lastName("User")
-                .birthDate(LocalDate.of(1980, 1, 1))
-                .phoneNumber("+525555555555")
-                .createdBy("system")
-                .build();
-        userRepository.save(testAdmin);
+                testAdmin = Admin.builder()
+                                .email("admin@siges.com")
+                                .password(encoder.encode("password123"))
+                                .firstName("Admin")
+                                .lastName("User")
+                                .birthDate(LocalDate.of(1980, 1, 1))
+                                .phoneNumber("+525555555555")
+                                .createdBy("system")
+                                .build();
+                userRepository.save(testAdmin);
 
-        studentToken = authService.login(new LoginRequest("student@siges.com", "password123"), "127.0.0.1")
-                .accessToken();
-        adminToken = authService.login(new LoginRequest("admin@siges.com", "password123"), "127.0.0.1").accessToken();
-    }
+                studentToken = authService.login(new LoginRequest("student@siges.com", "password123"), "127.0.0.1")
+                                .accessToken();
+                adminToken = authService.login(new LoginRequest("admin@siges.com", "password123"), "127.0.0.1")
+                                .accessToken();
+        }
 
-    @Test
-    void registerToken_student_returns204() throws Exception {
-        PushTokenRequest req = new PushTokenRequest("some-fcm-token", "device-id-123", Platform.MOBILE);
+        @Test
+        void registerToken_student_returns204() throws Exception {
+                PushTokenRequest req = new PushTokenRequest("some-fcm-token", "device-id-123", Platform.MOBILE);
 
-        mvc.perform(post(API + "/me/push-tokens")
-                .header("X-API-Version", VERSION)
-                .header("Authorization", "Bearer " + studentToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(req)))
-                .andExpect(status().isNoContent());
+                mvc.perform(post(API + "/me/push-tokens")
+                                .header("X-API-Version", VERSION)
+                                .header("Authorization", "Bearer " + studentToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(req)))
+                                .andExpect(status().isNoContent());
 
-        // Validate getting users returns the token attached inside DB if needed?
-        // Let's just trust the HTTP response
-    }
+                // Validate getting users returns the token attached inside DB if needed?
+                // Let's just trust the HTTP response
+        }
 
-    @Test
-    void registerToken_admin_returns204() throws Exception {
-        PushTokenRequest req = new PushTokenRequest("admin-fcm-token", "device-id-124", Platform.WEB);
+        @Test
+        void registerToken_admin_returns204() throws Exception {
+                PushTokenRequest req = new PushTokenRequest("admin-fcm-token", "device-id-124", Platform.WEB);
 
-        mvc.perform(post(API + "/me/push-tokens")
-                .header("X-API-Version", VERSION)
-                .header("Authorization", "Bearer " + adminToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(req)))
-                .andExpect(status().isNoContent());
-    }
+                mvc.perform(post(API + "/me/push-tokens")
+                                .header("X-API-Version", VERSION)
+                                .header("Authorization", "Bearer " + adminToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(req)))
+                                .andExpect(status().isNoContent());
+        }
 
-    @Test
-    void unregisterToken_student_returns204() throws Exception {
-        // Register first
-        PushTokenRequest req = new PushTokenRequest("some-fcm-token", "device-id-123", Platform.MOBILE);
-        mvc.perform(post(API + "/me/push-tokens")
-                .header("X-API-Version", VERSION)
-                .header("Authorization", "Bearer " + studentToken)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(req)))
-                .andExpect(status().isNoContent());
+        @Test
+        void unregisterToken_student_returns204() throws Exception {
+                // Register first
+                PushTokenRequest req = new PushTokenRequest("some-fcm-token", "device-id-123", Platform.MOBILE);
+                mvc.perform(post(API + "/me/push-tokens")
+                                .header("X-API-Version", VERSION)
+                                .header("Authorization", "Bearer " + studentToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(req)))
+                                .andExpect(status().isNoContent());
 
-        // Unregister
-        mvc.perform(delete(API + "/me/push-tokens/some-fcm-token")
-                .header("X-API-Version", VERSION)
-                .header("Authorization", "Bearer " + studentToken))
-                .andExpect(status().isNoContent());
-    }
+                // Unregister
+                mvc.perform(delete(API + "/me/push-tokens/some-fcm-token")
+                                .header("X-API-Version", VERSION)
+                                .header("Authorization", "Bearer " + studentToken))
+                                .andExpect(status().isNoContent());
+        }
+
+        @Test
+        void registerToken_updatesExistingDeviceToken_success() throws Exception {
+                // First registration
+                String deviceId = "device-id-999";
+                PushTokenRequest req1 = new PushTokenRequest("token-1", deviceId, Platform.MOBILE);
+                mvc.perform(post(API + "/me/push-tokens")
+                                .header("X-API-Version", VERSION)
+                                .header("Authorization", "Bearer " + studentToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(req1)))
+                                .andExpect(status().isNoContent());
+
+                // Second registration with DIFFERENT token for SAME deviceId
+                PushTokenRequest req2 = new PushTokenRequest("token-2", deviceId, Platform.MOBILE);
+                mvc.perform(post(API + "/me/push-tokens")
+                                .header("X-API-Version", VERSION)
+                                .header("Authorization", "Bearer " + studentToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(req2)))
+                                .andExpect(status().isNoContent());
+
+                // If it returns 204, it means it didn't crash with "Detached entity passed to
+                // persist"
+                // or trying to change the ID.
+        }
 }

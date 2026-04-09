@@ -72,7 +72,7 @@ public class PushTokenServiceImpl implements PushTokenService {
     @Override
     @Transactional
     public void unregisterToken(Long userId, String tokenStr) {
-        pushTokenRepository.findById(tokenStr).ifPresent(pushToken -> {
+        pushTokenRepository.findByToken(tokenStr).ifPresent(pushToken -> {
             if (pushToken.getUser().getId().equals(userId)) {
                 pushTokenRepository.delete(pushToken);
                 try {

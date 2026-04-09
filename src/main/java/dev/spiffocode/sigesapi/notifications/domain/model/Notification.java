@@ -63,6 +63,7 @@ public class Notification {
     private Map<String, String> metadata = new HashMap<>();
 
     @ManyToMany
+    @JoinTable(name = "notifications_sent_to_tokens", joinColumns = @JoinColumn(name = "notifications_sent_id"), inverseJoinColumns = @JoinColumn(name = "sent_to_tokens_id"))
     private List<PushToken> sentToTokens;
 
 }
