@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
 public class RequestResponseLoggingFilter extends OncePerRequestFilter {
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         doFilterWrapped(wrapRequest(request), wrapResponse(response), filterChain);
     }
@@ -57,7 +58,7 @@ public class RequestResponseLoggingFilter extends OncePerRequestFilter {
         }
         String responseBody = getBody(response.getContentAsByteArray(), response.getCharacterEncoding());
         if (!responseBody.isEmpty()) {
-            msg.append("Request Body: ").append(responseBody).append("\n");
+            msg.append("Response Body: ").append(responseBody).append("\n");
         }
         msg.append("=========================");
         log.info(msg.toString());
