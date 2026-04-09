@@ -23,6 +23,8 @@ public interface UserManagementService {
 
     List<NotificationPreferenceResponse> getNotificationPreferences(Long userId);
 
+    List<NotificationPreferenceResponse> getNotificationPreferencesInternal(Long userId);
+
     List<NotificationPreferenceResponse> updateNotificationPreferences(Long userId,
             List<NotificationPreferenceUpdateRequest> updates);
 

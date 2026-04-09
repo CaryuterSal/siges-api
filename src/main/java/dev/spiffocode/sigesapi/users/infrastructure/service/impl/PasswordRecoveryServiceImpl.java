@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.users.infrastructure.service.impl;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import lombok.extern.slf4j.Slf4j;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import dev.spiffocode.sigesapi.auth.infrastructure.JwtService;
 import dev.spiffocode.sigesapi.auth.infrastructure.SecurityContextHelper;
@@ -29,6 +30,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -95,13 +97,17 @@ public class PasswordRecoveryServiceImpl implements PasswordRecoveryService {
                     ? recoveryProperties.getMobileSuccessUrl()
                     : recoveryProperties.getWebSuccessUrl();
 
-            return UriComponentsBuilder.fromUriString(baseUrl)
+            URI redirectUri = UriComponentsBuilder.fromUriString(baseUrl)
                     .queryParam("token", token)
                     .queryParam("email", recoveryToken.getUser().getEmail())
                     .build()
                     .toUri();
 
+            log.info("Redirecting password recovery for platform {} to {}", recoveryToken.getPlatform(), redirectUri);
+            return redirectUri;
+
         } catch (InvalidRecoveryTokenException | JWTVerificationException e) {
+            log.warn("Failed to redirect password recovery: {}", e.getMessage());
             return buildErrorRedirect(RecoveryPlatform.WEB, "token_expired");
         }
     }

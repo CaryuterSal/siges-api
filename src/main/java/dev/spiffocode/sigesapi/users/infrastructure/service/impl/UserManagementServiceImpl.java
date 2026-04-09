@@ -101,7 +101,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             }
         }
 
-        String newUrl = storageService.uploadFile( file, "avatars");
+        String newUrl = storageService.uploadFile(file, "avatars");
         user.setProfilePictureUrl(newUrl);
         userRepository.save(user);
 
@@ -180,6 +180,12 @@ public class UserManagementServiceImpl implements UserManagementService {
             throw new AccessDeniedException("You can only view your own notification preferences");
         }
 
+        return getNotificationPreferencesInternal(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<NotificationPreferenceResponse> getNotificationPreferencesInternal(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
@@ -238,7 +244,7 @@ public class UserManagementServiceImpl implements UserManagementService {
         Long userId = securityContextHelper.getCurrentUserId();
         User user = userRepository.findById(userId)
                 .orElseThrow();
-        if(!user.passwordMatches(passwordEncoder,  request.oldPassword())) {
+        if (!user.passwordMatches(passwordEncoder, request.oldPassword())) {
             throw new OldPasswordDoNotMatchException();
         }
         user.changePassword(passwordEncoder.encode(request.newPassword()));
@@ -248,7 +254,6 @@ public class UserManagementServiceImpl implements UserManagementService {
 
         return authService.login(
                 new LoginRequest(user.getEmail(), request.newPassword()),
-                requestIp
-        );
+                requestIp);
     }
 }

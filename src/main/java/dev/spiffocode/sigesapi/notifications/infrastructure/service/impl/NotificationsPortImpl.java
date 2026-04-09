@@ -55,7 +55,8 @@ public class NotificationsPortImpl implements NotificationsPort {
         boolean sendInApp = type.isMandatory();
 
         if (!type.isMandatory()) {
-            List<NotificationPreferenceResponse> preferences = userManagementService.getNotificationPreferences(userId);
+            List<NotificationPreferenceResponse> preferences = userManagementService
+                    .getNotificationPreferencesInternal(userId);
             NotificationPreferenceResponse pref = preferences.stream()
                     .filter(p -> p.type() == type)
                     .findFirst()
