@@ -2,7 +2,6 @@ package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -19,9 +18,9 @@ public record AvailabilitySlotUpdateDto(
 
                 @Schema(description = "ID of the existing slot. Leave null for new slots.") Long id,
 
-                @Schema(description = "Date from which this availability statement is valid. If NULL or not specified, it is interpreted as immediate validity.") @FutureOrPresent LocalDate dateFrom,
+                @Schema(description = "Date from which this availability statement is valid. If NULL or not specified, it is interpreted as immediate validity.") LocalDate dateFrom,
 
-                @Schema(description = "Date until which this availability statement is valid. If NULL or not specified, it is interpreted as valid indefinitely.") @FutureOrPresent LocalDate dateTo,
+                @Schema(description = "Date until which this availability statement is valid. If NULL or not specified, it is interpreted as valid indefinitely.") LocalDate dateTo,
 
                 @Schema(description = "Availability start time") @NotNull LocalTime startTime,
 

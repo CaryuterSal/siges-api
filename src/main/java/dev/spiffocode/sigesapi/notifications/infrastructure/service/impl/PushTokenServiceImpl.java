@@ -37,11 +37,13 @@ public class PushTokenServiceImpl implements PushTokenService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        PushToken token = pushTokenRepository.findByDeviceId(request.token()).orElse(null);
+        String deviceId = request.deviceId() != null ? request.deviceId() : request.token();
+        PushToken token = pushTokenRepository.findByDeviceId(deviceId).orElse(null);
 
         boolean isNewDevice = token == null;
 
         token = token == null ? mapper.toEntity(request, user) : mapper.updateEntity(request, user, token);
+        token.setDeviceId(deviceId);
 
         token = pushTokenRepository.save(token);
 
@@ -53,13 +55,13 @@ public class PushTokenServiceImpl implements PushTokenService {
                     .build());
         }
 
-        if (user instanceof Admin && isNewDevice) {
+        if (user instanceof Admin) {
             try {
                 PushToken finalToken = token;
                 Type.adminTopics()
                         .forEach(type -> {
                             fcm.subscribeToTopicAsync(List.of(finalToken.getToken()), type.name());
-                            log.info("Token {} subscribed to admins topic", finalToken.getToken());
+                            log.info("Token {} subscribed to admins topic {}", finalToken.getToken(), type.name());
                         });
             } catch (Exception e) {
                 log.warn("Failed to subscribe token to topic admins: {}", e.getMessage());

@@ -74,8 +74,8 @@ public class ReservationServiceImpl implements ReservationService {
                 reservable.assertCanDoReservation(request.date(), request.startTime(), request.endTime(),
                                 petitionerIsStudent, clock);
                 validateNoOverlap(reservable, request.date(), request.startTime(), request.endTime());
-                if(reservable instanceof Space space){
-                    space.assertCapacity(request.companions());
+                if (reservable instanceof Space space) {
+                        space.assertCapacity(request.companions());
                 }
 
                 Reservation reservation = reservationMapper.toEntity(request, petitioner, reservable);
@@ -83,6 +83,9 @@ public class ReservationServiceImpl implements ReservationService {
                 Reservation saved = reservationRepository.save(reservation);
                 notificationsPort.sendNotification(petitioner.getId(), SendNotificationCommand.builder()
                                 .type(Type.RESERVATION_CREATED)
+                                .title("Solicitud de reservación enviada")
+                                .message("Tu solicitud para " + reservable.getName()
+                                                + " ha sido recibida y está pendiente de aprobación.")
                                 .entityId(saved.getId())
                                 .metadata(Map.of(
                                                 "reservationId", saved.getId().toString(),
@@ -118,6 +121,9 @@ public class ReservationServiceImpl implements ReservationService {
                 notificationsPort.sendNotification(reservation.getPetitioner().getId(), SendNotificationCommand
                                 .builder()
                                 .type(Type.RESERVATION_RESCHEDULE)
+                                .title("Horario actualizado")
+                                .message("Has actualizado el horario de tu reservación para "
+                                                + reservation.getReservable().getName() + ".")
                                 .entityId(reservation.getId())
                                 .metadata(Map.of("reservationId", reservation.getId().toString(), "reservableId",
                                                 reservation.getReservable().getId().toString()))
@@ -188,6 +194,9 @@ public class ReservationServiceImpl implements ReservationService {
                 notificationsPort.sendNotification(reservation.getPetitioner().getId(),
                                 SendNotificationCommand.builder()
                                                 .type(Type.RESERVATION_CANCELLED)
+                                                .title("Reservación cancelada")
+                                                .message("Tu reservación para " + reservation.getReservable().getName()
+                                                                + " ha sido cancelada.")
                                                 .entityId(id)
                                                 .metadata(Map.of("reservationId", id.toString(), "reservableId",
                                                                 reservation.getReservable().getId().toString()))

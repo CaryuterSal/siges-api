@@ -26,6 +26,15 @@ public class ReservationsEmailAdapter implements ReservationsEmailPort {
 
     @Async("asyncExecutor")
     @Override
+    public void sendNewReservationRequestEmail(String email, String petitionerName, long reservationId) {
+        Context ctx = new Context();
+        ctx.setVariable("reservationId", reservationId);
+        ctx.setVariable("petitionerName", petitionerName);
+        emailPort.sendHtml(email, "Nueva solicitud de reservación - SIGES", "email/new-reservation-request", ctx);
+    }
+
+    @Async("asyncExecutor")
+    @Override
     public void sendReservationResolutionEmail(String email, Status status, long reservationId) {
         Context ctx = new Context();
         ctx.setVariable("reservationId", reservationId);

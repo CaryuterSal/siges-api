@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{email/base :: layout('Nueva Solicitud - SIGES', ~{::div})}">
+
+<body>
+    <div>
+        <div class="badge">Nueva Solicitud</div>
+        <div class="greeting">¡Hola!</div>
+        <p class="text">
+            Se ha registrado una nueva solicitud de reservación que requiere tu revisión.
+        </p>
+
+        <div class="credential-box">
+            <div class="credential-row">
+                <div class="credential-label">FOLIO</div>
+                <div class="credential-value" th:text="'#' + ${reservationId}">#12345</div>
+            </div>
+            <div class="credential-row">
+                <div class="credential-label">SOLICITANTE</div>
+                <div class="credential-value" th:text="${petitionerName}">Juan Perez</div>
+            </div>
+            <div class="credential-row">
+                <div class="credential-label">ESTADO</div>
+                <div class="credential-value">Pendiente de revisión</div>
+            </div>
+        </div>
+
+        <p class="text">
+            Por favor, ingresa al panel de administración para revisar los detalles y dar una resolución a esta
+            solicitud.
+        </p>
+    </div>
+</body>
+
+</html>

@@ -83,7 +83,8 @@ public class NotificationsPortImpl implements NotificationsPort {
                     .build();
             notification = notificationRepository.save(notification);
 
-            Map<String, String> metadata = command.metadata() == null ? new HashMap<>() : new HashMap<>(command.metadata());
+            Map<String, String> metadata = command.metadata() == null ? new HashMap<>()
+                    : new HashMap<>(command.metadata());
             metadata.put("id", notification.getId().toString());
 
             notification.setMetadata(metadata);
@@ -103,9 +104,14 @@ public class NotificationsPortImpl implements NotificationsPort {
             Long reservationId = command.entityId();
 
             if (reservationId != null) {
+                String issuedByName = command.metadata() != null ? command.metadata().get("issuedByName") : null;
                 switch (type) {
                     case RESERVATION_CREATED:
-                        reservationsEmailPort.sendReservationCreatedEmail(email, reservationId);
+                        if (issuedByName != null) {
+                            reservationsEmailPort.sendNewReservationRequestEmail(email, issuedByName, reservationId);
+                        } else {
+                            reservationsEmailPort.sendReservationCreatedEmail(email, reservationId);
+                        }
                         break;
                     case RESERVATION_APPROVED:
                         reservationsEmailPort.sendReservationResolutionEmail(email,

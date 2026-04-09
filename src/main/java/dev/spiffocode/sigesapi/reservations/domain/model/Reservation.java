@@ -1,6 +1,7 @@
 package dev.spiffocode.sigesapi.reservations.domain.model;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.Reservable;
+import java.util.Objects;
 import dev.spiffocode.sigesapi.reservations.domain.exception.InvalidReservationStatusException;
 import dev.spiffocode.sigesapi.users.domain.model.Applicant;
 import jakarta.persistence.*;
@@ -130,7 +131,11 @@ public class Reservation {
     public boolean reschedule(LocalDate date, LocalTime startTime, LocalTime endTime, Clock clock) {
         if (this.getStatus() != Status.PENDING && this.getStatus() != Status.APPROVED)
             throw new InvalidReservationStatusException(this.getStatus(), Status.PENDING);
-        if (this.date != date || this.startTime != startTime || this.endTime != endTime) {
+        if (!Objects.equals(this.date, date) || !Objects.equals(this.startTime, startTime)
+                || !Objects.equals(this.endTime, endTime)) {
+            this.date = date;
+            this.startTime = startTime;
+            this.endTime = endTime;
             this.status = Status.PENDING;
             return true;
         }

@@ -30,14 +30,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private final UserDetailsService userDetailsService;
-    private final TokenBlacklistService  tokenBlacklistService;
+    private final TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String header = request.getHeader("Authorization");
 
@@ -70,7 +69,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             var userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
 
-            if(!Objects.equals(userDetails.getTokenVersion(), jwt.getClaim("token_version").asInt())) {
+            if (!userDetails.isEnabled()) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            if (!Objects.equals(userDetails.getTokenVersion(), jwt.getClaim("token_version").asInt())) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -78,12 +82,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             var authToken = new UsernamePasswordAuthenticationToken(
                     userDetails,
                     null,
-                    authorities
-            );
+                    authorities);
 
             authToken.setDetails(
-                    new WebAuthenticationDetailsSource().buildDetails(request)
-            );
+                    new WebAuthenticationDetailsSource().buildDetails(request));
 
             SecurityContextHolder.getContext().setAuthentication(authToken);
 

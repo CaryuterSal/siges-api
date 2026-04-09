@@ -48,22 +48,22 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
     @Override
     public AuthenticatedResponse login(LoginRequest req, String requestIp) {
 
-
         LocalDateTime since = LocalDateTime.now(clock)
                 .minusMinutes(loginProperties.getLockMinutes());
 
         long recentFailures = logInAttemptsRepository
                 .countRecentFailuresSinceLastSuccess(req.identifier(), requestIp, since);
         if (recentFailures >= loginProperties.getMaxAttempts()) {
-            throw new AccountTemporarilyLockedException("Account temporarily locked. Try again in " + loginProperties.getLockMinutes() + " minutes.");
+            throw new AccountTemporarilyLockedException(
+                    "Account temporarily locked. Try again in " + loginProperties.getLockMinutes() + " minutes.");
         }
 
         try {
             Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(req.identifier(), req.password())
-            );
+                    new UsernamePasswordAuthenticationToken(req.identifier(), req.password()));
             loginAttemptRecorder.recordSuccess(req.identifier(), requestIp);
-            User user = userRepository.findByIdentifier(((UserDetails) Objects.requireNonNull(auth.getPrincipal())).getUsername())
+            User user = userRepository
+                    .findByIdentifier(((UserDetails) Objects.requireNonNull(auth.getPrincipal())).getUsername())
                     .orElseThrow(() -> new BadCredentialsException("User not found"));
             user.recordLogin(clock);
             userRepository.save(user);
@@ -71,7 +71,8 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
             return buildResponse(auth);
         } catch (AuthenticationException e) {
             loginAttemptRecorder.recordFailure(req.identifier(), requestIp);
-            throw new InvalidCredentialsException(e, loginProperties.getMaxAttempts() - Math.toIntExact(recentFailures) - 1);
+            throw new InvalidCredentialsException(e,
+                    loginProperties.getMaxAttempts() - Math.toIntExact(recentFailures) - 1);
         }
     }
 
@@ -92,10 +93,8 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
                 jwtService.generateAccessToken(username, roles, tokenVersion),
                 jwtService.generateRefreshToken(username, tokenVersion),
                 role,
-                auth.getAuthorities()
-        );
+                auth.getAuthorities());
     }
-
 
     @Override
     public RefreshResponse refresh(RefreshRequest req) {
@@ -103,7 +102,7 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
             throw new JWTVerificationException("Invalid refresh token");
         }
 
-        if(blacklistService.isBlacklisted(jwtService.extractJti(req.refreshToken()))) {
+        if (blacklistService.isBlacklisted(jwtService.extractJti(req.refreshToken()))) {
             throw new JwtBlacklistedException("Invalid refresh token");
         }
 
@@ -111,7 +110,11 @@ public class BlacklistedJwtAuthService implements BearerAuthService {
 
         var user = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
 
-        if(!Objects.equals(user.getTokenVersion(), jwtService.extractTokenVersion(req.refreshToken()))) {
+        if (!user.isEnabled()) {
+            throw new JwtBlacklistedException("Account is disabled");
+        }
+
+        if (!Objects.equals(user.getTokenVersion(), jwtService.extractTokenVersion(req.refreshToken()))) {
             throw new JwtBlacklistedException("Token version is not valid anymore. User updated sensitive data");
         }
 
