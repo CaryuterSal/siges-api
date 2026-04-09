@@ -540,7 +540,9 @@ public class ReservationIT extends FlushedIntegrationTest {
 
                 mvc.perform(patch(API + "/" + r.getId() + "/finish")
                                 .header("X-API-Version", VERSION)
-                                .header("Authorization", "Bearer " + adminToken))
+                                .header("Authorization", "Bearer " + adminToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content("{}"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.status").value(Status.FINISHED.name()));
         }

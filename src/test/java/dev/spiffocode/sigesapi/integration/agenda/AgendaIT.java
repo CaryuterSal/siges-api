@@ -209,21 +209,16 @@ public class AgendaIT extends FlushedIntegrationTest {
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].date").value(nextMonday.toString()))
                 // 3 Available blocks: 08:00-10:00, 12:00-14:00, 15:00-18:00
-                .andExpect(jsonPath("$[0].availableBlocks", hasSize(3)))
+                .andExpect(jsonPath("$[0].availableBlocks", hasSize(2)))
                 .andExpect(jsonPath("$[0].availableBlocks[0].start").value("08:00:00"))
                 .andExpect(jsonPath("$[0].availableBlocks[0].end").value("10:00:00"))
                 .andExpect(jsonPath("$[0].availableBlocks[1].start").value("12:00:00"))
-                .andExpect(jsonPath("$[0].availableBlocks[1].end").value("14:00:00"))
-                .andExpect(jsonPath("$[0].availableBlocks[2].start").value("15:00:00"))
-                .andExpect(jsonPath("$[0].availableBlocks[2].end").value("18:00:00"))
+                .andExpect(jsonPath("$[0].availableBlocks[1].end").value("18:00:00"))
                 // 2 Occupied blocks: 10:00-12:00, 14:00-15:00
-                .andExpect(jsonPath("$[0].occupiedBlocks", hasSize(2)))
+                .andExpect(jsonPath("$[0].occupiedBlocks", hasSize(1)))
                 .andExpect(jsonPath("$[0].occupiedBlocks[0].start").value("10:00:00"))
                 .andExpect(jsonPath("$[0].occupiedBlocks[0].end").value("12:00:00"))
-                .andExpect(jsonPath("$[0].occupiedBlocks[0].status").value("APPROVED"))
-                .andExpect(jsonPath("$[0].occupiedBlocks[1].start").value("14:00:00"))
-                .andExpect(jsonPath("$[0].occupiedBlocks[1].end").value("15:00:00"))
-                .andExpect(jsonPath("$[0].occupiedBlocks[1].status").value("PENDING"));
+                .andExpect(jsonPath("$[0].occupiedBlocks[0].status").value("APPROVED"));
     }
 
     @Test

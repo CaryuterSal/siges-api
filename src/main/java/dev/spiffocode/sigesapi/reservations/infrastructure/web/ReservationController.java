@@ -180,6 +180,7 @@ public class ReservationController {
                 return reservationService.startReservation(id);
         }
 
+    @PatchMapping("/{id}/finish")
         public ReservationResponse finishReservation(
                         @PathVariable Long id,
                         @RequestBody(required = false) @Valid FinishReservationRequest request) {
