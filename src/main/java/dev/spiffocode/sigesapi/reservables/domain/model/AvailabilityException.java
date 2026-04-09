@@ -29,7 +29,6 @@ public class AvailabilityException {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @NotNull
     @Column(nullable = false)
     private LocalDate dateFrom;
@@ -50,11 +49,9 @@ public class AvailabilityException {
     @Column(nullable = false)
     private String reason;
 
-
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
 
     @LastModifiedDate
     @Column(nullable = false)
@@ -65,4 +62,11 @@ public class AvailabilityException {
     @JoinColumn(name = "reservable_id", nullable = false)
     private Reservable reservable;
 
+    @PrePersist
+    @PreUpdate
+    private void validateTimeRange() {
+        if (startTime != null && endTime != null && !startTime.isBefore(endTime)) {
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
+    }
 }

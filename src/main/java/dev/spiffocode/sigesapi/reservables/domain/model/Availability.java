@@ -29,7 +29,6 @@ public class Availability {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
     @NotNull
     @Column(nullable = false)
     private LocalDate dateFrom;
@@ -48,11 +47,9 @@ public class Availability {
     @Enumerated(EnumType.STRING)
     private DayOfWeek dayOfWeek;
 
-
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
 
     @LastModifiedDate
     @Column(nullable = false)
@@ -60,10 +57,14 @@ public class Availability {
 
     @ToString.Exclude
     @NotNull
-    @ManyToOne(
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST},
-            optional = false
-    )
+    @ManyToOne(cascade = { CascadeType.MERGE, CascadeType.PERSIST }, optional = false)
     private AvailabilitySlot group;
 
+    @PrePersist
+    @PreUpdate
+    private void validateTimeRange() {
+        if (startTime != null && endTime != null && !startTime.isBefore(endTime)) {
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
+    }
 }

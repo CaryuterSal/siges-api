@@ -1,0 +1,11 @@
+ALTER TABLE reservations
+    ADD COLUMN started_at TIMESTAMP WITHOUT TIME ZONE,
+    ADD COLUMN returned_late BOOLEAN DEFAULT FALSE NOT NULL,
+    ADD COLUMN auto_started BOOLEAN DEFAULT FALSE NOT NULL,
+    ADD COLUMN auto_finished BOOLEAN DEFAULT FALSE NOT NULL;
+
+ALTER TABLE reservations_aud
+    ADD COLUMN started_at TIMESTAMP WITHOUT TIME ZONE,
+    ADD COLUMN returned_late BOOLEAN,
+    ADD COLUMN auto_started BOOLEAN,
+    ADD COLUMN auto_finished BOOLEAN;

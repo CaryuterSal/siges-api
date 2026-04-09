@@ -180,15 +180,10 @@ public class ReservationController {
                 return reservationService.startReservation(id);
         }
 
-        @PatchMapping("/{id}/finish")
-        @Operation(summary = "Mark a reservation as finished", description = "Admin only. Reservation must be in IN_PROGRESS status.")
-        @ApiResponses({
-                        @ApiResponse(responseCode = "200", description = "Reservation finished", useReturnTypeSchema = true),
-                        @ApiResponse(responseCode = "404", description = "Reservation not found"),
-                        @ApiResponse(responseCode = "409", description = "Reservation is not in IN_PROGRESS status")
-        })
-        public ReservationResponse finishReservation(@PathVariable Long id) {
-                return reservationService.finishReservation(id);
+        public ReservationResponse finishReservation(
+                        @PathVariable Long id,
+                        @RequestBody(required = false) @Valid FinishReservationRequest request) {
+                return reservationService.finishReservation(id, request);
         }
 
         @PostMapping("/{id}/notes")

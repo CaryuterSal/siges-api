@@ -16,7 +16,6 @@ public class AuditingConfig {
 
     @Bean
     public DateTimeProvider dateTimeProvider(ObjectProvider<Clock> clockProvider) {
-        Clock clock = clockProvider.getIfAvailable(() -> Clock.systemDefaultZone());
-        return () -> Optional.of(LocalDateTime.now(clock));
+        return () -> Optional.of(LocalDateTime.now(clockProvider.getIfAvailable(() -> Clock.systemDefaultZone())));
     }
 }

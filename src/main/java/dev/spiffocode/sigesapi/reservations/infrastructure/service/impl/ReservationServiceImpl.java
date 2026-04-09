@@ -62,6 +62,8 @@ public class ReservationServiceImpl implements ReservationService {
         private final NoteMapper noteMapper;
         private final ApplicantRepository applicantRepository;
 
+        private static final List<Status> BLOCKING_STATUSES = List.of(Status.APPROVED, Status.IN_PROGRESS);
+
         @Override
         public ReservationResponse createReservation(CreateReservationRequest request) {
                 Long userId = securityContextHelper.getCurrentUserId();
@@ -75,7 +77,8 @@ public class ReservationServiceImpl implements ReservationService {
                                 petitionerIsStudent, clock);
                 validateNoOverlap(reservable, request.date(), request.startTime(), request.endTime());
                 if (reservable instanceof Space space) {
-                        space.assertCapacity(request.companions());
+                        int companions = request.companions() != null ? request.companions() : 0;
+                        space.assertCapacity(companions);
                 }
 
                 Reservation reservation = reservationMapper.toEntity(request, petitioner, reservable);
@@ -149,7 +152,17 @@ public class ReservationServiceImpl implements ReservationService {
         @Override
         public ReservationResponse approveReservation(Long id, ApproveReservationRequest request) {
                 Reservation reservation = findReservationOrThrow(id);
+
+                // 1. Re-validate no approved overlaps
+                validateNoOverlap(reservation.getReservable(), reservation.getDate(),
+                                reservation.getStartTime(), reservation.getEndTime(), id);
+
+                // 2. Approve
                 reservation.approve(request.observation(), clock);
+                Reservation saved = reservationRepository.save(reservation);
+
+                // 3. Auto-reject overlapping PENDING reservations
+                autoRejectOverlappingReservations(saved);
 
                 notificationsPort.sendNotification(reservation.getPetitioner().getId(),
                                 SendNotificationCommand.builder()
@@ -159,7 +172,32 @@ public class ReservationServiceImpl implements ReservationService {
                                                                 reservation.getReservable().getId().toString()))
                                                 .build());
 
-                return toResponse(reservationRepository.save(reservation));
+                return toResponse(saved);
+        }
+
+        private void autoRejectOverlappingReservations(Reservation approved) {
+                List<Reservation> overlaps = reservationRepository.findOverlappingReservationsExcluding(
+                                approved.getReservable(),
+                                approved.getDate(),
+                                approved.getStartTime(),
+                                approved.getEndTime(),
+                                List.of(Status.PENDING),
+                                approved.getId());
+
+                for (Reservation r : overlaps) {
+                        r.reject("Se ha rechazado automáticamente ya que este horario ha sido reservado por otro usuario.",
+                                        clock);
+                        reservationRepository.save(r);
+
+                        notificationsPort.sendNotification(r.getPetitioner().getId(),
+                                        SendNotificationCommand.builder()
+                                                        .type(Type.RESERVATION_REJECTED)
+                                                        .entityId(r.getId())
+                                                        .metadata(Map.of("reservationId", r.getId().toString(),
+                                                                        "reservableId",
+                                                                        r.getReservable().getId().toString()))
+                                                        .build());
+                }
         }
 
         @Override
@@ -226,9 +264,10 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         @Override
-        public ReservationResponse finishReservation(Long id) {
+        public ReservationResponse finishReservation(Long id, FinishReservationRequest request) {
                 Reservation reservation = findReservationOrThrow(id);
-                reservation.finish(clock);
+                Boolean returnedLate = request != null ? request.returnedLate() : null;
+                reservation.finish(returnedLate, clock);
                 reservation.getReservable().setStatus(ReservableStatus.AVAILABLE);
                 reservableRepository.save(reservation.getReservable());
                 return toResponse(reservationRepository.save(reservation));
@@ -332,7 +371,7 @@ public class ReservationServiceImpl implements ReservationService {
         private void validateNoOverlap(Reservable reservable, LocalDate date,
                         LocalTime start, LocalTime end) {
                 boolean overlap = reservationRepository.existsOverlap(reservable, date, start, end,
-                                List.of(Status.PENDING, Status.APPROVED));
+                                BLOCKING_STATUSES);
 
                 if (overlap)
                         throw new ReservationOverlapException(date, start, end);
@@ -341,7 +380,7 @@ public class ReservationServiceImpl implements ReservationService {
         private void validateNoOverlap(Reservable reservable, LocalDate date,
                         LocalTime start, LocalTime end, @NonNull Long excludeId) {
                 boolean overlap = reservationRepository.existsOverlapExcluding(reservable, date, start, end,
-                                List.of(Status.PENDING, Status.APPROVED), excludeId);
+                                BLOCKING_STATUSES, excludeId);
 
                 if (overlap)
                         throw new ReservationOverlapException(date, start, end);

@@ -11,5 +11,6 @@ import lombok.extern.jackson.Jacksonized;
 @Value
 @NonFinal
 @EqualsAndHashCode(callSuper = true)
-public sealed class ApplicantResponse extends UserResponse permits StudentResponse, InstitutionalStaffResponse{
+public sealed class ApplicantResponse extends UserResponse permits StudentResponse, InstitutionalStaffResponse {
+    Long lateReturnsCount;
 }

@@ -19,7 +19,7 @@ public interface ReservationService {
 
     ReservationResponse startReservation(Long id);
 
-    ReservationResponse finishReservation(Long id);
+    ReservationResponse finishReservation(Long id, FinishReservationRequest request);
 
     ReservationResponse addNote(Long reservationId, PublishNoteRequest request);
 

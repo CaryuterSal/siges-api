@@ -41,8 +41,8 @@ public class AgendaServiceImpl implements AgendaService {
             throw new IllegalArgumentException("dateTo must be after or equal to dateFrom");
         }
 
-        List<Reservation> reservations = reservationRepository.findByReservableAndDateBetweenAndStatusIn(reservable, dateFrom, dateTo, List.of(Status.APPROVED, Status.PENDING)
-        );
+        List<Reservation> reservations = reservationRepository.findByReservableAndDateBetweenAndStatusIn(reservable,
+                dateFrom, dateTo, List.of(Status.APPROVED, Status.IN_PROGRESS));
 
         List<DayAvailabilityItem> availabilityItems = new ArrayList<>();
         LocalDate currentDate = dateFrom;
@@ -63,10 +63,12 @@ public class AgendaServiceImpl implements AgendaService {
             reservable.getAvailabilityExceptions().stream()
                     .filter(ex -> !finalDate.isBefore(ex.getDateFrom()) && !finalDate.isAfter(ex.getDateTo()))
                     .forEach(ex -> exceptionBlocks.add(new TimeBlockItem(ex.getStartTime(), ex.getEndTime())));
- 
-            // We subtract exception blocks from availableBlocks, then merge adjacent ones
-            List<TimeBlockItem> actualAvailableBlocks = mergeTimeBlocks(subtractBlocks(availableBlocks, exceptionBlocks,
-                    TimeBlockItem.class, TimeBlockItem::new));
+
+            // We merge available blocks first for robustness, then subtract exceptions,
+            // then merge again
+            List<TimeBlockItem> actualAvailableBlocks = mergeTimeBlocks(
+                    subtractBlocks(mergeTimeBlocks(availableBlocks), exceptionBlocks,
+                            TimeBlockItem.class, TimeBlockItem::new));
 
             // Compute occupied blocks, then merge adjacent ones
             List<OccupiedBlockItem> occupiedBlocks = mergeOccupiedBlocks(reservations.stream()
@@ -85,11 +87,11 @@ public class AgendaServiceImpl implements AgendaService {
 
         return availabilityItems;
     }
-             
 
-            
-    private <T extends TimeRange> List<T> subtractBlocks(List<T> baseBlocks, List<? extends TimeRange> exceptions,  Class<T> blockClazz, BiFunction<LocalTime, LocalTime,  T> blockBuilder) {
-        if (exceptions.isEmpty()) return baseBlocks;
+    private <T extends TimeRange> List<T> subtractBlocks(List<T> baseBlocks, List<? extends TimeRange> exceptions,
+            Class<T> blockClazz, BiFunction<LocalTime, LocalTime, T> blockBuilder) {
+        if (exceptions.isEmpty())
+            return baseBlocks;
 
         List<T> result = new ArrayList<>(baseBlocks);
         for (TimeRange ex : exceptions) {
@@ -117,7 +119,8 @@ public class AgendaServiceImpl implements AgendaService {
     }
 
     private List<TimeBlockItem> mergeTimeBlocks(List<TimeBlockItem> blocks) {
-        if (blocks == null || blocks.size() <= 1) return blocks;
+        if (blocks == null || blocks.size() <= 1)
+            return blocks;
 
         List<TimeBlockItem> sortedBlocks = new ArrayList<>(blocks);
         sortedBlocks.sort(Comparator.comparing(TimeBlockItem::start));
@@ -141,7 +144,8 @@ public class AgendaServiceImpl implements AgendaService {
     }
 
     private List<OccupiedBlockItem> mergeOccupiedBlocks(List<OccupiedBlockItem> blocks) {
-        if (blocks == null || blocks.size() <= 1) return blocks;
+        if (blocks == null || blocks.size() <= 1)
+            return blocks;
 
         List<OccupiedBlockItem> sortedBlocks = new ArrayList<>(blocks);
         sortedBlocks.sort(Comparator.comparing(OccupiedBlockItem::start));

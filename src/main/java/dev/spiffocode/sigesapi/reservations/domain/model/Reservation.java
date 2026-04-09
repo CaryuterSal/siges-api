@@ -70,7 +70,17 @@ public class Reservation {
     private LocalDateTime approvedAt;
     private LocalDateTime rejectedAt;
     private LocalDateTime cancelledAt;
+    private LocalDateTime startedAt;
     private LocalDateTime finishedAt;
+
+    @Builder.Default
+    private boolean returnedLate = false;
+
+    @Builder.Default
+    private boolean autoStarted = false;
+
+    @Builder.Default
+    private boolean autoFinished = false;
 
     @Builder.Default
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL)
@@ -118,14 +128,21 @@ public class Reservation {
         if (this.status != Status.APPROVED)
             throw new InvalidReservationStatusException(this.status, Status.APPROVED);
         this.status = Status.IN_PROGRESS;
-        this.finishedAt = LocalDateTime.now(clock);
+        this.startedAt = LocalDateTime.now(clock);
     }
 
     public void finish(Clock clock) {
-        if (this.status != Status.IN_PROGRESS)
+        finish(null, clock);
+    }
+
+    public void finish(Boolean returnedLate, Clock clock) {
+        if (this.status != Status.IN_PROGRESS && this.status != Status.FINISHED)
             throw new InvalidReservationStatusException(this.status, Status.IN_PROGRESS);
         this.status = Status.FINISHED;
         this.finishedAt = LocalDateTime.now(clock);
+        if (returnedLate != null) {
+            this.returnedLate = returnedLate;
+        }
     }
 
     public boolean reschedule(LocalDate date, LocalTime startTime, LocalTime endTime, Clock clock) {

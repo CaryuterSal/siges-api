@@ -38,33 +38,28 @@ public class Space extends Reservable {
     @Positive
     private Integer capacity;
 
-
     @Builder.Default
     @ToString.Exclude
     @Filter(name = "softDeleteFilter")
-    @OneToMany(
-            mappedBy = "space",
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
-    )
+    @OneToMany(mappedBy = "space", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private List<SpaceAsset> assets = new ArrayList<>();
 
     @Builder.Default
     @ToString.Exclude
     @Filter(name = "softDeleteFilter")
-    @OneToMany(
-            mappedBy = "space",
-            cascade = {CascadeType.MERGE, CascadeType.PERSIST}
-    )
+    @OneToMany(mappedBy = "space", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     private List<Equipment> equipments = new ArrayList<>();
 
-    public void assertCapacity(int capacity){
-        if(capacity > this.capacity){
-            throw new SpaceCapacityExceededException(this.capacity, capacity);
+    public void assertCapacity(int extraCompanions) {
+        int totalPeople = extraCompanions + 1;
+        if (totalPeople > this.capacity) {
+            throw new SpaceCapacityExceededException(this.capacity, totalPeople);
         }
     }
 
     @Override
-    protected void assertSpecificCanDoReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime, Clock clock) {
+    protected void assertSpecificCanDoReservation(LocalDate requestedDate, LocalTime startTime, LocalTime endTime,
+            Clock clock) {
         LocalDateTime requestedDateTime = LocalDateTime.of(requestedDate, startTime);
 
         Duration bookInAdvance = getBookInAdvance();
