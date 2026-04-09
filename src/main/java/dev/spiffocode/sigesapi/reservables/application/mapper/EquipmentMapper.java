@@ -8,17 +8,21 @@ import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring", uses = { BuildingMapper.class, SpaceMapper.class, EquipmentTypeMapper.class,
         AvailabilityMapper.class, InventoryItemMapper.class })
-public interface EquipmentMapper {
+public abstract class EquipmentMapper {
+
+    @Autowired
+    protected AvailabilityMapper availabilityMapper;
 
     @Mapping(target = "spaceAttached", source = "space")
     @Mapping(target = "inventoryIdNum", source = "inventoryItem.inventoryNum")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")
     @Mapping(target = "availabilitySlots", source = "availability")
     @Mapping(target = "reservableType", constant = "EQUIPMENT")
-    EquipmentDto toDto(Equipment equipment);
+    public abstract EquipmentDto toDto(Equipment equipment);
 
     @Mapping(target = "inventoryItem", source = "dto.inventoryNum")
     @Mapping(target = "deletedAt", ignore = true)
@@ -34,7 +38,7 @@ public interface EquipmentMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
-    Equipment toEntity(EquipmentRegisterDto dto, Building building, Space space, EquipmentType type);
+    public abstract Equipment toEntity(EquipmentRegisterDto dto, Building building, Space space, EquipmentType type);
 
     @Mapping(target = "inventoryItem", source = "dto.inventoryNum")
     @Mapping(target = "deletedAt", ignore = true)
@@ -50,11 +54,18 @@ public interface EquipmentMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
-    void updateEntityFromDto(EquipmentUpdateDto dto, Building building, Space space, EquipmentType type,
+    public abstract void updateEntityFromDto(EquipmentUpdateDto dto, Building building, Space space, EquipmentType type,
             @MappingTarget Equipment entity);
 
     @AfterMapping
-    default void linkRelations(@MappingTarget Equipment equipment,
+    protected void syncCollections(@MappingTarget Equipment entity, EquipmentUpdateDto dto) {
+        availabilityMapper.updateAvailabilitySlots(dto.getAvailability(), entity.getAvailability(), entity);
+        availabilityMapper.updateAvailabilityExceptions(dto.getExceptions(), entity.getAvailabilityExceptions(),
+                entity);
+    }
+
+    @AfterMapping
+    protected void linkRelations(@MappingTarget Equipment equipment,
             Building building,
             Space space,
             EquipmentType type) {

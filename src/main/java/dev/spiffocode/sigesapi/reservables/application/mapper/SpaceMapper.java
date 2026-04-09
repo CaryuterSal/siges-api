@@ -11,24 +11,28 @@ import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring", uses = { BuildingMapper.class, SpaceTypeMapper.class, AvailabilityMapper.class, SpaceAssetMapper.class })
-public interface SpaceMapper {
+@Mapper(componentModel = "spring", uses = { BuildingMapper.class, SpaceTypeMapper.class, AvailabilityMapper.class,
+        SpaceAssetMapper.class })
+public abstract class SpaceMapper {
 
-    @Mapping(target = "spaceType", source = "type")
-    @Mapping(target = "bookInAdvanceDuration", source = "bookInAdvance")
-    @Mapping(target = "availableForStudents", source = "studentsAvailable")
-    @Mapping(target = "availabilitySlots", source = "availability")
-    @Mapping(target = "reservableType", constant = "SPACE")
-    SpaceDto toDto(Space space);
-
+    @Autowired
+    protected AvailabilityMapper availabilityMapper;
 
     @Mapping(target = "spaceType", source = "type")
     @Mapping(target = "bookInAdvanceDuration", source = "bookInAdvance")
     @Mapping(target = "availableForStudents", source = "studentsAvailable")
     @Mapping(target = "availabilitySlots", source = "availability")
     @Mapping(target = "reservableType", constant = "SPACE")
-    SpaceSummaryDto toSummaryDto(Space space);
+    public abstract SpaceDto toDto(Space space);
+
+    @Mapping(target = "spaceType", source = "type")
+    @Mapping(target = "bookInAdvanceDuration", source = "bookInAdvance")
+    @Mapping(target = "availableForStudents", source = "studentsAvailable")
+    @Mapping(target = "availabilitySlots", source = "availability")
+    @Mapping(target = "reservableType", constant = "SPACE")
+    public abstract SpaceSummaryDto toSummaryDto(Space space);
 
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "equipments", ignore = true)
@@ -45,7 +49,7 @@ public interface SpaceMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
-    Space toEntity(SpaceRegisterDto dto, SpaceType spaceType, Building building);
+    public abstract Space toEntity(SpaceRegisterDto dto, SpaceType spaceType, Building building);
 
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "equipments", ignore = true)
@@ -62,13 +66,20 @@ public interface SpaceMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
-    void updateEntityFromDto(SpaceUpdateDto dto, SpaceType type, Building building, @MappingTarget Space entity);
-
+    public abstract void updateEntityFromDto(SpaceUpdateDto dto, SpaceType type, Building building,
+            @MappingTarget Space entity);
 
     @AfterMapping
-    default void linkRelations(@MappingTarget Space space,
-                               Building building,
-                               SpaceType spaceType) {
+    protected void syncCollections(@MappingTarget Space entity, SpaceUpdateDto dto) {
+        availabilityMapper.updateAvailabilitySlots(dto.getAvailability(), entity.getAvailability(), entity);
+        availabilityMapper.updateAvailabilityExceptions(dto.getExceptions(), entity.getAvailabilityExceptions(),
+                entity);
+    }
+
+    @AfterMapping
+    protected void linkRelations(@MappingTarget Space space,
+            Building building,
+            SpaceType spaceType) {
 
         if (building != null) {
             building.addReservable(space);

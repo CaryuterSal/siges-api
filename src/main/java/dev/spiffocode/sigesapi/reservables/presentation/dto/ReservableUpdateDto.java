@@ -2,6 +2,7 @@ package dev.spiffocode.sigesapi.reservables.presentation.dto;
 
 import dev.spiffocode.sigesapi.reservables.domain.model.ReservableStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -9,6 +10,8 @@ import lombok.Builder;
 import lombok.Value;
 import lombok.experimental.NonFinal;
 import lombok.experimental.SuperBuilder;
+
+import java.util.List;
 
 @Value
 @NonFinal
@@ -35,4 +38,12 @@ public abstract class ReservableUpdateDto {
     @Schema(description = "ID of the building where this resource is physically located")
     @NotNull
     Long buildingId;
+
+    @Schema(description = "Availability recurrent blocks that defines when this resource can be booked")
+    @Valid
+    List<AvailabilitySlotUpdateDto> availability;
+
+    @Schema(description = "Defines blocks of time when the availability shouldn't be valid and resource can't be booked")
+    @Valid
+    List<AvailabilityExceptionUpdateDto> exceptions;
 }

@@ -22,6 +22,7 @@ public class ReservationSpecifications {
                 .and(byStatuses(filter.statuses()))
                 .and(byReservableId(filter.reservableId()))
                 .and(byType(filter.type()))
+                .and(byQuery(filter.q()))
                 .and(filterOutIfApplicant(userId, isApplicant));
     }
 
@@ -73,5 +74,18 @@ public class ReservationSpecifications {
     private static Specification<@NonNull Reservation> byType(GroupingType type) {
         return (root, query, cb) -> type == null ? null
                 : cb.equal(root.get("type"), type);
+    }
+
+    private static Specification<@NonNull Reservation> byQuery(String q) {
+        return (root, query, cb) -> {
+            if (q == null || q.isBlank())
+                return null;
+            String pattern = "%" + q.toLowerCase() + "%";
+            return cb.or(
+                    cb.like(cb.lower(root.get("reservable").get("name")), pattern),
+                    cb.like(cb.lower(root.get("reservable").get("building").get("name")), pattern),
+                    cb.like(cb.lower(root.get("petitioner").get("firstName")), pattern),
+                    cb.like(cb.lower(root.get("petitioner").get("lastName")), pattern));
+        };
     }
 }

@@ -64,7 +64,7 @@ public abstract class Reservable {
     private Building building;
 
     @Builder.Default
-    @OneToMany(mappedBy = "reservable", cascade = { CascadeType.MERGE, CascadeType.PERSIST }, orphanRemoval = true)
+    @OneToMany(mappedBy = "reservable", cascade = { CascadeType.MERGE, CascadeType.PERSIST })
     List<AvailabilitySlot> availability = new ArrayList<>();
 
     public void addAvailabilitySlot(AvailabilitySlot availabilitySlot) {

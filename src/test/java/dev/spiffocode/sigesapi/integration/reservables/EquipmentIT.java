@@ -11,6 +11,7 @@ import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentRepository
 import dev.spiffocode.sigesapi.reservables.domain.repository.EquipmentTypeRepository;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilityExceptionRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotRegisterDto;
+import dev.spiffocode.sigesapi.reservables.presentation.dto.AvailabilitySlotUpdateDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentRegisterDto;
 import dev.spiffocode.sigesapi.reservables.presentation.dto.EquipmentUpdateDto;
 import dev.spiffocode.sigesapi.users.domain.model.Admin;
@@ -58,10 +59,10 @@ public class EquipmentIT extends FlushedIntegrationTest {
         private String studentToken;
         private Building testBuilding;
         private EquipmentType testType;
-    @Autowired
-    private EquipmentTypeRepository equipmentTypeRepository;
+        @Autowired
+        private EquipmentTypeRepository equipmentTypeRepository;
 
-    @Test
+        @Test
         void serialize_equipment_update_dto() throws JsonProcessingException {
                 EquipmentUpdateDto dto = EquipmentUpdateDto.builder()
                                 .inventoryNum("INV-5000")
@@ -129,7 +130,6 @@ public class EquipmentIT extends FlushedIntegrationTest {
                 testType = EquipmentType.builder().name("Default").description("Default type for all test").build();
                 testType = equipmentTypeRepository.save(testType);
 
-
         }
 
         private EquipmentRegisterDto createValidDto() {
@@ -141,13 +141,13 @@ public class EquipmentIT extends FlushedIntegrationTest {
                                                 DayOfWeek.FRIDAY))
                                 .build();
 
-            AvailabilityExceptionRegisterDto exception = AvailabilityExceptionRegisterDto.builder()
-                    .startTime(LocalTime.of(8,0))
-                    .endTime(LocalTime.of(20,0))
-                    .dateFrom(LocalDate.of(2026,12,1))
-                    .dateTo(LocalDate.of(2026,12,7))
-                    .reason("Navidad")
-                    .build();
+                AvailabilityExceptionRegisterDto exception = AvailabilityExceptionRegisterDto.builder()
+                                .startTime(LocalTime.of(8, 0))
+                                .endTime(LocalTime.of(20, 0))
+                                .dateFrom(LocalDate.of(2026, 12, 1))
+                                .dateTo(LocalDate.of(2026, 12, 7))
+                                .reason("Navidad")
+                                .build();
 
                 return EquipmentRegisterDto.builder()
                                 .inventoryNum("INV-1002")
@@ -169,46 +169,46 @@ public class EquipmentIT extends FlushedIntegrationTest {
 
         @Test
         void searchEquipments_authenticated_returns200() throws Exception {
-            InventoryItem inventoryItem = new InventoryItem("INV-TEST-01");
-            Equipment e = Equipment.builder()
-                    .inventoryItem(inventoryItem)
-                    .name("MacBook Pro")
-                    .description("Sample laptop")
-                    .studentsAvailable(true)
-                    .building(testBuilding)
-                    .status(ReservableStatus.AVAILABLE)
-                    .createdBy("system")
-                    .build();
-            equipmentRepository.save(e);
+                InventoryItem inventoryItem = new InventoryItem("INV-TEST-01");
+                Equipment e = Equipment.builder()
+                                .inventoryItem(inventoryItem)
+                                .name("MacBook Pro")
+                                .description("Sample laptop")
+                                .studentsAvailable(true)
+                                .building(testBuilding)
+                                .status(ReservableStatus.AVAILABLE)
+                                .createdBy("system")
+                                .build();
+                equipmentRepository.save(e);
 
-            var a = mvc.perform(get(API)
-                    .header("X-API-Version", VERSION)
-                    .header("Authorization", "Bearer " + studentToken))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.content").isArray()).andReturn();
-            System.out.println(a);
+                var a = mvc.perform(get(API)
+                                .header("X-API-Version", VERSION)
+                                .header("Authorization", "Bearer " + studentToken))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.content").isArray()).andReturn();
+                System.out.println(a);
         }
 
         @Test
         void getEquipment_authenticated_returns200() throws Exception {
 
-            InventoryItem inventoryItem = new InventoryItem("INV-1234");
-            Equipment e = Equipment.builder()
-                    .inventoryItem(inventoryItem)
-                    .name("Arduino Uno")
-                    .description("Microcontroller")
-                    .studentsAvailable(false)
-                    .building(testBuilding)
-                    .status(ReservableStatus.AVAILABLE)
-                    .createdBy("system")
-                    .build();
-            e = equipmentRepository.save(e);
+                InventoryItem inventoryItem = new InventoryItem("INV-1234");
+                Equipment e = Equipment.builder()
+                                .inventoryItem(inventoryItem)
+                                .name("Arduino Uno")
+                                .description("Microcontroller")
+                                .studentsAvailable(false)
+                                .building(testBuilding)
+                                .status(ReservableStatus.AVAILABLE)
+                                .createdBy("system")
+                                .build();
+                e = equipmentRepository.save(e);
 
-            mvc.perform(get(API + "/" + e.getId())
-                    .header("X-API-Version", VERSION)
-                    .header("Authorization", "Bearer " + adminToken))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.inventoryIdNum").value("INV-1234"));
+                mvc.perform(get(API + "/" + e.getId())
+                                .header("X-API-Version", VERSION)
+                                .header("Authorization", "Bearer " + adminToken))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.inventoryIdNum").value("INV-1234"));
         }
 
         @Test
@@ -223,11 +223,12 @@ public class EquipmentIT extends FlushedIntegrationTest {
                                 .andExpect(status().isCreated())
                                 .andExpect(jsonPath("$.inventoryIdNum").value("INV-1002"))
                                 .andExpect(jsonPath("$.availabilityExceptions.length()").value(1))
-                                .andExpect(jsonPath("$.availabilityExceptions[0].reason").value(dto.getExceptions().getFirst().reason()))
+                                .andExpect(jsonPath("$.availabilityExceptions[0].reason")
+                                                .value(dto.getExceptions().getFirst().reason()))
                                 .andExpect(jsonPath("$.availabilitySlots.length()").value(1))
                                 .andExpect(header().exists("Location"))
-                        .andReturn();
-            System.out.println(a);
+                                .andReturn();
+                System.out.println(a);
         }
 
         @Test
@@ -245,40 +246,100 @@ public class EquipmentIT extends FlushedIntegrationTest {
         @Test
         void updateEquipment_asAdmin_returns200() throws Exception {
 
-            InventoryItem inventoryItem = new InventoryItem("INV-5000");
-            Equipment e = Equipment.builder()
-                    .inventoryItem(inventoryItem)
-                    .name("Old Laptop")
-                    .description("Needs update")
-                    .studentsAvailable(true)
-                    .building(testBuilding)
-                    .status(ReservableStatus.AVAILABLE)
-                    .createdBy("system")
-                    .build();
-            e = equipmentRepository.save(e);
+                InventoryItem inventoryItem = new InventoryItem("INV-5000");
+                Equipment e = Equipment.builder()
+                                .inventoryItem(inventoryItem)
+                                .name("Old Laptop")
+                                .description("Needs update")
+                                .studentsAvailable(true)
+                                .building(testBuilding)
+                                .status(ReservableStatus.AVAILABLE)
+                                .createdBy("system")
+                                .build();
+                e = equipmentRepository.save(e);
 
-            EquipmentUpdateDto dto = EquipmentUpdateDto.builder()
-                    .inventoryNum("INV-5000")
-                    .name("New Laptop")
-                    .description("Updated!")
-                    .equipmentTypeId(testType.getId())
-                    .studentsAvailable(false)
-                    .buildingId(testBuilding.getId())
-                    .build();
+                EquipmentUpdateDto dto = EquipmentUpdateDto.builder()
+                                .inventoryNum("INV-5000")
+                                .name("New Laptop")
+                                .description("Updated!")
+                                .equipmentTypeId(testType.getId())
+                                .studentsAvailable(false)
+                                .buildingId(testBuilding.getId())
+                                .build();
 
-            mvc.perform(put(API + "/" + e.getId())
-                    .header("X-API-Version", VERSION)
-                    .header("Authorization", "Bearer " + adminToken)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(mapper.writeValueAsString(dto)))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.name").value("New Laptop"))
-                    .andExpect(jsonPath("$.availableForStudents").value(false));
+                mvc.perform(put(API + "/" + e.getId())
+                                .header("X-API-Version", VERSION)
+                                .header("Authorization", "Bearer " + adminToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(dto)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.name").value("New Laptop"))
+                                .andExpect(jsonPath("$.availableForStudents").value(false));
+        }
+
+        @Test
+        void updateEquipment_availability_asAdmin_returns200() throws Exception {
+
+                InventoryItem inventoryItem = new InventoryItem("INV-6000");
+                Equipment e = Equipment.builder()
+                                .inventoryItem(inventoryItem)
+                                .name("Old Laptop")
+                                .description("Needs update")
+                                .studentsAvailable(true)
+                                .building(testBuilding)
+                                .status(ReservableStatus.AVAILABLE)
+                                .createdBy("system")
+                                .build();
+                e = equipmentRepository.save(e);
+
+                var slot1 = AvailabilitySlotRegisterDto.builder()
+                                .startTime(LocalTime.of(8, 0))
+                                .endTime(LocalTime.of(20, 0))
+                                .daysOfWeek(Set.of(DayOfWeek.MONDAY))
+                                .build();
+
+                var slot2 = AvailabilitySlotRegisterDto.builder()
+                                .startTime(LocalTime.of(8, 0))
+                                .endTime(LocalTime.of(20, 0))
+                                .daysOfWeek(Set.of(DayOfWeek.TUESDAY))
+                                .build();
+
+                EquipmentUpdateDto dto = EquipmentUpdateDto.builder()
+                                .inventoryNum("INV-6000")
+                                .name("New Laptop")
+                                .description("Updated!")
+                                .equipmentTypeId(testType.getId())
+                                .studentsAvailable(false)
+                                .buildingId(testBuilding.getId())
+                                .availability(List.of(
+                                                AvailabilitySlotUpdateDto.builder()
+                                                                .startTime(LocalTime.of(7, 0))
+                                                                .endTime(LocalTime.of(19, 0))
+                                                                .daysOfWeek(Set.of(DayOfWeek.MONDAY))
+                                                                .build(),
+                                                AvailabilitySlotUpdateDto.builder()
+                                                                .startTime(LocalTime.of(7, 0))
+                                                                .endTime(LocalTime.of(19, 0))
+                                                                .daysOfWeek(Set.of(DayOfWeek.TUESDAY))
+                                                                .build()))
+                                .build();
+
+                 String a = mvc.perform(put(API + "/" + e.getId())
+                                .header("X-API-Version", VERSION)
+                                .header("Authorization", "Bearer " + adminToken)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(mapper.writeValueAsString(dto)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.availabilitySlots.length()").value(2))
+                                .andExpect(jsonPath("$.availabilitySlots[?(@.daysOfWeek[0] == 'TUESDAY')]").exists())
+                                .andExpect(jsonPath("$.availabilitySlots[?(@.daysOfWeek[0] == 'MONDAY')]").exists())
+                        .andReturn().getResponse().getContentAsString();
+            System.out.println("a");
         }
 
         @Test
         void deactivateEquipment_asAdmin_returns204() throws Exception {
-            InventoryItem inventoryItem = new InventoryItem("INV-TO-DEL");
+                InventoryItem inventoryItem = new InventoryItem("INV-TO-DEL");
                 Equipment e = Equipment.builder()
                                 .inventoryItem(inventoryItem)
                                 .name("Delete Me")

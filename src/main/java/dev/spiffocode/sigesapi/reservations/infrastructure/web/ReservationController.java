@@ -72,6 +72,8 @@ public class ReservationController {
 
                         @RequestParam(required = false) @Schema(description = "Filter by grouping type (SINGLE or GROUP)") GroupingType type,
 
+                        @RequestParam(required = false) @Schema(description = "Search query (reservable name, building name, or petitioner name)") String q,
+
                         @ParameterObject @SortDefault("date") Pageable pageable) {
 
                 ReservationFilterRequest filter = ReservationFilterRequest.builder()
@@ -83,6 +85,7 @@ public class ReservationController {
                                 .statuses(statuses)
                                 .reservableId(reservableId)
                                 .type(type)
+                                .q(q)
                                 .build();
 
                 return reservationService.getReservations(filter, pageable);
