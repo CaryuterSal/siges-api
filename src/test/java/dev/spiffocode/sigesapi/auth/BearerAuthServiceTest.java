@@ -80,11 +80,12 @@ class BearerAuthServiceTest {
         when(jwtService.isRefreshToken(any())).thenReturn(true);
         when(jwtService.extractUsername("r")).thenReturn("mock@user.com");
 
-        when(userDetailsService.loadUserByUsername(any())).thenReturn(mock(User.class));
+        User user = mock(User.class);
+        when(user.isEnabled()).thenReturn(true);
+        when(userDetailsService.loadUserByUsername(any())).thenReturn(user);
         when(jwtService.generateAccessToken(anyString(), any(), anyInt())).thenReturn("newAccess");
 
-        RefreshResponse res =
-                service.refresh(new RefreshRequest("r"));
+        RefreshResponse res = service.refresh(new RefreshRequest("r"));
 
         assertEquals("newAccess", res.accessToken());
     }
@@ -94,19 +95,17 @@ class BearerAuthServiceTest {
         when(jwtService.isRefreshToken(any())).thenReturn(false);
 
         assertThrows(JWTVerificationException.class,
-                () -> service.refresh(new RefreshRequest("r"))
-        );
+                () -> service.refresh(new RefreshRequest("r")));
     }
 
     @Test
-    void refresh_blacklisted_fails(){
+    void refresh_blacklisted_fails() {
 
         when(jwtService.isRefreshToken(any())).thenReturn(true);
         when(blacklistService.isBlacklisted(any())).thenReturn(true);
 
         assertThrowsExactly(JwtBlacklistedException.class,
-                () -> service.refresh(new RefreshRequest("r"))
-        );
+                () -> service.refresh(new RefreshRequest("r")));
     }
 
     @Test
