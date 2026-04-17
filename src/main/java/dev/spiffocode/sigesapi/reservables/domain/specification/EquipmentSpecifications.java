@@ -16,11 +16,7 @@ public class EquipmentSpecifications {
                 .and(cast(isAvailableBySchedule(filter.requestStartFilter(), filter.requestEndFilter())))
                 .and(cast(hasNoExceptionFor(filter.requestStartFilter(), filter.requestEndFilter())))
                 .and(cast(statusIs(filter.statusFilter())))
-                .and(
-                        inventoryNumContains(filter.searchQuery())
-                                .or(cast(descriptionContains(filter.searchQuery())))
-                                .or(cast(nameContains(filter.searchQuery())))
-                )
+                .and(searchContains(filter.searchQuery()))
                 .and(cast(inBuilding(filter.buildingIdFilter())))
                 .and(inType(filter.equipmentTypeIdFilter()))
                 .and(cast(availableForStudents(filter.studentsAvailableFilter())))
@@ -28,20 +24,25 @@ public class EquipmentSpecifications {
 
     }
 
-    public static Specification<@NonNull Equipment> inSpace(Long id){
+    public static Specification<@NonNull Equipment> inSpace(Long id) {
         return (root, query, cb) ->
                 id == null ? null : cb.equal(root.get("space").get("id"), id);
     }
 
-    public static Specification<@NonNull Equipment> inventoryNumContains(String inventoryNum){
-        return (root, query, cb) -> {
-            if(inventoryNum == null || inventoryNum.isBlank()) return null;
-            return cb.like(cb.lower(root.get("inventoryItem").get("inventoryNum")), "%" + inventoryNum.toLowerCase() + "%");
-        };
-    }
-
-    public static Specification<@NonNull Equipment> inType(Long id){
+    public static Specification<@NonNull Equipment> inType(Long id) {
         return (root, query, cb) ->
                 id == null ? null : cb.equal(root.get("type").get("id"), id);
+    }
+
+    public static Specification<@NonNull Equipment> searchContains(String searchQuery) {
+        return (root, query, cb) -> {
+            if (searchQuery == null || searchQuery.isBlank()) return null;
+            String pattern = "%" + searchQuery.toLowerCase() + "%";
+            return cb.or(
+                    cb.like(cb.lower(root.get("name")), pattern),
+                    cb.like(cb.lower(root.get("description")), pattern),
+                    cb.like(cb.lower(root.get("inventoryItem").get("inventoryNum")), pattern)
+            );
+        };
     }
 }
