@@ -92,6 +92,7 @@ public class EquipmentController {
             ShowModeFilter showMode) {
 
         EquipmentFilter filter = EquipmentFilter.builder()
+                .searchQuery(searchQuery)
                 .statusFilter(status)
                 .buildingIdFilter(buildingId)
                 .equipmentTypeIdFilter(equipmentTypeId)

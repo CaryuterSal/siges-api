@@ -69,7 +69,7 @@ public class EquipmentServiceImpl implements EquipmentService {
     private Specification<@NonNull Equipment> resolveSpecification(EquipmentFilter filter) {
 
         EquipmentFilter actualFilter = securityContextHelper.isAdmin() ? filter : filter.withShowModeFilter(ShowModeFilter.ACTIVE);
-        Specification<@NonNull Equipment> spec = equipmentSpecification(filter);
+        Specification<@NonNull Equipment> spec = equipmentSpecification(actualFilter);
 
         if (securityContextHelper.isStudent())
             return spec.and(cast(availableForStudents(true)));
