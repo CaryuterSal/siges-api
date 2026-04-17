@@ -67,7 +67,7 @@ public class SpaceServiceImpl implements SpaceService {
 
     private Specification<@NonNull Space> resolveSpecification(SpaceFilter filter) {
         SpaceFilter actualFilter = securityContextHelper.isAdmin() ? filter : filter.withShowModeFilter(ShowModeFilter.ACTIVE);
-        Specification<@NonNull Space> spec = spaceSpecification(filter);
+        Specification<@NonNull Space> spec = spaceSpecification(actualFilter);
         if(securityContextHelper.isStudent()) return spec.and(cast(availableForStudents(true)));
         return spec;
     }

@@ -50,7 +50,7 @@ public class ReservableServiceImpl implements ReservableService {
 
     private Specification<@NonNull Reservable> resolveSpecification(ReservableFilter filter) {
         ReservableFilter actualFilter = securityContextHelper.isAdmin() ? filter : filter.withShowModeFilter(ShowModeFilter.ACTIVE);
-        Specification<@NonNull Reservable> spec = ReservableSpecifications.byFilter(filter);
+        Specification<@NonNull Reservable> spec = ReservableSpecifications.byFilter(actualFilter);
 
         if(securityContextHelper.isStudent()) return spec.and(ReservableSpecifications.availableForStudents(true));
         return spec;
