@@ -24,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -38,6 +39,7 @@ public class SpaceAssetServiceImpl implements SpaceAssetService {
     private final SecurityContextHelper securityContextHelper;
     private final SpaceAssetMapper mapper;
 
+    @Transactional(readOnly = true)
     @PostAuthorize("!hasRole('APPLICANT') or returnObject.deletedAt == null")
     @WithDeletedRecords
     @Override
@@ -47,6 +49,8 @@ public class SpaceAssetServiceImpl implements SpaceAssetService {
         return mapper.toDto(asset);
     }
 
+
+    @Transactional(readOnly = true)
     @WithDeletedRecords
     @Override
     public Page<@NonNull SpaceAssetDto> searchSpaceAssetsByFilter(Pageable pageable, SpaceAssetFilter filter) {
@@ -54,6 +58,8 @@ public class SpaceAssetServiceImpl implements SpaceAssetService {
                 .map(mapper::toDto);
     }
 
+
+    @Transactional
     @Override
     public SpaceAssetDto registerSpaceAsset(long spaceId, SpaceAssetRegisterDto request) {
         Space space = findSpace(spaceId);
@@ -66,6 +72,8 @@ public class SpaceAssetServiceImpl implements SpaceAssetService {
         return mapper.toDto(spaceAsset);
     }
 
+
+    @Transactional
     @Override
     public SpaceAssetDto updateSpaceAsset(long id, SpaceAssetUpdateDto request) {
         SpaceAsset spaceAsset = assetRepository.findById(id)
@@ -81,6 +89,8 @@ public class SpaceAssetServiceImpl implements SpaceAssetService {
         return mapper.toDto(spaceAsset);
     }
 
+
+    @Transactional
     @Override
     public void deactivateSpaceAsset(long id) {
         if (!assetRepository.existsById(id)) {
@@ -89,6 +99,8 @@ public class SpaceAssetServiceImpl implements SpaceAssetService {
         assetRepository.softDeleteById(id);
     }
 
+
+    @Transactional
     @Override
     public void activateSpaceAsset(long id) {
         int updated = assetRepository.restore(id);
